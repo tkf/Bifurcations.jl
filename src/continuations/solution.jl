@@ -1,13 +1,22 @@
+struct SimpleBifurcationInterval{uType}
+    i::Int
+    u0::uType
+    u1::uType
+    h::Float64  # hType?
+    direction::Int
+end
+
+
 struct ContinuationSweep{uType <: AbstractVector}
     direction::Int
     u::Vector{uType}
-    simple_bifurcation::Vector{Int}
+    simple_bifurcation::Vector{SimpleBifurcationInterval{uType}}
 end
 
 ContinuationSweep(uType::Type{<: AbstractArray}, direction) =
     ContinuationSweep(direction,
                       Vector{uType}(),
-                      Vector{Int}())
+                      Vector{SimpleBifurcationInterval{uType}}())
 
 struct ContinuationSolution{uType <: AbstractVector}
     sweeps::Vector{ContinuationSweep{uType}}
@@ -16,11 +25,22 @@ end
 ContinuationSolution(uType::Type{<: AbstractArray}) =
     ContinuationSolution(ContinuationSweep{uType}[])
 
-function push_point!(sweep::ContinuationSweep, u,
-                     simple_bifurcation::Bool = false)
-    if simple_bifurcation
-        push!(sweep.simple_bifurcation, length(sweep.u))
+function push_point!(sweep::ContinuationSweep, cache)
+    push_point!(sweep, cache.u)
+    if cache.simple_bifurcation
+        u0 = sweep.u[end-1]
+        u1 = sweep.u[end]
+        push!(sweep.simple_bifurcation, SimpleBifurcationInterval(
+            length(sweep.u) - 1,
+            u0,
+            u1,
+            cache.h,
+            cache.direction,
+        ))
     end
+end
+
+function push_point!(sweep::ContinuationSweep, u::AbstractArray)
     push!(sweep.u, copy(u))
 end
 

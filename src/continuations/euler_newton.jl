@@ -97,7 +97,7 @@ function _step!(cache, opts)
 end
 
 function record!(sol, cache)
-    push_point!(sol, cache.u, cache.simple_bifurcation)
+    push_point!(sol, cache)
 end
 
 function step!(solver::ContinuationSolver)

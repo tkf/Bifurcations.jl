@@ -22,9 +22,8 @@ using Bifurcations.Examples: Pitchfork, Transcritical
     @test Set(num_bifurcations[1:2]) == Set([0, 1])
     _, i = findmax(num_bifurcations)
     sweep = sol.sweeps[i]
-    p = [u[end] for u in sweep.u]
     b = sweep.simple_bifurcation[1]
-    @test p[b] <= 0 <= p[b + 1]
+    @test b.u0[end] <= 0 <= b.u1[end]
 end
 
 end  # module
