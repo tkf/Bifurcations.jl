@@ -20,4 +20,16 @@ ode = ODEProblem(f, u0, tspan, p)
 param_axis = @lens _
 prob = FixedPointBifurcationProblem(ode, param_axis, (-1.0, 1.0))
 
+
+using StaticArrays: @SVector
+
+function deviation(u, p)
+    if p < 0
+        return abs(u)
+    else
+        desired = @SVector [-sqrt(p), 0, sqrt(p)]
+        return minimum(abs.(u .- desired))
+    end
+end
+
 end  # module

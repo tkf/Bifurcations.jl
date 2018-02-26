@@ -1,18 +1,21 @@
 using StaticArrays: SMatrix, SVector
 
-# TODO: improve tangent
-tangent(A::Matrix) = nullspace(A)[:, 1]
-tangent(A::SMatrix) = SVector(tangent(Matrix(A))...)
+function tangent(L, Q)
+    tJ = Q[:, end]
+    if det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
+        tJ *= -1
+    end
+    return tJ
+end
 
-# TODO: improve _pinv
-_pinv(A::Matrix) = pinv(A)
-_pinv(A::SMatrix{S1, S2}) where {S1, S2} = SMatrix{S2, S1}(pinv(Matrix(A)))
-
-function corrector_step!(H, J, v, prob_cache)
+function corrector_step!(H, J, Q, v, prob_cache)
     H, J = residual_jacobian!(H, J, v, prob_cache)
-    dv = _pinv(J) * H
+    A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
+    L, Q = lq!(Q, A)
+    y = _A_ldiv_B!((@view L[1:end-1, 1:end-1]), H)
+    dv = (@view Q[:, 1:end-1]) * y
     w = v - dv
-    return (H, J, w, dv)
+    return (w, dv, L, Q)
 end
 
 function _step!(cache, opts)
@@ -21,6 +24,7 @@ function _step!(cache, opts)
     u = cache.u
     H = cache.H
     J = cache.J
+    Q = cache.Q
     h = cache.h
     rtol = opts.rtol
     atol = opts.atol
@@ -30,19 +34,21 @@ function _step!(cache, opts)
     cache.simple_bifurcation = false
 
     H, J = residual_jacobian!(H, J, u, prob_cache)
-    tJ = tangent(J)
+    A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
+    L, Q = lq!(Q, A)
+    tJ = tangent(L, Q)
 
     for _ in 1:opts.max_adaptations
         # predictor
         v = u .+ direction * h .* tJ
 
         # corrector
-        H, J, v, dv = corrector_step!(H, J, v, prob_cache)
+        v, dv, L, Q = corrector_step!(H, J, Q, v, prob_cache)
         n1 = norm(dv)
-        tJv = tangent(J)
+        tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
 
-        H, J, v, dv = corrector_step!(H, J, v, prob_cache)
+        v, dv, L, Q = corrector_step!(H, J, Q, v, prob_cache)
         n2 = norm(dv)
 
         # step adaptation
@@ -59,6 +65,8 @@ function _step!(cache, opts)
         h = h / f
         if h < opts.h_min
             return
+        # elseif isalmostzero(H, rtol, atol)
+        #     # If close enough to the solution, let it pass?  Should I?
         elseif f0 > 2
             continue
         end
@@ -69,7 +77,7 @@ function _step!(cache, opts)
                 cache.corrector_success = true
                 break
             end
-            H, J, v, _ = corrector_step!(H, J, v, prob_cache)
+            v, _, L, Q = corrector_step!(H, J, Q, v, prob_cache)
         end
         if ! cache.corrector_success
             return
@@ -79,7 +87,7 @@ function _step!(cache, opts)
         cache.h = h
         cache.adaptation_success = true
 
-        tJv = tangent(J)
+        tJv = tangent(L, Q)
         if tJ ⋅ tJv < 0
             cache.direction *= -1
             cache.simple_bifurcation = true

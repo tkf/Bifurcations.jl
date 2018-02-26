@@ -10,11 +10,12 @@ abstract type AbstractContinuationProblem{iip} end
 abstract type AbstractProblemCache{P} end
 
 mutable struct ContinuationCache{PC <: AbstractProblemCache,
-                                 uType, HType, JType, hType}
+                                 uType, HType, JType, QType, hType}
     prob_cache::PC
     u::uType
     H::HType
     J::JType
+    Q::QType
     h::hType
     direction::Int
     corrector_success::Bool
@@ -31,6 +32,7 @@ function ContinuationCache(prob_cache::AbstractProblemCache,
         u0,
         _similar(u0, N - 1),     # H
         _similar(u0, N - 1, N),  # J
+        _similar(u0, N - 1, N),  # Q
         h,
         direction,
         false,
