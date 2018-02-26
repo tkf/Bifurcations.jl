@@ -26,6 +26,8 @@ struct FixedPointBifurcationProblem{iip, HJ, H, U, T, P,
 end
 const FPBPWithHJac{iip} = FixedPointBifurcationProblem{iip, <: Function}
 const FPBPNoHJac{iip} = FixedPointBifurcationProblem{iip, Void}
+const FPBPScalar = FixedPointBifurcationProblem{false, HJ, H,
+                                                <: Real} where {HJ, H}
 
 function FixedPointBifurcationProblem(homotopy, args...; kwargs...)
     iip = numargs(homotopy) == 4
@@ -119,6 +121,12 @@ function residual_jacobian!(H, J, u, cache::_C{<: FPBPNoHJac{true}})
 end
 
 # ------------------------------------------------------ out-of-place interface
+
+function residual!(_, u, prob::FPBPScalar)
+    x = u[1]
+    t = u[end]
+    return SVector(prob.homotopy(x, prob.p, t))
+end
 
 function residual!(_, u, prob::FixedPointBifurcationProblem{false})
     x = u[1:end-1]

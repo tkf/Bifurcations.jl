@@ -46,10 +46,14 @@ function _step!(cache, opts)
         n2 = norm(dv)
 
         # step adaptation
+        f_contraction =
+            sqrt(n2 / n1 / opts.nominal_contraction)   # √ κ(u,h) / κ̃
+        f_distance = sqrt(n1 / opts.nominal_distance)  # √ δ(u,h) / δ̃
+        f_angle = angle / opts.nominal_angle_rad       #   α(u,h) / α̃
         f0 = max(
-            sqrt(n2 / n1 / opts.nominal_contraction),  # √ κ(u,h) / κ̃
-            sqrt(n1 / opts.nominal_distance),          # √ δ(u,h) / δ̃
-            angle / opts.nominal_angle_rad,            #   α(u,h) / α̃
+            zero_if_nan(f_contraction),
+            zero_if_nan(f_distance),
+            zero_if_nan(f_angle),
         )
         f = max(min(f0, 2), 1/2)
         h = h / f

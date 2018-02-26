@@ -7,3 +7,5 @@ function isalmostzero(x, rtol, atol)
     n = norm(x)
     return n <= atol + rtol * n
 end
+
+zero_if_nan(x) = isnan(x) ? zero(x) : x
