@@ -88,11 +88,18 @@ function solve!(solver::ContinuationSolver)
         error("Initial point is not a root: norm(H) = ", norm(H))
         # cache.u = nearest_root!(cache.u, opts.rtol, opts.atol)
     end
-    for _ in 1:solver.opts.max_samples
-        step!(solver)
-        if ! isindomain(cache.u, cache.prob_cache)
-            break
-        end
-    end
+
+    step!(solver, solver.opts.max_samples)
+
+    # Flip the direction and solve it in the opposite direction:
+    cache.direction *= -1
+    cache.u = get_u0(cache.prob_cache.prob)
+    new_sweep!(solver.sol)
+    push_point!(solver.sol, cache.u)
+    step!(solver, solver.opts.max_samples)
+
+    # TODO: Detect the case that the solution is isomorphic to the
+    # circle.
+
     return solver
 end

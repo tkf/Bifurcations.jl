@@ -99,3 +99,14 @@ function step!(solver::ContinuationSolver)
     record!(solver.sol, solver.cache)
     solver.i += 1
 end
+
+function step!(solver::ContinuationSolver, max_steps)
+    cache = solver.cache
+    for _ in 1:max_steps
+        step!(solver)
+        if ! isindomain(cache.u, cache.prob_cache)
+            return true
+        end
+    end
+    return false
+end

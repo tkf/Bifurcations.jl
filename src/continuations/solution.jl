@@ -1,16 +1,31 @@
-struct ContinuationSolution{U <: AbstractVector,
-                            SB <: AbstractVector{<: Integer}}
-    u::U
-    simple_bifurcation::SB
+struct ContinuationSweep{uType <: AbstractVector}
+    u::Vector{uType}
+    simple_bifurcation::Vector{Int}
+end
+
+ContinuationSweep(uType::Type{<: AbstractArray}) =
+    ContinuationSweep(Vector{uType}(),
+                      Vector{Int}())
+
+struct ContinuationSolution{uType <: AbstractVector}
+    sweeps::Vector{ContinuationSweep{uType}}
 end
 
 ContinuationSolution(uType::Type{<: AbstractArray}) =
-    ContinuationSolution(Vector{uType}(),
-                         Vector{Int}())
+    ContinuationSolution([ContinuationSweep(uType)])
 
-function push_point!(sol::ContinuationSolution, u, simple_bifurcation::Bool)
+function push_point!(sweep::ContinuationSweep, u,
+                     simple_bifurcation::Bool = false)
     if simple_bifurcation
-        push!(sol.simple_bifurcation, length(sol.u))
+        push!(sweep.simple_bifurcation, length(sweep.u))
     end
-    push!(sol.u, u)
+    push!(sweep.u, u)
+end
+
+function push_point!(sol::ContinuationSolution, args...)
+    push_point!(sol.sweeps[end], args...)
+end
+
+function new_sweep!(sol::ContinuationSolution{uType}) where uType
+    push!(sol.sweeps, ContinuationSweep(uType))
 end
