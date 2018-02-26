@@ -82,6 +82,20 @@ init(prob::AbstractContinuationProblem; kwargs...) =
 solve(prob::AbstractContinuationProblem; kwargs...) =
     solve!(init(prob; kwargs...)).sol
 
+function sweep!(solver;
+                u0 = get_u0(solver.cache.prob_cache.prob),
+                direction = solver.opts.direction,
+                max_steps = solver.opts.max_samples)
+    opts = solver.opts
+    cache = solver.cache
+
+    cache.direction = direction
+    cache.u = u0
+    new_sweep!(solver.sol, direction)
+    push_point!(solver.sol, u0)
+    step!(solver, max_steps)
+end
+
 function solve!(solver::ContinuationSolver)
     opts = solver.opts
     cache = solver.cache
@@ -91,14 +105,8 @@ function solve!(solver::ContinuationSolver)
         # cache.u = nearest_root!(cache.u, opts.rtol, opts.atol)
     end
 
-    step!(solver, solver.opts.max_samples)
-
-    # Flip the direction and solve it in the opposite direction:
-    cache.direction *= -1
-    cache.u = get_u0(cache.prob_cache.prob)
-    new_sweep!(solver.sol)
-    push_point!(solver.sol, cache.u)
-    step!(solver, solver.opts.max_samples)
+    sweep!(solver)
+    sweep!(solver; direction = solver.opts.direction * -1)
 
     # TODO: Detect the case that the solution is isomorphic to the
     # circle.
