@@ -2,6 +2,7 @@ using Parameters: @with_kw
 
 function get_prob_cache end
 function get_u0 end
+function residual end
 function residual! end
 function residual_jacobian! end
 function isindomain end
@@ -49,11 +50,14 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     direction::Int = 1
     h0::Float64 = 1.0
     h_min::Float64 = 1e-6
+    h_zero::Float64 = 1e-6
     rtol::Float64 = 0.01
     atol::Float64 = 1e-6
     max_samples::Int = 100
     max_adaptations::Int = 100
     max_corrector_steps::Int = 100
+    max_branches::Int = 10
+    max_misc_steps::Int = 100   # TODO: remove
     nominal_contraction::Float64 = 0.8
     nominal_distance::Float64 = 0.1
     nominal_angle_rad::Float64 = 2π * (30 / 360)
@@ -84,6 +88,8 @@ solve(prob::AbstractContinuationProblem; kwargs...) =
 
 function sweep!(solver;
                 u0 = get_u0(solver.cache.prob_cache.prob),
+                h = solver.opts.h0,
+                past_points = [],
                 direction = solver.opts.direction,
                 max_steps = solver.opts.max_samples)
     opts = solver.opts
@@ -92,6 +98,9 @@ function sweep!(solver;
     cache.direction = direction
     cache.u = u0
     new_sweep!(solver.sol, direction)
+    for u in past_points
+        push_point!(solver.sol, u)
+    end
     push_point!(solver.sol, u0)
     step!(solver, max_steps)
 end
@@ -110,6 +119,23 @@ function solve!(solver::ContinuationSolver)
 
     # TODO: Detect the case that the solution is isomorphic to the
     # circle.
+
+    bifurcations = vcat(solver.sol.sweeps[end-1].simple_bifurcation,
+                        solver.sol.sweeps[end].simple_bifurcation)
+    for _ in 1:opts.max_branches
+        if isempty(bifurcations)
+            break
+        end
+        sbint = shift!(bifurcations)
+        for (u0, u1, direction, h) in new_branches!(cache, opts, sbint)
+            sweep!(solver;
+                   u0 = u1,
+                   past_points = [u0],
+                   direction = direction,
+                   h = h)
+            append!(bifurcations, solver.sol.sweeps[end].simple_bifurcation)
+        end
+    end
 
     return solver
 end

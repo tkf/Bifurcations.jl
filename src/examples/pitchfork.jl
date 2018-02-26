@@ -23,12 +23,13 @@ prob = FixedPointBifurcationProblem(ode, param_axis, (-1.0, 1.0))
 
 using StaticArrays: @SVector
 
-function deviation(u, p)
+function closest_analytic(u, p)
     if p < 0
-        return abs(u)
+        return [abs(u), p]
     else
-        desired = @SVector [-sqrt(p), 0, sqrt(p)]
-        return minimum(abs.(u .- desired))
+        analytic = @SVector [-sqrt(p), 0, sqrt(p)]
+        _, i = findmin(abs.(u .- analytic))
+        return [analytic[i], p]
     end
 end
 

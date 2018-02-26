@@ -35,7 +35,7 @@ function push_point!(sweep::ContinuationSweep, cache)
             u0,
             u1,
             cache.h,
-            cache.direction,
+            -cache.direction,  # re-flip to save direction at u0
         ))
     end
 end
@@ -59,5 +59,9 @@ function sweeps_as_vectors(sol::ContinuationSolution{uType}, i) where uType
     end
     x1 = [x[i] for x in sol.sweeps[1].u]
     x2 = [x[i] for x in sol.sweeps[2].u]
-    return [vcat(reverse!(x2), x1)]
+    curves = [vcat(reverse!(x2), x1)]
+    for sweep in sol.sweeps[2:end]
+        push!(curves, [x[i] for x in sweep.u])
+    end
+    return curves
 end

@@ -8,6 +8,19 @@ function tangent(L, Q)
     return tJ
 end
 
+function current_tangent(cache, opts)
+    prob_cache = cache.prob_cache
+    u = cache.u
+    H = cache.H
+    J = cache.J
+    Q = cache.Q
+
+    H, J = residual_jacobian!(H, J, u, prob_cache)
+    A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
+    L, Q = lq!(Q, A)
+    return tangent(L, Q)
+end
+
 function corrector_step!(H, J, Q, v, prob_cache)
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
@@ -15,17 +28,22 @@ function corrector_step!(H, J, Q, v, prob_cache)
     y = _A_ldiv_B!((@view L[1:end-1, 1:end-1]), H)
     dv = (@view Q[:, 1:end-1]) * y
     w = v - dv
-    return (w, dv, L, Q)
+    return (w, dv, H, L, Q, J)
 end
 
-function _step!(cache, opts)
+function predictor_corrector_step!(cache, opts)
+    predictor_corrector_step!(cache, opts,
+                              cache.u,
+                              current_tangent(cache, opts),
+                              cache.h,
+                              cache.direction)
+end
+
+function predictor_corrector_step!(cache, opts, u, tJ, h, direction)
     prob_cache = cache.prob_cache
-    direction = cache.direction
-    u = cache.u
     H = cache.H
     J = cache.J
     Q = cache.Q
-    h = cache.h
     rtol = opts.rtol
     atol = opts.atol
 
@@ -33,22 +51,17 @@ function _step!(cache, opts)
     cache.adaptation_success = false
     cache.simple_bifurcation = false
 
-    H, J = residual_jacobian!(H, J, u, prob_cache)
-    A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = lq!(Q, A)
-    tJ = tangent(L, Q)
-
     for _ in 1:opts.max_adaptations
         # predictor
         v = u .+ direction * h .* tJ
 
         # corrector
-        v, dv, L, Q = corrector_step!(H, J, Q, v, prob_cache)
+        v, dv, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
         n1 = norm(dv)
         tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
 
-        v, dv, L, Q = corrector_step!(H, J, Q, v, prob_cache)
+        v, dv, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
         n2 = norm(dv)
 
         # step adaptation
@@ -77,7 +90,7 @@ function _step!(cache, opts)
                 cache.corrector_success = true
                 break
             end
-            v, _, L, Q = corrector_step!(H, J, Q, v, prob_cache)
+            v, _, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
         end
         if ! cache.corrector_success
             return
@@ -92,7 +105,7 @@ function _step!(cache, opts)
             cache.direction *= -1
             cache.simple_bifurcation = true
         end
-        return
+        return v, h
     end
 end
 
@@ -101,7 +114,7 @@ function record!(sol, cache)
 end
 
 function step!(solver::ContinuationSolver)
-    _step!(solver.cache, solver.opts)
+    predictor_corrector_step!(solver.cache, solver.opts)
     if ! solver.cache.adaptation_success
         error("Failed to adapt steplength h.")
     end

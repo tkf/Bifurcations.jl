@@ -28,6 +28,7 @@ end
 
 function qr!(_, A::SMatrix)
     Q, R = qr(A)
+    # return (Q, R)
     return (Q, UpperTriangular(R))
 end
 
@@ -39,8 +40,21 @@ end
 
 function lq!(_, A::SMatrix)
     Q, R = qr(A')
+    # return (R', Q)
     return (LowerTriangular(R'), Q)
 end
 
-_A_ldiv_B!(A, B) = A_ldiv_B!(A, B)
-_A_ldiv_B!(A, B::SVector) = A \ B
+_A_ldiv_B!(A, B::T) where T = _A_ldiv_B!(T, A, B)
+_A_ldiv_B!(Y, A, B::T) where T = _A_ldiv_B!(T, Y, A, B)
+
+_A_ldiv_B!(::Type{<: SubArray{T, N, P}}, args...) where {T, N, P} =
+    _A_ldiv_B!(P, args...)
+_A_ldiv_B!(::Type{<: LowerTriangular{T, P}}, args...) where {T, P} =
+    _A_ldiv_B!(P, args...)
+_A_ldiv_B!(::Type{<: UpperTriangular{T, P}}, args...) where {T, P} =
+    _A_ldiv_B!(P, args...)
+
+_A_ldiv_B!(::Type{<:AbstractArray}, A, B) = A_ldiv_B!(A, B)
+_A_ldiv_B!(::Type{<:StaticArray}, A, B) = A \ B
+_A_ldiv_B!(::Type{<:AbstractArray}, Y, A, B) = A_ldiv_B!(Y, A, B)
+_A_ldiv_B!(::Type{<:StaticArray}, _, A, B) = A \ B

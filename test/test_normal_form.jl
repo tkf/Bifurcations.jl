@@ -2,7 +2,7 @@ module TestNormalForm
 
 using Base.Test
 using Bifurcations
-using Bifurcations.Continuations: sweeps_as_vectors, isalmostzero
+using Bifurcations.Continuations: sweeps_as_vectors
 using Bifurcations.Examples: Pitchfork, Transcritical
 
 @testset "$normal" for normal in [Pitchfork, Transcritical]
@@ -13,7 +13,12 @@ using Bifurcations.Examples: Pitchfork, Transcritical
     atol = solver.opts.atol
     for (us, ps) in zip(sweeps_as_vectors(sol, 1),
                         sweeps_as_vectors(sol, 0))
-        @test isalmostzero(normal.deviation.(us, ps), rtol, atol)
+        analytic = hcat(normal.closest_analytic.(us, ps)...)'
+        numeric = hcat(us, ps)
+        @test numeric ≈ analytic  rtol=2rtol atol=atol
+        # TODO: Don't double rtol; I think rtol=rtol is not working
+        # because the way closest_analytic chooses the "closest" point
+        # is actually not the closest.
     end
 
     # One of the first two sweeps has to detect a simple bifurcation

@@ -8,7 +8,7 @@ using DiffEqBase: init, solve, solve!, step!
 include("continuations/continuations.jl")
 using .Continuations: AbstractContinuationProblem, AbstractProblemCache
 import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
-    isindomain
+    residual, isindomain
 const _C = AbstractProblemCache
 
 include("fixedpoint.jl")
