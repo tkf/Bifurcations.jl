@@ -29,3 +29,12 @@ end
 function new_sweep!(sol::ContinuationSolution{uType}) where uType
     push!(sol.sweeps, ContinuationSweep(uType))
 end
+
+function sweeps_as_vectors(sol::ContinuationSolution{uType}, i) where uType
+    if i == 0
+        i = length(sol.sweeps[1].u[1])
+    end
+    x1 = [x[i] for x in sol.sweeps[1].u]
+    x2 = [x[i] for x in sol.sweeps[2].u]
+    return [vcat(reverse!(x2), x1)]
+end

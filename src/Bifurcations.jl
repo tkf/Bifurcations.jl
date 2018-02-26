@@ -15,4 +15,8 @@ include("fixedpoint.jl")
 include("diffeq.jl")
 include("examples/examples.jl")
 
+# using Requires
+# @require RecipesBase include("plotting.jl")
+include("plotting.jl")
+
 end # module
