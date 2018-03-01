@@ -18,6 +18,9 @@ ContinuationSweep(uType::Type{<: AbstractArray}, direction) =
                       Vector{uType}(),
                       Vector{SimpleBifurcationInterval{uType}}())
 
+Base.eltype(::Type{<: ContinuationSweep{uType}}) where uType = uType
+Base.length(sweep::ContinuationSweep) = length(sweep.u)
+
 struct ContinuationSolution{uType <: AbstractVector}
     sweeps::Vector{ContinuationSweep{uType}}
 end

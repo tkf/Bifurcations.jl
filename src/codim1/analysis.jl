@@ -1,0 +1,40 @@
+function ds_eigvals(::Discrete, J)
+    ev = eigvals(J)
+    sort!(ev, by=abs)
+    return ev
+end
+
+function guess_point_type(::Discrete, cache, eigvals, opts)
+    old = abs(cache.eigvals[1]) - 1
+    new = abs(eigvals[1]) - 1
+    if old * new < 0
+        if eigvals[1] > 0
+            # eigvals[1] ≈ +1
+            return PointTypes.saddle_node
+        else
+            # eigvals[1] ≈ -1
+            return PointTypes.period_doubling
+        end
+    end
+    return PointTypes.none
+end
+
+function ds_eigvals(::Continuous, J)
+    ev = eigvals(J)
+    sort!(ev, by=real)
+    return ev
+end
+
+function guess_point_type(::Continuous, cache, eigvals, opts)
+    old = real(cache.eigvals[1])
+    new = real(eigvals[1])
+    if old * new < 0
+        e1 = mean(cache.eigvals[1], eigvals[1])
+        if imag(e1) > opts.atol
+            return PointTypes.hopf
+        else
+            return PointTypes.saddle_node
+        end
+    end
+    return PointTypes.none
+end

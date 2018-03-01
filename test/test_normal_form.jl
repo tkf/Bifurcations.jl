@@ -2,13 +2,13 @@ module TestNormalForm
 
 using Base.Test
 using Bifurcations
-using Bifurcations.Continuations: sweeps_as_vectors
+using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 using Bifurcations.Examples: Pitchfork, Transcritical
 
 @testset "$normal" for normal in [Pitchfork, Transcritical]
     solver = init(normal.prob; h0=0.3)
     solve!(solver)
-    sol = solver.sol
+    sol = as(solver.sol, ContinuationSolution)
     rtol = solver.opts.rtol
     atol = solver.opts.atol
     for (us, ps) in zip(sweeps_as_vectors(sol, 1),
