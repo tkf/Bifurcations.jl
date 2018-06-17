@@ -1,1 +1,7 @@
 julia 0.6
+DiffEqBase
+ForwardDiff
+Parameters
+RecipesBase
+Setfield
+StaticArrays
