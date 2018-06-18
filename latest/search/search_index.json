@@ -1,0 +1,44 @@
+{
+    "docs": [
+        {
+            "location": "/", 
+            "text": "Bifurcations.jl documentation\n\n\n\n\nInterface\n\n\nInternals\n\n\nContinuation problem\n\n\nContinuation algorithm", 
+            "title": "Home"
+        }, 
+        {
+            "location": "/#bifurcationsjl-documentation", 
+            "text": "Interface  Internals  Continuation problem  Continuation algorithm", 
+            "title": "Bifurcations.jl documentation"
+        }, 
+        {
+            "location": "/api/", 
+            "text": "Interface\n\n\n#\n\n\nBifurcations.FixedPointBifurcationProblem\n \n \nType\n.\n\n\nFixedPointBifurcationProblem(ode_or_map::AbstractODEProblem,\n                             param_axis::Lens,\n                             t_domain::Tuple;\n                             \nkeyword arguments\n)\n\n\n\n\nArguments\n\n\n\n\node_or_map\n: An \nODEProblem\n or \nDiscreteProblem\n.\n\n\nparam_axis :: Lens\n: The lens to set/get a parameter of \node_or_map\n.\n\n\nt_domain :: Tuple\n: A pair of numbers specifying the lower and upper bound for \nparam_axis\n.\n\n\n\n\nsource", 
+            "title": "API"
+        }, 
+        {
+            "location": "/api/#interface", 
+            "text": "#  Bifurcations.FixedPointBifurcationProblem     Type .  FixedPointBifurcationProblem(ode_or_map::AbstractODEProblem,\n                             param_axis::Lens,\n                             t_domain::Tuple;\n                              keyword arguments )  Arguments   ode_or_map : An  ODEProblem  or  DiscreteProblem .  param_axis :: Lens : The lens to set/get a parameter of  ode_or_map .  t_domain :: Tuple : A pair of numbers specifying the lower and upper bound for  param_axis .   source", 
+            "title": "Interface"
+        }, 
+        {
+            "location": "/internals/", 
+            "text": "Internals\n\n\n\n\nContinuation problem\n\n\n#\n\n\nBifurcations.Continuations.AbstractContinuationProblem\n \n \nType\n.\n\n\nDefinition of continuation problem.\n\n\nNumerical continuation algorithms find curves in $\\mathbb R^{N}$ implicitly defined by\n\n\n\n\n\nH(u) = 0\n\n\n\n\n\nwhere $H: \\mathbb R^{N} \\to \\mathbb R^{N-1}$.\n\n\nA continuation problem type (a subtype of \nAbstractContinuationProblem\n) defines problems for such algorithms to solve by providing how to compute:\n\n\n\n\n$H(u)$: \nresidual\n, \nresidual!\n\n\nits derivative $\\partial H /  \\partial u$: \nresidual_jacobian!\n\n\nan initial guess $u_0$: \nget_u0\n\n\nand computation cache: \nget_prob_cache\n.\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.AbstractProblemCache\n \n \nType\n.\n\n\nCache for computing $H$ and its Jacobian.\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.residual\n \n \nFunction\n.\n\n\nresidual(u, cache) \u21a6 H\n\n\n\n\nCompute $H(u) \\in \\mathbb R^{N - 1}$ (aka in-place computation). The definition of $H$ is specified by \ncache\n.\n\n\nThe name \nresidual\n of the function is came from the problem we are to solve: i.e., find the set of $u$ such that $H(u) = 0$.  Thus, the vector returned by \nresidual(u, cache)\n is considered to be a residual.\n\n\nArguments\n\n\n\n\nu::AbstractVector\n (size: \n(N,)\n)\n\n\ncache::AbstractProblemCache\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.residual!\n \n \nFunction\n.\n\n\nresidual!(H, u, cache) \u21a6 H\n\n\n\n\nCompute $H(u) \\in \\mathbb R^{N - 1}$ and store the result in \nH\n (aka out-of-place computation). The definition of $H$ is specified by \ncache\n.\n\n\nSee also: \nresidual\n\n\nArguments\n\n\n\n\nH::AbstractVector\n (size: \n(N - 1,)\n)\n\n\nu::AbstractVector\n (size: \n(N,)\n)\n\n\ncache::AbstractProblemCache\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.residual_jacobian!\n \n \nFunction\n.\n\n\nresidual_jacobian!(H, J, u, cache) \u21a6 (H, J)\n\n\n\n\nCompute $H(u)$ and its Jacobian $\\partial H /  \\partial u$.\n\n\nArguments\n\n\n\n\nH::AbstractVector\n (size: \n(N - 1,)\n) $= H(u)$\n\n\nJ::AbstractMatrix\n (size: \n(N - 1, N)\n) $= \\partial H /  \\partial u$\n\n\nu::AbstractVector\n (size: \n(N,)\n)\n\n\ncache::AbstractProblemCache\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.isindomain\n \n \nFunction\n.\n\n\nisindomain(u, cache) :: Bool\n\n\n\n\nArguments\n\n\n\n\nu::AbstractVector\n (size: \n(N,)\n)\n\n\ncache::AbstractProblemCache\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.get_prob_cache\n \n \nFunction\n.\n\n\nget_prob_cache(prob::AbstractContinuationProblem) :: AbstractProblemCache\n\n\n\n\nsource\n\n\n#\n\n\nBifurcations.Continuations.get_u0\n \n \nFunction\n.\n\n\nget_u0(prob::AbstractContinuationProblem) \u21a6 u0\n\n\n\n\nsource\n\n\n\n\nContinuation algorithm\n\n\n#\n\n\nBifurcations.Continuations.ContinuationCache\n \n \nType\n.\n\n\nCache for Euler-Newton continuation method.\n\n\nSee \nAbstractContinuationProblem\n for the mathematical setup.\n\n\nFields\n\n\n\n\nprob_cache\n\n\nu\n (size: \n(N,)\n)\n\n\nH\n (size: \n(N - 1,)\n) $= H(u)$\n\n\nJ\n (size: \n(N - 1, N)\n) $= \\partial H / \\partial u$\n\n\nQ\n (size: \n(N - 1, N)\n): temporary array for the QR decomposition\n\n\nh::Real\n: step size\n\n\ndirection::Int\n: +1 or -1\n\n\ncorrector_success::Bool\n\n\nadaptation_success::Bool\n\n\nsimple_bifurcation::Bool\n\n\n\n\nsource", 
+            "title": "Internals"
+        }, 
+        {
+            "location": "/internals/#internals", 
+            "text": "", 
+            "title": "Internals"
+        }, 
+        {
+            "location": "/internals/#continuation-problem", 
+            "text": "#  Bifurcations.Continuations.AbstractContinuationProblem     Type .  Definition of continuation problem.  Numerical continuation algorithms find curves in $\\mathbb R^{N}$ implicitly defined by   \nH(u) = 0   where $H: \\mathbb R^{N} \\to \\mathbb R^{N-1}$.  A continuation problem type (a subtype of  AbstractContinuationProblem ) defines problems for such algorithms to solve by providing how to compute:   $H(u)$:  residual ,  residual!  its derivative $\\partial H /  \\partial u$:  residual_jacobian!  an initial guess $u_0$:  get_u0  and computation cache:  get_prob_cache .   source  #  Bifurcations.Continuations.AbstractProblemCache     Type .  Cache for computing $H$ and its Jacobian.  source  #  Bifurcations.Continuations.residual     Function .  residual(u, cache) \u21a6 H  Compute $H(u) \\in \\mathbb R^{N - 1}$ (aka in-place computation). The definition of $H$ is specified by  cache .  The name  residual  of the function is came from the problem we are to solve: i.e., find the set of $u$ such that $H(u) = 0$.  Thus, the vector returned by  residual(u, cache)  is considered to be a residual.  Arguments   u::AbstractVector  (size:  (N,) )  cache::AbstractProblemCache   source  #  Bifurcations.Continuations.residual!     Function .  residual!(H, u, cache) \u21a6 H  Compute $H(u) \\in \\mathbb R^{N - 1}$ and store the result in  H  (aka out-of-place computation). The definition of $H$ is specified by  cache .  See also:  residual  Arguments   H::AbstractVector  (size:  (N - 1,) )  u::AbstractVector  (size:  (N,) )  cache::AbstractProblemCache   source  #  Bifurcations.Continuations.residual_jacobian!     Function .  residual_jacobian!(H, J, u, cache) \u21a6 (H, J)  Compute $H(u)$ and its Jacobian $\\partial H /  \\partial u$.  Arguments   H::AbstractVector  (size:  (N - 1,) ) $= H(u)$  J::AbstractMatrix  (size:  (N - 1, N) ) $= \\partial H /  \\partial u$  u::AbstractVector  (size:  (N,) )  cache::AbstractProblemCache   source  #  Bifurcations.Continuations.isindomain     Function .  isindomain(u, cache) :: Bool  Arguments   u::AbstractVector  (size:  (N,) )  cache::AbstractProblemCache   source  #  Bifurcations.Continuations.get_prob_cache     Function .  get_prob_cache(prob::AbstractContinuationProblem) :: AbstractProblemCache  source  #  Bifurcations.Continuations.get_u0     Function .  get_u0(prob::AbstractContinuationProblem) \u21a6 u0  source", 
+            "title": "Continuation problem"
+        }, 
+        {
+            "location": "/internals/#continuation-algorithm", 
+            "text": "#  Bifurcations.Continuations.ContinuationCache     Type .  Cache for Euler-Newton continuation method.  See  AbstractContinuationProblem  for the mathematical setup.  Fields   prob_cache  u  (size:  (N,) )  H  (size:  (N - 1,) ) $= H(u)$  J  (size:  (N - 1, N) ) $= \\partial H / \\partial u$  Q  (size:  (N - 1, N) ): temporary array for the QR decomposition  h::Real : step size  direction::Int : +1 or -1  corrector_success::Bool  adaptation_success::Bool  simple_bifurcation::Bool   source", 
+            "title": "Continuation algorithm"
+        }
+    ]
+}
