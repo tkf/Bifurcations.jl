@@ -1,5 +1,14 @@
 using StaticArrays: SMatrix, SVector
 
+# TODO: Cleanup!  The code is the very ugly at the moment because I
+# tried to support out-of-place and in-place algorithm in the same
+# code (and failing to do so).  I should:
+#
+# * Add some tests for out-of-place code.
+# * Add some benchmarks, especially for in-place code.
+# * Reduce type-instability, especially for in-place code.
+# * Find the right abstraction and then finally clean it up!
+
 """
 Cache for Euler-Newton continuation method.
 
