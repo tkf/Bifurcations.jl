@@ -10,6 +10,9 @@ function isindomain end
 abstract type AbstractContinuationProblem{iip} end
 abstract type AbstractProblemCache{P} end
 
+"""
+Cache for Euler-Newton continuation method.
+"""
 mutable struct ContinuationCache{PC <: AbstractProblemCache,
                                  uType, HType, JType, QType, hType}
     prob_cache::PC

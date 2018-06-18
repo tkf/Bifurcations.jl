@@ -18,6 +18,18 @@ function diffeq_homotopy(x, p::DiffEqWrapper{<:DEP{false}}, t)
     return p.de_prob.f(x, q, 0)
 end
 
+"""
+    FixedPointBifurcationProblem(ode_or_map::AbstractODEProblem,
+                                 param_axis::Lens,
+                                 t_domain::Tuple;
+                                 <keyword arguments>)
+
+# Arguments
+- `ode_or_map`: An `ODEProblem` or `DiscreteProblem`.
+- `param_axis :: Lens`: The lens to set/get a parameter of `ode_or_map`.
+- `t_domain :: Tuple`: A pair of numbers specifying the lower and
+  upper bound for `param_axis`.
+"""
 function FixedPointBifurcationProblem(
         de_prob::DEP{iip}, param_axis::Lens, t_domain::Tuple;
         kwargs...) where iip
