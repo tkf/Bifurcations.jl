@@ -1,24 +1,3 @@
-using Parameters: @with_kw
-
-
-@with_kw struct ContinuationOptions
-    direction::Int = 1
-    h0::Float64 = 1.0
-    h_min::Float64 = 1e-6
-    h_zero::Float64 = 1e-6
-    rtol::Float64 = 0.01
-    atol::Float64 = 1e-6
-    max_samples::Int = 100
-    max_adaptations::Int = 100
-    max_corrector_steps::Int = 100
-    max_branches::Int = 10
-    max_misc_steps::Int = 100   # TODO: remove
-    nominal_contraction::Float64 = 0.8
-    nominal_distance::Float64 = 0.1
-    nominal_angle_rad::Float64 = 2π * (30 / 360)
-end
-
-
 mutable struct ContinuationSolver{P <: AbstractContinuationProblem,
                                   C <: ContinuationCache,
                                   S <: ContinuationSolution}
@@ -51,6 +30,10 @@ function step!(solver::ContinuationSolver)
     end
     record!(solver.sol, solver.cache)
     solver.i += 1
+end
+
+function record!(sol, cache)
+    push_point!(sol, cache)
 end
 
 function step!(solver::ContinuationSolver, max_steps)

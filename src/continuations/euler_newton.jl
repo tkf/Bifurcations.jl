@@ -1,3 +1,4 @@
+using Parameters: @with_kw
 using StaticArrays: SMatrix, SVector
 
 # TODO: Cleanup!  The code is the very ugly at the moment because I
@@ -62,6 +63,24 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     ContinuationCache(get_prob_cache(prob), args...)
 
 
+@with_kw struct ContinuationOptions
+    direction::Int = 1
+    h0::Float64 = 1.0
+    h_min::Float64 = 1e-6
+    h_zero::Float64 = 1e-6
+    rtol::Float64 = 0.01
+    atol::Float64 = 1e-6
+    max_samples::Int = 100
+    max_adaptations::Int = 100
+    max_corrector_steps::Int = 100
+    max_branches::Int = 10
+    max_misc_steps::Int = 100   # TODO: remove
+    nominal_contraction::Float64 = 0.8
+    nominal_distance::Float64 = 0.1
+    nominal_angle_rad::Float64 = 2π * (30 / 360)
+end
+
+
 function tangent(L, Q)
     tJ = Q[:, end]
     if det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
@@ -70,7 +89,8 @@ function tangent(L, Q)
     return tJ
 end
 
-function current_tangent(cache, opts)
+function current_tangent(cache::ContinuationCache,
+                         opts::ContinuationOptions)
     prob_cache = cache.prob_cache
     u = cache.u
     H = cache.H
@@ -93,7 +113,8 @@ function corrector_step!(H, J, Q, v, prob_cache)
     return (w, dv, H, L, Q, J)
 end
 
-function predictor_corrector_step!(cache, opts)
+function predictor_corrector_step!(cache::ContinuationCache,
+                                   opts::ContinuationOptions)
     predictor_corrector_step!(cache, opts,
                               cache.u,
                               current_tangent(cache, opts),
@@ -101,7 +122,9 @@ function predictor_corrector_step!(cache, opts)
                               cache.direction)
 end
 
-function predictor_corrector_step!(cache, opts, u, tJ, h, direction)
+function predictor_corrector_step!(cache::ContinuationCache,
+                                   opts::ContinuationOptions,
+                                   u, tJ, h, direction)
     prob_cache = cache.prob_cache
     H = cache.H
     J = cache.J
@@ -169,8 +192,4 @@ function predictor_corrector_step!(cache, opts, u, tJ, h, direction)
         end
         return v, h
     end
-end
-
-function record!(sol, cache)
-    push_point!(sol, cache)
 end
