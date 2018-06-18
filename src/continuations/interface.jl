@@ -1,6 +1,23 @@
+using Parameters: @unpack
+
+"""
+    as(self, ::Type{T}) :: T
+
+Manual Go-style type [embedding] as a replacement of "inheritance from
+concrete type".
+
+[embedding]: https://golang.org/doc/effective_go.html?#embedding
+"""
+as(self, ::Type{T}) where {T} = as(self.super, T) :: T
+as(self::T, ::Type{T}) where {T} = self
+
+
+abstract type AbstractContinuationSolver end
+
 mutable struct ContinuationSolver{P <: AbstractContinuationProblem,
                                   C <: ContinuationCache,
-                                  S <: ContinuationSolution}
+                                  S <: ContinuationSolution,
+                                  } <: AbstractContinuationSolver
     prob::P
     opts::ContinuationOptions
     cache::C
@@ -36,10 +53,11 @@ function record!(sol, cache)
     push_point!(sol, cache)
 end
 
-function step!(solver::ContinuationSolver, max_steps)
+function step!(wrapper::AbstractContinuationSolver, max_steps)
+    solver = as(wrapper, ContinuationSolver)
     cache = solver.cache
     for _ in 1:max_steps
-        step!(solver)
+        step!(wrapper)
         if ! isindomain(cache.u, cache.prob_cache)
             return true
         end
@@ -47,26 +65,46 @@ function step!(solver::ContinuationSolver, max_steps)
     return false
 end
 
-function sweep!(solver;
-                u0 = get_u0(solver.cache.prob_cache.prob),
-                h = solver.opts.h0,
-                past_points = [],
-                direction = solver.opts.direction,
-                max_steps = solver.opts.max_samples)
-    opts = solver.opts
-    cache = solver.cache
+struct SweepSetup{uType}
+    direction::Int
+    u0::uType
+    past_points::Array{uType}
+    max_steps::Int
+end
 
+SweepSetup(solver::ContinuationSolver;
+           direction = solver.opts.direction,
+           u0 = get_u0(solver.cache.prob_cache.prob),
+           past_points = [],
+           max_steps = solver.opts.max_samples,
+           h = nothing,  # currently ignored  # TODO: use it?
+           ) =
+    SweepSetup(direction, u0, past_points, max_steps)
+
+SweepSetup(solver::AbstractContinuationSolver; kwargs...) =
+    SweepSetup(as(solver, ContinuationSolver); kwargs...)
+
+function new_sweep!(solver::ContinuationSolver, setup::SweepSetup)
+    @unpack direction, u0, past_points = setup
+    cache = solver.cache
     cache.direction = direction
     cache.u = u0
+
     new_sweep!(solver.sol, direction)
     for u in past_points
         push_point!(solver.sol, u)
     end
     push_point!(solver.sol, u0)
-    step!(solver, max_steps)
 end
 
-function solve!(solver::ContinuationSolver)
+function sweep!(solver::AbstractContinuationSolver; kwargs...)
+    setup = SweepSetup(solver; kwargs...)
+    new_sweep!(solver, setup)
+    step!(solver, setup.max_steps)
+end
+
+function solve!(wrapper::AbstractContinuationSolver)
+    solver = as(wrapper, ContinuationSolver)
     opts = solver.opts
     cache = solver.cache
     H = residual!(cache.H, cache.u, cache.prob_cache)
@@ -75,8 +113,8 @@ function solve!(solver::ContinuationSolver)
         # cache.u = nearest_root!(cache.u, opts.rtol, opts.atol)
     end
 
-    sweep!(solver)
-    sweep!(solver; direction = solver.opts.direction * -1)
+    sweep!(wrapper)
+    sweep!(wrapper; direction = solver.opts.direction * -1)
 
     # TODO: Detect the case that the solution is isomorphic to the
     # circle.
@@ -89,7 +127,7 @@ function solve!(solver::ContinuationSolver)
         end
         sbint = shift!(bifurcations)
         for (u0, u1, direction, h) in new_branches!(cache, opts, sbint)
-            sweep!(solver;
+            sweep!(wrapper;
                    u0 = u1,
                    past_points = [u0],
                    direction = direction,
