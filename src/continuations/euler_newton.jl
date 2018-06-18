@@ -2,6 +2,20 @@ using StaticArrays: SMatrix, SVector
 
 """
 Cache for Euler-Newton continuation method.
+
+See [`AbstractContinuationProblem`](@ref) for the mathematical setup.
+
+# Fields
+- `prob_cache`
+- `u` (size: `(N,)`)
+- `H` (size: `(N - 1,)`) ``= H(u)``
+- `J` (size: `(N - 1, N)`) ``= \\partial H / \\partial u``
+- `Q` (size: `(N - 1, N)`): temporary array for the QR decomposition
+- `h::Real`: step size
+- `direction::Int`: +1 or -1
+- `corrector_success::Bool`
+- `adaptation_success::Bool`
+- `simple_bifurcation::Bool`
 """
 mutable struct ContinuationCache{PC <: AbstractProblemCache,
                                  uType, HType, JType, QType, hType}
