@@ -3,5 +3,5 @@ DiffEqBase
 ForwardDiff
 Parameters
 RecipesBase
-Setfield
+Setfield 0.1.0
 StaticArrays

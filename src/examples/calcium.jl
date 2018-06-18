@@ -20,8 +20,6 @@ using ...Bifurcations: FixedPointBifurcationProblem
     v2::v2Type = 18
 end
 
-Setfield.constructor_of(::Type{<: CalciumParam}) = CalciumParam
-
 # http://www2.gsu.edu/~matrhc/Tutorial.html
 # https://github.com/robclewley/pydstool/blob/master/examples/Tutorial_Calcium.py
 # http://docs.juliadiffeq.org/latest/analysis/bifurcation.html
