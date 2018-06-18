@@ -2,7 +2,7 @@ module TestNormalForm
 
 using Base.Test
 using Bifurcations
-using Bifurcations.Continuations: sweeps_as_vectors
+using Bifurcations: sweeps_as_vectors
 using Bifurcations.Examples: Pitchfork, Transcritical
 
 @testset "$normal" for normal in [Pitchfork, Transcritical]

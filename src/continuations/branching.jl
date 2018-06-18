@@ -95,7 +95,15 @@ function solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
 end
 
 
-function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
+function new_branches!(
+        cache::ContinuationCache,
+        opts::ContinuationOptions,
+        sbint)
+    # TODO: `sbint` is expected to be a `SimpleBifurcationInterval`
+    # but it is defined in "down stream".  I should turn this into a
+    # function with "flat" arguments: `new_branches!(cache, opts, u0,
+    # u1, direction, h)`.
+
     u0, tJ, L, Q = find_simple_bifurcation!(cache, opts, sbint)
     # TODO: handle not-found case
 
