@@ -1,53 +1,5 @@
 using Parameters: @with_kw
 
-function get_prob_cache end
-function get_u0 end
-function residual end
-function residual! end
-function residual_jacobian! end
-function isindomain end
-
-abstract type AbstractContinuationProblem{iip} end
-abstract type AbstractProblemCache{P} end
-
-"""
-Cache for Euler-Newton continuation method.
-"""
-mutable struct ContinuationCache{PC <: AbstractProblemCache,
-                                 uType, HType, JType, QType, hType}
-    prob_cache::PC
-    u::uType
-    H::HType
-    J::JType
-    Q::QType
-    h::hType
-    direction::Int
-    corrector_success::Bool
-    adaptation_success::Bool
-    simple_bifurcation::Bool
-end
-
-function ContinuationCache(prob_cache::AbstractProblemCache,
-                           h::Real, direction::Int = 1)
-    u0 = get_u0(prob_cache.prob)
-    N = length(u0)
-    return ContinuationCache(
-        prob_cache,
-        u0,
-        _similar(u0, N - 1),     # H
-        _similar(u0, N - 1, N),  # J
-        _similar(u0, N - 1, N),  # Q
-        h,
-        direction,
-        false,
-        false,
-        false,
-    )
-end
-
-ContinuationCache(prob::AbstractContinuationProblem, args...) =
-    ContinuationCache(get_prob_cache(prob), args...)
-
 
 @with_kw struct ContinuationOptions
     direction::Int = 1
@@ -88,6 +40,29 @@ init(prob::AbstractContinuationProblem; kwargs...) =
 
 solve(prob::AbstractContinuationProblem; kwargs...) =
     solve!(init(prob; kwargs...)).sol
+
+function step!(solver::ContinuationSolver)
+    predictor_corrector_step!(solver.cache, solver.opts)
+    if ! solver.cache.adaptation_success
+        error("Failed to adapt steplength h.")
+    end
+    if ! solver.cache.corrector_success
+        error("Failed in corrector loop.")
+    end
+    record!(solver.sol, solver.cache)
+    solver.i += 1
+end
+
+function step!(solver::ContinuationSolver, max_steps)
+    cache = solver.cache
+    for _ in 1:max_steps
+        step!(solver)
+        if ! isindomain(cache.u, cache.prob_cache)
+            return true
+        end
+    end
+    return false
+end
 
 function sweep!(solver;
                 u0 = get_u0(solver.cache.prob_cache.prob),
