@@ -19,6 +19,8 @@ function guess_point_type(::Discrete, cache, eigvals, opts)
     return PointTypes.none
 end
 
+isstable(::Discrete, eigvals) = abs(eigvals[1]) < 1
+
 function ds_eigvals(::Continuous, J)
     ev = eigvals(J)
     sort!(ev, by=real)
@@ -38,3 +40,5 @@ function guess_point_type(::Continuous, cache, eigvals, opts)
     end
     return PointTypes.none
 end
+
+isstable(::Continuous, eigvals) = real(eigvals[1]) < 0
