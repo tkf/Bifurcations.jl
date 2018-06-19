@@ -40,7 +40,8 @@ struct SpecialPointInterval{uType, JType} <: AbstractSpecialPoint
     sweep::WeakRef
 end
 
-struct Codim1Sweep{S <: ContinuationSweep,
+struct Codim1Sweep{tkind <: TimeKind,
+                   S <: ContinuationSweep,
                    JType <: AbstractArray,
                    eType <: AbstractArray,
                    pType <: SpecialPointInterval}
@@ -51,25 +52,20 @@ struct Codim1Sweep{S <: ContinuationSweep,
 end
 # See: [[../continuations/solution.jl::ContinuationSweep]]
 
-Codim1Sweep{S, JType, eType, pType}(super::S) where{
+Codim1Sweep{tkind, S, JType, eType, pType}(super::S) where{
+    tkind <: TimeKind,
     S <: ContinuationSweep,
     JType <: AbstractArray,
     eType <: AbstractArray,
     pType <: SpecialPointInterval
-} = Codim1Sweep{S, JType, eType, pType}(
+} = Codim1Sweep{tkind, S, JType, eType, pType}(
     super,
     JType[],
     eType[],
     pType[],
 )
 
-Codim1Sweep(super::S,
-            JType::Type,
-            eType::Type,
-            pType::Type = SpecialPointInterval{uType, JType},
-            ) where {uType,
-                     S <: ContinuationSweep{uType}} =
-    Codim1Sweep{S, JType, eType, pType}(super)
+timekind(::Codim1Sweep{tkind}) where tkind = tkind()
 
 eigvals_prototpye(cache::ContinuationCache) = cache.u[1:end - 1]
 # TODO: improve it for SVector
@@ -78,9 +74,10 @@ function sweeptype(solver::ContinuationSolver,
                    JType::Type = typeof(solver.cache.J),
                    eType::Type = typeof(eigvals_prototpye(solver.cache)),
                    )
+    tkind = typeof(timekind(solver.cache))
     S = eltype(solver.sol.sweeps)
     pType = SpecialPointInterval{eltype(S), JType}
-    return Codim1Sweep{S, JType, eType, pType}
+    return Codim1Sweep{tkind, S, JType, eType, pType}
 end
 
 Base.length(sweep::Codim1Sweep) = length(as(sweep, ContinuationSweep))
@@ -121,7 +118,8 @@ Codim1Cache(super::ContinuationCache) =
         copy(eigvals_prototpye(super)),
     )
 
-timekind(cache::Codim1Cache) = timekind(as(cache, ContinuationCache).prob_cache)
+timekind(cache::Codim1Cache) = timekind(as(cache, ContinuationCache))
+timekind(cache::ContinuationCache) = timekind(cache.prob_cache)
 
 struct Codim1Solver{R <: ContinuationSolver,
                     P <: AbstractContinuationProblem,
