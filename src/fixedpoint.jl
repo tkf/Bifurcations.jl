@@ -3,6 +3,29 @@ using StaticArrays: SVector, push
 using ForwardDiff
 
 
+"""
+Fixed point bifurcation problem.
+
+See also: [`AbstractContinuationProblem`](@ref)
+
+# Fields
+* `homotopy::Function`:
+  A function to compute ``H(x, t)`` where ``H`` is a homotopy
+  ``H: \\mathbb R^N \\times \\mathbb R \\to \\mathbb R^N``.
+  Function `homotopy` must be callable in one of the following form:
+  `homotopy(x, p, t) ↦ H` (return `H`) for mutable state type or
+  `homotopy(H, x, p, t)` (mutate `H`) for immutable state type.
+* `homotopy_jacobian::Union{Function, Nothing}`:
+  A function to compute ``H(x, t)`` and its Jacobian
+  ``J = \\partial H / \\partial (x, t) \\in \\mathbb R^{N \\times (N+1)}``.
+  Function `homotopy_jacobian` must be callable in one of the following form:
+  `homotopy_jacobian(x, p, t) ↦ (H, J)` (return `(H, J)`) or
+  `homotopy_jacobian(H, J, x, p, t)` (mutate `H` and `J`).
+* `u0::Union{AbstractArray, Real}`: Initial state.
+* `t0::Real`: Initial parameter.
+* `t_domain::Tuple{<:Real, <:Real}`: Range of the parameter.
+* `p`: Model parameter (constants).
+"""
 struct FixedPointBifurcationProblem{iip,
                                     tkind <: TimeKind,
                                     HJ, H, U, T, P,
@@ -137,7 +160,7 @@ function residual_jacobian!(H, J, u, cache::_C{<: FPBPWithHJac{true}})
     prob = cache.prob
     x = @view u[1:end-1]
     t = u[end]
-    prob.homotopy_jacobian(J, x, prob.p, t)
+    prob.homotopy_jacobian(H, J, x, prob.p, t)
     return (H, J)
 end
 
