@@ -18,10 +18,10 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
-abstract type AbstractSpecialPoint end
+abstract type AbstractSpecialPoint{tkind} end
 
 #=
-struct SpecialPoint{uType, JType} <: AbstractSpecialPoint
+struct SpecialPoint{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
     point_type::PointType
     point_index::Int
     u::uType
@@ -30,7 +30,8 @@ struct SpecialPoint{uType, JType} <: AbstractSpecialPoint
 end
 =#
 
-struct SpecialPointInterval{uType, JType} <: AbstractSpecialPoint
+struct SpecialPointInterval{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
+    timekind::tkind
     point_type::PointType
     point_index::Int
     u0::uType
@@ -44,7 +45,7 @@ struct Codim1Sweep{tkind <: TimeKind,
                    S <: ContinuationSweep,
                    JType <: AbstractArray,
                    eType <: AbstractArray,
-                   pType <: SpecialPointInterval}
+                   pType <: SpecialPointInterval{tkind}}
     super::S
     jacobians::Vector{JType}
     eigvals::Vector{eType}
@@ -57,7 +58,7 @@ Codim1Sweep{tkind, S, JType, eType, pType}(super::S) where{
     S <: ContinuationSweep,
     JType <: AbstractArray,
     eType <: AbstractArray,
-    pType <: SpecialPointInterval
+    pType <: SpecialPointInterval{tkind},
 } = Codim1Sweep{tkind, S, JType, eType, pType}(
     super,
     JType[],
@@ -76,7 +77,7 @@ function sweeptype(solver::ContinuationSolver,
                    )
     tkind = typeof(timekind(solver.cache))
     S = eltype(solver.sol.sweeps)
-    pType = SpecialPointInterval{eltype(S), JType}
+    pType = SpecialPointInterval{tkind, eltype(S), JType}
     return Codim1Sweep{tkind, S, JType, eType, pType}
 end
 
@@ -152,6 +153,7 @@ function push_special_point!(sweep::Codim1Sweep, point_type::PointType,
                              J1)
     super = as(sweep, ContinuationSweep)
     point = SpecialPointInterval(
+        timekind(sweep),
         point_type,
         length(sweep),
         super.u[end - 1],
