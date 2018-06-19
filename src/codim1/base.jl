@@ -1,8 +1,5 @@
 using StaticArrays: SMatrix
 
-using ...Bifurcations: TimeKind, Continuous, Discrete
-import ...Bifurcations: timekind
-
 using ..Continuations: AbstractContinuationProblem, AbstractContinuationSolver,
     as, SweepSetup, ContinuationSweep, ContinuationSolution,
     ContinuationCache, ContinuationOptions, ContinuationSolver

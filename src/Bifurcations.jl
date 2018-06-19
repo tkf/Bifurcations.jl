@@ -11,12 +11,14 @@ import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
 const _C = AbstractProblemCache
 
-include("traits.jl")
+include("codim1/codim1.jl")
+using .Codim1: TimeKind, Continuous, Discrete
+import .Codim1: timekind
+
 include("fixedpoint.jl")
+include("interface.jl")
 include("diffeq.jl")
 include("examples/examples.jl")
-
-include("codim1/codim1.jl")
 
 # using Requires
 # @require RecipesBase include("plotting.jl")
