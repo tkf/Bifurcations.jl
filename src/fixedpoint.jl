@@ -66,20 +66,20 @@ end
 get_prob_cache(prob::FixedPointBifurcationProblem) =
     FixedPointBifurcationCache(prob)
 
-function get_u0(prob::FixedPointBifurcationProblem{iip, HJ, H, U},
-                ) where {iip, HJ, H, U <: AbstractVector}
+get_u0(prob::FixedPointBifurcationProblem) = _get_u0(prob, prob.u0)
+
+function _get_u0(prob::FixedPointBifurcationProblem, ::AbstractVector)
     u0 = similar(prob.u0, length(prob.u0) + 1)
     u0[1:end-1] = prob.u0
     u0[end] = prob.t0
+    return u0
 end
 
-function get_u0(prob::FixedPointBifurcationProblem{iip, HJ, H, U},
-                ) where {iip, HJ, H, U <: Real}
+function _get_u0(prob::FixedPointBifurcationProblem, ::Real)
     return SVector(prob.u0, prob.t0)
 end
 
-function get_u0(prob::FixedPointBifurcationProblem{iip, HJ, H, U},
-                ) where {iip, HJ, H, U <: SVector}
+function _get_u0(prob::FixedPointBifurcationProblem, ::SVector)
     return push(prob.u0, prob.t0)
 end
 
