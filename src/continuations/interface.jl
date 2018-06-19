@@ -136,5 +136,5 @@ function solve!(wrapper::AbstractContinuationSolver)
         end
     end
 
-    return solver
+    return wrapper
 end
