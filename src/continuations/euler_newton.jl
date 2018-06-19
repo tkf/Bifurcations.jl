@@ -28,7 +28,8 @@ See [`AbstractContinuationProblem`](@ref) for the mathematical setup.
 - `simple_bifurcation::Bool`
 """
 mutable struct ContinuationCache{PC <: AbstractProblemCache,
-                                 uType, HType, JType, QType, hType}
+                                 uType, HType, JType, QType, hType,
+                                 } <: AbstractContinuationCache{PC}
     prob_cache::PC
     u::uType
     H::HType

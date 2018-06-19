@@ -28,7 +28,8 @@ struct FixedPointBifurcationProblem{iip,
     end
 end
 
-timekind(::FixedPointBifurcationProblem{_, tkind}) where {_, tkind} = tkind()
+TimeKind(::Type{<: FixedPointBifurcationProblem{_, tkind}}) where {_, tkind} =
+    tkind()
 
 const FPBPWithHJac{iip, tkind} =
     FixedPointBifurcationProblem{iip, tkind, <: Function}
@@ -81,7 +82,7 @@ struct FixedPointBifurcationCache{P, C} <: AbstractProblemCache{P}
     end
 end
 
-timekind(cache::FixedPointBifurcationCache) = timekind(cache.prob)
+TimeKind(::Type{<: FixedPointBifurcationCache{P}}) where P = TimeKind(P)
 
 get_prob_cache(prob::FixedPointBifurcationProblem) =
     FixedPointBifurcationCache(prob)

@@ -12,8 +12,8 @@ import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
 const _C = AbstractProblemCache
 
 include("codim1/codim1.jl")
-using .Codim1: TimeKind, Continuous, Discrete
-import .Codim1: timekind
+using .Codim1: timekind, Continuous, Discrete
+import .Codim1: TimeKind
 
 include("fixedpoint.jl")
 include("interface.jl")

@@ -69,7 +69,7 @@ Codim1Sweep{tkind, S, JType, eType, pType}(super::S) where{
     pType[],
 )
 
-timekind(::Codim1Sweep{tkind}) where tkind = tkind()
+TimeKind(::Type{<: Codim1Sweep{tkind}}) where tkind = tkind()
 
 eigvals_prototpye(cache::ContinuationCache) = cache.u[1:end - 1]
 # TODO: improve it for SVector
@@ -98,7 +98,8 @@ Codim1Solution(super::ContinuationSolution,
 
 
 mutable struct Codim1Cache{P, C <: ContinuationCache{P},
-                           JType, eType}
+                           JType, eType,
+                           } <: AbstractContinuationCache{P}
     # TODO: declare types
     super::C
     J::JType
@@ -121,9 +122,6 @@ Codim1Cache(super::ContinuationCache) =
         ds_jacobian(super),
         copy(eigvals_prototpye(super)),
     )
-
-timekind(cache::Codim1Cache) = timekind(as(cache, ContinuationCache))
-timekind(cache::ContinuationCache) = timekind(cache.prob_cache)
 
 struct Codim1Solver{R <: ContinuationSolver,
                     P <: AbstractContinuationProblem,

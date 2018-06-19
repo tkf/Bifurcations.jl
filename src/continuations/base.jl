@@ -92,3 +92,6 @@ function get_prob_cache end
     get_u0(prob::AbstractContinuationProblem) ↦ u0
 """
 function get_u0 end
+
+
+abstract type AbstractContinuationCache{PC <: AbstractProblemCache} end
