@@ -18,3 +18,9 @@ Bifurcations.Continuations.get_u0
 ```@docs
 Bifurcations.Continuations.ContinuationCache
 ```
+
+## Bifurcation problem
+
+```@docs
+Bifurcations.FixedPointBifurcationProblem
+```

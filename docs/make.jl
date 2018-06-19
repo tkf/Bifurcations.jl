@@ -1,4 +1,6 @@
 using Documenter, Bifurcations
+using DiffEqBase: AbstractODEProblem
+using Setfield: Lens
 
 makedocs()
 

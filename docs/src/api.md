@@ -1,5 +1,5 @@
 # Interface
 
 ```@docs
-Bifurcations.FixedPointBifurcationProblem
+Bifurcations.FixedPointBifurcationProblem(::AbstractODEProblem, ::Lens, ::Tuple)
 ```
