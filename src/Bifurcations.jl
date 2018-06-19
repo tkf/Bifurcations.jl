@@ -11,6 +11,7 @@ import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
 const _C = AbstractProblemCache
 
+include("traits.jl")
 include("fixedpoint.jl")
 include("diffeq.jl")
 include("examples/examples.jl")

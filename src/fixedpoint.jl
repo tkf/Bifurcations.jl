@@ -3,7 +3,9 @@ using StaticArrays: SVector, push
 using ForwardDiff
 
 
-struct FixedPointBifurcationProblem{iip, HJ, H, U, T, P,
+struct FixedPointBifurcationProblem{iip,
+                                    tkind <: TimeKind,
+                                    HJ, H, U, T, P,
                                     } <: AbstractContinuationProblem{iip}
     homotopy_jacobian::HJ
     homotopy::H
@@ -14,30 +16,44 @@ struct FixedPointBifurcationProblem{iip, HJ, H, U, T, P,
 
     # TODO: Define domain for u.  Maybe use Domains.jl?
 
-    function FixedPointBifurcationProblem{iip}(
+    function FixedPointBifurcationProblem{iip, tkind}(
             homotopy::H, u0::U, t0::Real, t_domain::Tuple,
             p::P = nothing;
             homotopy_jacobian::HJ = nothing,
-            ) where{iip, HJ, H, U, P}
+            ) where{iip, tkind, HJ, H, U, P}
         T = promote_type(typeof(t0), map(typeof, t_domain)...)
-        new{iip, HJ, H, U, T, P}(homotopy_jacobian, homotopy,
-                                 u0, t0, t_domain, p)
+        new{iip, tkind, HJ, H, U, T, P}(
+            homotopy_jacobian, homotopy,
+            u0, t0, t_domain, p)
     end
 end
-const FPBPWithHJac{iip} = FixedPointBifurcationProblem{iip, <: Function}
-const FPBPNoHJac{iip} = FixedPointBifurcationProblem{iip, Void}
-const FPBPScalar = FixedPointBifurcationProblem{false, HJ, H,
-                                                <: Real} where {HJ, H}
 
-function FixedPointBifurcationProblem(homotopy, args...; kwargs...)
+const FPBPWithHJac{iip, tkind} =
+    FixedPointBifurcationProblem{iip, tkind, <: Function}
+const FPBPNoHJac{iip, tkind} =
+    FixedPointBifurcationProblem{iip, tkind, Void}
+const FPBPScalar{tkind <: TimeKind} =
+    FixedPointBifurcationProblem{false, tkind, HJ, H, <: Real} where {HJ, H}
+
+function FixedPointBifurcationProblem(tkind::TimeKind,
+                                      homotopy, args...; kwargs...)
     iip = numargs(homotopy) == 4
-    return FixedPointBifurcationProblem{iip}(homotopy, args...; kwargs...)
+    return FixedPointBifurcationProblem{iip, tkind}(
+        homotopy, args...; kwargs...)
 end
 
-FixedPointBifurcationProblem(homotopy, u0::Tuple, args...; kwargs...) =
-    FixedPointBifurcationProblem{false}(homotopy,
-                                        SVector(u0),
-                                        args...; kwargs...)
+as_immutable_state(x::Tuple) = SVector(x)
+as_immutable_state(x::Number) = x
+
+function FixedPointBifurcationProblem(tkind::TimeKind,
+                                      homotopy,
+                                      u0::Union{Tuple, Number},
+                                      args...; kwargs...)
+    return FixedPointBifurcationProblem{false, tkind}(
+        homotopy,
+        as_immutable_state(u0),
+        args...; kwargs...)
+end
 
 
 struct FixedPointBifurcationCache{P, C} <: AbstractProblemCache{P}
