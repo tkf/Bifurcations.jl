@@ -1,8 +1,9 @@
 function ds_eigvals(::Discrete, J)
     ev = eigvals(J)
-    sort!(ev, by=abs)
+    sort!(ev, by=abs, rev=true)
     return ev
 end
+# TODO: improve it for StaticArrays
 
 function guess_point_type(::Discrete, cache, eigvals, opts)
     old = abs(cache.eigvals[1]) - 1
@@ -23,7 +24,7 @@ isstable(::Discrete, eigvals) = abs(eigvals[1]) < 1
 
 function ds_eigvals(::Continuous, J)
     ev = eigvals(J)
-    sort!(ev, by=real)
+    sort!(ev, by=real, rev=true)
     return ev
 end
 
