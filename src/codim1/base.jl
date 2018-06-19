@@ -46,6 +46,7 @@ struct Codim1Sweep{tkind <: TimeKind,
                    JType <: AbstractArray,
                    eType <: AbstractArray,
                    pType <: SpecialPointInterval{tkind}}
+    timekind::tkind
     super::S
     jacobians::Vector{JType}
     eigvals::Vector{eType}
@@ -60,6 +61,7 @@ Codim1Sweep{tkind, S, JType, eType, pType}(super::S) where{
     eType <: AbstractArray,
     pType <: SpecialPointInterval{tkind},
 } = Codim1Sweep{tkind, S, JType, eType, pType}(
+    tkind(),
     super,
     JType[],
     eType[],
