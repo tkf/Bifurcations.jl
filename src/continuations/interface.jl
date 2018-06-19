@@ -138,3 +138,13 @@ function solve!(wrapper::AbstractContinuationSolver)
 
     return wrapper
 end
+
+
+function residual_jacobian!(cache::ContinuationCache, u::AbstractArray)
+    @unpack H, J, prob_cache = cache
+    H, J = residual_jacobian!(H, J, u, prob_cache)
+    cache.u = u
+    cache.H = H
+    cache.J = J
+    return H, J
+end

@@ -2,7 +2,8 @@ using StaticArrays: SMatrix
 
 using ..Continuations: AbstractContinuationProblem, AbstractContinuationSolver,
     as, SweepSetup, ContinuationSweep, ContinuationSolution,
-    ContinuationCache, ContinuationOptions, ContinuationSolver
+    ContinuationCache, ContinuationOptions, ContinuationSolver,
+    residual_jacobian!
 import ..Continuations: step!, new_sweep!
 
 module PointTypes
@@ -168,16 +169,23 @@ end
 
 function new_sweep!(solver::Codim1Solver, setup::SweepSetup)
     new_sweep!(solver.super, setup)
-    # calling [[./continuations/interface.jl::new_sweep!]]
+    # calling [[../continuations/interface.jl::new_sweep!]]
 
     _new_sweep!(solver.sol, as(solver, ContinuationSolver))
 
-    #=
-    re_analyze!(solver, setup.u0)
     for u in setup.past_points
         re_analyze!(solver, u)
     end
-    =#
+    re_analyze!(solver, setup.u0)
+    check_sweep_length(solver.sol.sweeps[end])
+end
+# TODO: `new_sweep!(solver.super, setup)` sets up `solver.super.cache`
+# but `re_analyze!(solver, u)` rewrites the cache.  It causes no
+# problem at the moment since the last `re_analyze!(solver, setup.u0)`
+# set the cache back to the first state.
+
+function check_sweep_length(sweep)
+    @assert length(sweep) == length(sweep.jacobians) == length(sweep.eigvals)
 end
 
 function _new_sweep!(sol::Codim1Solution, solver::ContinuationSolver)
@@ -190,12 +198,24 @@ function Codim1Sweep(super::ContinuationSweep, solver::ContinuationSolver)
     return sweeptype(solver)(super)
 end
 
+function re_analyze!(solver::Codim1Solver, u::AbstractVector)
+    residual_jacobian!(as(solver.cache, ContinuationCache), u)
+    analyze!(solver.cache, solver.opts)
+
+    # Suppress special point recording:
+    # It's a bit ugly hack... (communicate by sharing!)
+    solver.cache.point_type = PointTypes.none  # TODO: FIX!
+
+    record!(solver.sol, solver.cache)
+end
+
 function step!(solver::Codim1Solver)
     step!(solver.super)
-    # calling [[./continuations/interface.jl::step!]]
+    # calling [[../continuations/interface.jl::step!]]
 
     analyze!(solver.cache, solver.opts)
     record!(solver.sol, solver.cache)
+    check_sweep_length(solver.sol.sweeps[end])
 end
 
 function analyze!(cache::Codim1Cache, opts)
@@ -210,7 +230,6 @@ function record!(sol::Codim1Solution, cache::Codim1Cache)
     sweep = sol.sweeps[end]
     push!(sweep.jacobians, copy(super.J))
     push!(sweep.eigvals, copy(cache.eigvals))
-    # @assert length(sweep) == length(sweep.jacobians) == length(sweep.eigvals)
 
     if cache.point_type != PointTypes.none
         push_special_point!(sweep, cache)
