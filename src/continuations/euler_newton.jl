@@ -146,7 +146,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
         tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
 
-        v, dv, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
+        v, dv, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
         n2 = norm(dv)
 
         # step adaptation
@@ -175,13 +175,14 @@ function predictor_corrector_step!(cache::ContinuationCache,
                 cache.corrector_success = true
                 break
             end
-            v, _, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
+            v, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
         end
         if ! cache.corrector_success
             return
         end
 
         cache.u = v
+        cache.J = J
         cache.h = h
         cache.adaptation_success = true
 
