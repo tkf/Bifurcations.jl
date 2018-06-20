@@ -1,10 +1,14 @@
 using StaticArrays: SMatrix
 
 using ..Continuations: AbstractContinuationProblem, AbstractContinuationSolver,
+    AbstractContinuationCache,
     as, SweepSetup, ContinuationSweep, ContinuationSolution,
     ContinuationCache, ContinuationOptions, ContinuationSolver,
     residual_jacobian!
 import ..Continuations: step!, new_sweep!
+
+using ..BifurcationsBase: timekind, Continuous, Discrete
+import ..BifurcationsBase: TimeKind
 
 module PointTypes
 @enum(

@@ -11,9 +11,12 @@ import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
 const _C = AbstractProblemCache
 
+include("base/base.jl")
+# TimeKind trait:
+using .BifurcationsBase: timekind, Continuous, Discrete
+import .BifurcationsBase: TimeKind
+
 include("codim1/codim1.jl")
-using .Codim1: timekind, Continuous, Discrete
-import .Codim1: TimeKind
 
 include("fixedpoint.jl")
 include("interface.jl")
