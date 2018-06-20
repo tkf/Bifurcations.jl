@@ -44,12 +44,14 @@ maybe_subtract!(H, x, ::ImmutableState, ::Discrete) = H .- x
   upper bound for `param_axis`.
 """
 function FixedPointBifurcationProblem(
-        de_prob::DEP{iip}, param_axis::Lens, t_domain::Tuple;
-        kwargs...) where iip
+        de_prob::DEP, param_axis::Lens, t_domain::Tuple;
+        kwargs...)
     u0 = de_prob.u0
     t0 = get(param_axis, de_prob.p)
     p = DiffEqWrapper(deepcopy(de_prob), param_axis)
-    return FixedPointBifurcationProblem{iip, typeof(timekind(de_prob))}(
+    return FixedPointBifurcationProblem(
+        statekind(de_prob),
+        timekind(de_prob),
         diffeq_homotopy, u0, t0,
         t_domain, p; kwargs...)
 end

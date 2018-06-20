@@ -26,10 +26,12 @@ See also: [`AbstractContinuationProblem`](@ref)
 * `t_domain::Tuple{<:Real, <:Real}`: Range of the parameter.
 * `p`: Model parameter (constants).
 """
-struct FixedPointBifurcationProblem{iip,
+struct FixedPointBifurcationProblem{skind <: StateKind,
                                     tkind <: TimeKind,
                                     HJ, H, U, T, P,
-                                    } <: AbstractContinuationProblem
+                                    } <: BifurcationProblem{skind, tkind}
+    statekind::skind
+    timekind::tkind
     homotopy_jacobian::HJ
     homotopy::H
     u0::U
@@ -38,33 +40,31 @@ struct FixedPointBifurcationProblem{iip,
     p::P
 
     # TODO: Define domain for u.  Maybe use Domains.jl?
-
-    function FixedPointBifurcationProblem{iip, tkind}(
-            homotopy::H, u0::U, t0::Real, t_domain::Tuple,
-            p::P = nothing;
-            homotopy_jacobian::HJ = nothing,
-            ) where{iip, tkind, HJ, H, U, P}
-        T = promote_type(typeof(t0), map(typeof, t_domain)...)
-        new{iip, tkind, HJ, H, U, T, P}(
-            homotopy_jacobian, homotopy,
-            u0, t0, t_domain, p)
-    end
 end
 
-TimeKind(::Type{<: FixedPointBifurcationProblem{_, tkind}}) where {_, tkind} =
-    tkind()
+function FixedPointBifurcationProblem(
+        statekind::StateKind, timekind::TimeKind,
+        homotopy::H, u0::U, t0::Real, t_domain::Tuple,
+        p::P = nothing;
+        homotopy_jacobian::HJ = nothing,
+        ) where{HJ, H, U, P}
+    T = promote_type(typeof(t0), map(typeof, t_domain)...)
+    return FixedPointBifurcationProblem(
+        statekind, timekind,
+        homotopy_jacobian, homotopy,
+        u0, t0, t_domain, p)
+end
 
-const FPBPWithHJac{iip, tkind} =
-    FixedPointBifurcationProblem{iip, tkind, <: Function}
-const FPBPNoHJac{iip, tkind} =
-    FixedPointBifurcationProblem{iip, tkind, Void}
-const FPBPScalar{tkind <: TimeKind} =
-    FixedPointBifurcationProblem{false, tkind, HJ, H, <: Real} where {HJ, H}
+struct HasJac end
+struct NoJac end
+hasjac(::FixedPointBifurcationProblem{<:Any, <:Any, <:Function}) = HasJac()
+hasjac(::FixedPointBifurcationProblem{<:Any, <:Any, Void}) = NoJac()
 
 function FixedPointBifurcationProblem(tkind::TimeKind,
                                       homotopy, args...; kwargs...)
-    iip = numargs(homotopy) == 4
-    return FixedPointBifurcationProblem{iip, tkind}(
+    skind = numargs(homotopy) == 4 ? MutableState() : ImmutableState()
+    return FixedPointBifurcationProblem(
+        skind, tkind,
         homotopy, args...; kwargs...)
 end
 
@@ -76,6 +76,7 @@ function FixedPointBifurcationProblem(tkind::TimeKind,
                                       u0::Union{Tuple, Number},
                                       args...; kwargs...)
     return FixedPointBifurcationProblem{false, tkind}(
+        ImmutableState(), tkind,
         homotopy,
         as_immutable_state(u0),
         args...; kwargs...)
@@ -85,24 +86,27 @@ end
 struct FixedPointBifurcationCache{P, C} <: AbstractProblemCache{P}
     prob::P
     cfg::C
+end
 
-    FixedPointBifurcationCache(prob::P) where {P <: FPBPWithHJac} =
-        new{P, Void}(prob)
+FixedPointBifurcationCache(prob::FixedPointBifurcationProblem) =
+    _FixedPointBifurcationCache(statekind(prob), hasjac(prob), prob)
 
-    function FixedPointBifurcationCache(prob::P) where {P <: FPBPNoHJac{true}}
-        x = get_u0(prob)
-        y = similar(x, length(x) - 1)
-        cfg = ForwardDiff.JacobianConfig((y, x) -> residual!(y, x, prob),
-                                         y, x)
-        return new{P, typeof(cfg)}(prob, cfg)
-    end
+_FixedPointBifurcationCache(::Any, ::HasJac, prob) =
+    FixedPointBifurcationCache(prob, nothing)
 
-    function FixedPointBifurcationCache(prob::P) where {P <: FPBPNoHJac{false}}
-        x = get_u0(prob)
-        cfg = ForwardDiff.JacobianConfig((x) -> residual!(nothing, x, prob),
-                                         x)
-        return new{P, typeof(cfg)}(prob, cfg)
-    end
+function _FixedPointBifurcationCache(::MutableState, ::NoJac, prob)
+    x = get_u0(prob)
+    y = similar(x, length(x) - 1)
+    cfg = ForwardDiff.JacobianConfig((y, x) -> residual!(y, x, prob),
+                                     y, x)
+    return FixedPointBifurcationCache(prob, cfg)
+end
+
+function _FixedPointBifurcationCache(::ImmutableState, ::NoJac, prob)
+    x = get_u0(prob)
+    cfg = ForwardDiff.JacobianConfig((x) -> residual!(nothing, x, prob),
+                                     x)
+    return FixedPointBifurcationCache(prob, cfg)
 end
 
 TimeKind(::Type{<: FixedPointBifurcationCache{P}}) where P = TimeKind(P)
@@ -130,6 +134,16 @@ end
 residual!(H, u, cache::_C{<: FixedPointBifurcationProblem}) =
     residual!(H, u, cache.prob)
 
+residual!(H, u, cache::FixedPointBifurcationCache) =
+    _residual!(H, u, cache.prob,
+               statekind(cache.prob),
+               cache.prob.u0)
+
+residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache) =
+    _residual_jacobian!(H, J, u, cache,
+                        statekind(cache.prob),
+                        hasjac(cache.prob))
+
 function isindomain(u, cache::_C{<: FixedPointBifurcationProblem})
     t = u[end]
     tmin, tmax = cache.prob.t_domain
@@ -138,14 +152,16 @@ end
 
 # ----------------------------------------------------------- inplace interface
 
-function residual!(H, u, prob::FixedPointBifurcationProblem{true})
+function _residual!(H, u, prob::FixedPointBifurcationProblem,
+                    ::MutableState, ::Any)
     x = @view u[1:end-1]
     t = u[end]
     prob.homotopy(H, x, prob.p, t)
     return H
 end
 
-function residual_jacobian!(H, J, u, cache::_C{<: FPBPWithHJac{true}})
+function _residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache,
+                             ::MutableState, ::HasJac)
     prob = cache.prob
     x = @view u[1:end-1]
     t = u[end]
@@ -153,7 +169,8 @@ function residual_jacobian!(H, J, u, cache::_C{<: FPBPWithHJac{true}})
     return (H, J)
 end
 
-function residual_jacobian!(H, J, u, cache::_C{<: FPBPNoHJac{true}})
+function _residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache,
+                             ::MutableState, ::NoJac)
     ForwardDiff.jacobian!(
         J,
         (y, x) -> residual!(y, x, cache),
@@ -166,26 +183,30 @@ end
 
 # ------------------------------------------------------ out-of-place interface
 
-function residual!(::Any, u, prob::FPBPScalar)
+function _residual!(::Any, u, prob::FixedPointBifurcationProblem,
+                    ::ImmutableState, ::Real)
     x = u[1]
     t = u[end]
     return SVector(prob.homotopy(x, prob.p, t))
 end
 
-function residual!(::Any, u, prob::FixedPointBifurcationProblem{false})
+function _residual!(::Any, u, prob::FixedPointBifurcationProblem,
+                    ::ImmutableState, ::AbstractArray)
     x = u[1:end-1]
     t = u[end]
     return prob.homotopy(x, prob.p, t)
 end
 
-function residual_jacobian!(_H, _J, u, cache::_C{<: FPBPWithHJac{false}})
+function _residual_jacobian!(_H, _J, u, cache::FixedPointBifurcationCache,
+                             ::ImmutableState, ::HasJac)
     prob = cache.prob
     x = u[1:end-1]
     t = u[end]
     return prob.homotopy_jacobian(x, prob.p, t)
 end
 
-function residual_jacobian!(_H, _, u, cache::_C{<: FPBPNoHJac{false}})
+function _residual_jacobian!(_H, _, u, cache::FixedPointBifurcationCache,
+                             ::ImmutableState, ::NoJac)
     # TODO: Can I compute H and J in one go?  Or is it already
     # maximally efficient?
     H = residual!(_H, u, cache)
