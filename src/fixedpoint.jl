@@ -29,7 +29,7 @@ See also: [`AbstractContinuationProblem`](@ref)
 struct FixedPointBifurcationProblem{iip,
                                     tkind <: TimeKind,
                                     HJ, H, U, T, P,
-                                    } <: AbstractContinuationProblem{iip}
+                                    } <: AbstractContinuationProblem
     homotopy_jacobian::HJ
     homotopy::H
     u0::U

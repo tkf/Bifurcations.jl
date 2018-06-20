@@ -19,7 +19,7 @@ solve by providing how to compute:
 * an initial guess ``u_0``: [`get_u0`](@ref)
 * and computation cache: [`get_prob_cache`](@ref).
 """
-abstract type AbstractContinuationProblem{iip} end
+abstract type AbstractContinuationProblem end
 
 """
 Cache for computing ``H`` and its Jacobian.
