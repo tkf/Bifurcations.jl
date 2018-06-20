@@ -180,14 +180,14 @@ function predictor_corrector_step!(cache::ContinuationCache,
     for _ in 3:opts.max_corrector_steps
         if isalmostzero(H, rtol, atol)
             cache.corrector_success = true
-            break
+            @goto corrector_success
         end
         v, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
     end
-    if ! cache.corrector_success
-        return
-    end
+    # corrector failed
+    return
 
+    @label corrector_success
     cache.u = v
     cache.J = J
     cache.h = h
