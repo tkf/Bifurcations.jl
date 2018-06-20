@@ -6,11 +6,11 @@ using ...Bifurcations: maybe_subtract!
 """
 Codimension-2 fixed point bifurcation problem wrapper for DifferentialEquations.
 """
-struct DiffEqCodim2BifurcationProblem{
+struct DiffEqCodim2Problem{
         skind <: StateKind,
         tkind <: TimeKind,
         P, X, V, T, L1, L2,
-        } <: Codim2BifurcationProblem{skind, tkind}
+        } <: Codim2Problem{skind, tkind}
     statekind::skind
     timekind::tkind
     de_prob::P
@@ -22,10 +22,10 @@ struct DiffEqCodim2BifurcationProblem{
     param_axis2::L2
 end
 
-StateKind(::Type{<: DiffEqCodim2BifurcationProblem{skind}}) where skind = skind()
-TimeKind(::Type{<: DiffEqCodim2BifurcationProblem{_sk, tkind}}) where {_sk, tkind} = tkind()
+StateKind(::Type{<: DiffEqCodim2Problem{skind}}) where skind = skind()
+TimeKind(::Type{<: DiffEqCodim2Problem{_sk, tkind}}) where {_sk, tkind} = tkind()
 
-function DiffEqCodim2BifurcationProblem(
+function DiffEqCodim2Problem(
         de_prob,
         param_axis1::Lens,
         param_axis2::Lens,
@@ -37,7 +37,7 @@ function DiffEqCodim2BifurcationProblem(
         )
     t_domain = (SVector{2, eltype(t0)}(t_domain[1]),
                 SVector{2, eltype(t0)}(t_domain[2]))
-    return DiffEqCodim2BifurcationProblem(
+    return DiffEqCodim2Problem(
         statekind(de_prob), timekind(de_prob),
         de_prob, x0, v0, t0, t_domain,
         param_axis1, param_axis2)
@@ -50,7 +50,7 @@ struct DiffEqCodim2BifurcationCache{P, C} <: AbstractProblemCache{P}
     cfg::C
 end
 
-DiffEqCodim2BifurcationCache(prob::DiffEqCodim2BifurcationProblem) =
+DiffEqCodim2BifurcationCache(prob::DiffEqCodim2Problem) =
     DiffEqCodim2BifurcationCache(
         prob,
         setup_fd_config(statekind(prob), prob))
@@ -73,20 +73,20 @@ end
 
 # ------------------------------------------------------ continuation interface
 
-get_prob_cache(prob::DiffEqCodim2BifurcationProblem) =
+get_prob_cache(prob::DiffEqCodim2Problem) =
     DiffEqCodim2BifurcationCache(prob)
 
-get_u0(prob::DiffEqCodim2BifurcationProblem) = _get_u0(prob, prob.x0)
+get_u0(prob::DiffEqCodim2Problem) = _get_u0(prob, prob.x0)
 
-function _get_u0(prob::DiffEqCodim2BifurcationProblem, ::AbstractVector)
+function _get_u0(prob::DiffEqCodim2Problem, ::AbstractVector)
     return vcat(prob.x0, prob.v0, prob.t0)
 end
 
-function _get_u0(prob::DiffEqCodim2BifurcationProblem, ::SVector) :: SVector
+function _get_u0(prob::DiffEqCodim2Problem, ::SVector) :: SVector
     return vcat(prob.x0, prob.v0, prob.t0)
 end
 
-function _get_u0(prob::DiffEqCodim2BifurcationProblem, ::Real)
+function _get_u0(prob::DiffEqCodim2Problem, ::Real)
     return SVector(prob.x0, prob.v0, prob.t0...)
 end
 
@@ -104,7 +104,7 @@ residual_jacobian!(H, J, u, cache::DiffEqCodim2BifurcationCache) =
 
 # ------------------------------------------------------------------- utilities
 
-function modified_param!(p::DiffEqCodim2BifurcationProblem, u)
+function modified_param!(p::DiffEqCodim2Problem, u)
     t1, t2 = u[end-1:end]
     q0 = p.de_prob.p
     q1 = set(p.param_axis1, q0, t1)
@@ -114,7 +114,7 @@ end
 
 # ------------------------------------------------------------------- residual!
 
-function _residual!(H, u, prob::DiffEqCodim2BifurcationProblem,
+function _residual!(H, u, prob::DiffEqCodim2Problem,
                     ::MutableState)
     q = modified_param!(prob, u)
 
@@ -138,7 +138,7 @@ function _residual!(H, u, prob::DiffEqCodim2BifurcationProblem,
     return H
 end
 
-function _residual!(::Any, u, prob::DiffEqCodim2BifurcationProblem,
+function _residual!(::Any, u, prob::DiffEqCodim2Problem,
                     ::ImmutableState)
     q = modified_param!(prob, u)
 

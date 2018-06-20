@@ -3,9 +3,7 @@ using ...Bifurcations: FixedPointBifurcationProblem, DiffEqWrapper
 using ..Codim1
 using ..Codim1: Codim1Solver, AbstractSpecialPoint, resolve_point
 
-abstract type Codim2BifurcationProblem{skind, tkind} <:
-    BifurcationProblem{skind, tkind}
-end
+abstract type Codim2Problem{skind, tkind} <: BifurcationProblem{skind, tkind} end
 
 """
     BifurcationProblem(point::AbstractSpecialPoint,
@@ -53,7 +51,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     v0 = xtype(vecs[:, idx])
     v0 = v0 ./ norm(v0)
 
-    return DiffEqCodim2BifurcationProblem(
+    return DiffEqCodim2Problem(
         de_prob,
         param_axis1,
         param_axis2,
@@ -63,12 +61,3 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         t0 = t0,
     )
 end
-
-
-using ..BifurcationsBase
-using ..Continuations: ContinuationSolver, ContinuationOptions
-
-# Bypass BifurcationSolver at the moment:
-BifurcationsBase.BifurcationSolver(prob::Codim2BifurcationProblem,
-                                   opts::ContinuationOptions) =
-    ContinuationSolver(prob, opts)

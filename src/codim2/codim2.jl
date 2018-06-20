@@ -20,5 +20,9 @@ using StaticArrays: SVector
 include("base.jl")
 include("problem.jl")
 include("diffeq.jl")
+include("solver.jl")
+include("analysis.jl")
+include("interface.jl")
+include("diagnosis.jl")
 
 end  # module
