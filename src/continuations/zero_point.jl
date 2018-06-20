@@ -58,7 +58,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         fu = fv
 
         if abs(h) < opts.h_zero
-            return v, tJ, L, Q
+            return v, tJ, L, Q, J
         end
     end
     error("zero not found")

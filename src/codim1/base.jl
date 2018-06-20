@@ -23,17 +23,19 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
-abstract type AbstractSpecialPoint{tkind} end
+abstract type AbstractSpecialPoint{tkind <: TimeKind} end
+TimeKind(::Type{<: AbstractSpecialPoint{tkind}}) where tkind = tkind()
 
-#=
 struct SpecialPoint{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
+    timekind::tkind
     point_type::PointType
     point_index::Int
     u::uType
     J::JType
-    sweeps::Vector{WeakRef}
+    sweep::WeakRef
 end
-=#
+# TODO: put BifurcationProblem in SpecialPoint/Interval struct so that
+# init(point) can initiate codim+1 bifurcation solver.
 
 struct SpecialPointInterval{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
     timekind::tkind
