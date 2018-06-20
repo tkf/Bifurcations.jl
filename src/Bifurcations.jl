@@ -15,6 +15,9 @@ include("base/base.jl")
 # TimeKind trait:
 using .BifurcationsBase: timekind, Continuous, Discrete
 import .BifurcationsBase: TimeKind
+# StateKind trait:
+using .BifurcationsBase: statekind, MutableState, ImmutableState
+import .BifurcationsBase: StateKind
 
 include("codim1/codim1.jl")
 

@@ -4,15 +4,6 @@ using Setfield: Lens, set, get
 const DEP{iip} = AbstractODEProblem{uType, tType, iip} where {uType, tType}
 
 
-abstract type StateKind end
-struct MutableState <: StateKind end
-struct ImmutableState <: StateKind end
-
-statekind(::T) where T = StateKind(T)
-# TODO: Move StateKind to continuations/base.jl and use it everywhere.
-# It's only used in here at the moment.
-
-
 TimeKind(::Type{<: DiscreteProblem}) = Discrete()
 TimeKind(::Type{<: AbstractODEProblem}) = Continuous()
 StateKind(::Type{<: DEP{true}}) = MutableState()
