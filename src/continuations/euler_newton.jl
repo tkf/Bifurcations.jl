@@ -137,6 +137,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
     cache.adaptation_success = false
     cache.simple_bifurcation = false
 
+    local v, L
     for _ in 1:opts.max_adaptations
         # predictor
         v = u .+ direction * h .* tJ
@@ -168,31 +169,33 @@ function predictor_corrector_step!(cache::ContinuationCache,
         #     # If close enough to the solution, let it pass?  Should I?
         elseif f0 <= 2
             cache.adaptation_success = true
-        else
-            continue
+            @goto adaptation_success
         end
-
-        # corrector (again)
-        for _ in 3:opts.max_corrector_steps
-            if isalmostzero(H, rtol, atol)
-                cache.corrector_success = true
-                break
-            end
-            v, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
-        end
-        if ! cache.corrector_success
-            return
-        end
-
-        cache.u = v
-        cache.J = J
-        cache.h = h
-
-        tJv = tangent(L, Q)
-        if tJ ⋅ tJv < 0
-            cache.direction *= -1
-            cache.simple_bifurcation = true
-        end
-        return v, h
     end
+    # step adaptation failed
+    return
+
+    @label adaptation_success
+    # corrector (again)
+    for _ in 3:opts.max_corrector_steps
+        if isalmostzero(H, rtol, atol)
+            cache.corrector_success = true
+            break
+        end
+        v, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
+    end
+    if ! cache.corrector_success
+        return
+    end
+
+    cache.u = v
+    cache.J = J
+    cache.h = h
+
+    tJv = tangent(L, Q)
+    if tJ ⋅ tJv < 0
+        cache.direction *= -1
+        cache.simple_bifurcation = true
+    end
+    return v, h
 end
