@@ -56,5 +56,6 @@ _A_ldiv_B!(::Type{<: UpperTriangular{T, P}}, args...) where {T, P} =
 
 _A_ldiv_B!(::Type{<:AbstractArray}, A, B) = A_ldiv_B!(A, B)
 _A_ldiv_B!(::Type{<:StaticArray}, A, B) = A \ B
+_A_ldiv_B!(::Type{<:Vector}, A::SubArray, B) =  A \ B # TODO: make it in-place
 _A_ldiv_B!(::Type{<:AbstractArray}, Y, A, B) = A_ldiv_B!(Y, A, B)
 _A_ldiv_B!(::Type{<:StaticArray}, _, A, B) = A \ B

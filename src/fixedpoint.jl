@@ -130,9 +130,6 @@ end
 residual!(H, u, cache::_C{<: FixedPointBifurcationProblem}) =
     residual!(H, u, cache.prob)
 
-residual(u, cache::_C{<: FixedPointBifurcationProblem}) =
-    residual(u, cache.prob)
-
 function isindomain(u, cache::_C{<: FixedPointBifurcationProblem})
     t = u[end]
     tmin, tmax = cache.prob.t_domain
@@ -140,14 +137,6 @@ function isindomain(u, cache::_C{<: FixedPointBifurcationProblem})
 end
 
 # ----------------------------------------------------------- inplace interface
-
-function residual(u, prob::FixedPointBifurcationProblem{true})
-    x = @view u[1:end-1]
-    t = u[end]
-    H = similar(x)
-    prob.homotopy(H, x, prob.p, t)
-    return H
-end
 
 function residual!(H, u, prob::FixedPointBifurcationProblem{true})
     x = @view u[1:end-1]
@@ -177,15 +166,13 @@ end
 
 # ------------------------------------------------------ out-of-place interface
 
-residual!(_, u, prob::FixedPointBifurcationProblem{false}) = residual(u, prob)
-
-function residual(u, prob::FPBPScalar)
+function residual!(::Any, u, prob::FPBPScalar)
     x = u[1]
     t = u[end]
     return SVector(prob.homotopy(x, prob.p, t))
 end
 
-function residual(u, prob::FixedPointBifurcationProblem{false})
+function residual!(::Any, u, prob::FixedPointBifurcationProblem{false})
     x = u[1:end-1]
     t = u[end]
     return prob.homotopy(x, prob.p, t)
@@ -199,7 +186,7 @@ function residual_jacobian!(_H, _J, u, cache::_C{<: FPBPWithHJac{false}})
 end
 
 function residual_jacobian!(_H, _, u, cache::_C{<: FPBPNoHJac{false}})
-    # TODO: No way to do this in ForwardDiff?  Or is it already
+    # TODO: Can I compute H and J in one go?  Or is it already
     # maximally efficient?
     H = residual!(_H, u, cache)
     J = ForwardDiff.jacobian(

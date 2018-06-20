@@ -140,6 +140,16 @@ function solve!(wrapper::AbstractContinuationSolver)
 end
 
 
+function residual(u::AbstractArray, cache::AbstractProblemCache)
+    H = similar(@view u[1:end-1])
+    return residual!(H, u, cache)
+end
+
+function residual(u::SVector, cache::AbstractProblemCache)
+    return residual!(nothing, u, cache)
+end
+
+
 function residual_jacobian!(cache::ContinuationCache, u::AbstractArray)
     @unpack H, J, prob_cache = cache
     H, J = residual_jacobian!(H, J, u, prob_cache)

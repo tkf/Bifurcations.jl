@@ -19,11 +19,16 @@ import .BifurcationsBase: TimeKind
 using .BifurcationsBase: statekind, MutableState, ImmutableState
 import .BifurcationsBase: StateKind
 
+using .BifurcationsBase: BifurcationProblem
+
 include("codim1/codim1.jl")
 
 include("fixedpoint.jl")
 include("interface.jl")
 include("diffeq.jl")
+
+include("codim2/codim2.jl")
+
 include("examples/examples.jl")
 
 # using Requires

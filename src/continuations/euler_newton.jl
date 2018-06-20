@@ -51,7 +51,7 @@ function ContinuationCache(prob_cache::AbstractProblemCache,
         u0,
         _similar(u0, N - 1),     # H
         _similar(u0, N - 1, N),  # J
-        _similar(u0, N - 1, N),  # Q
+        _similar(u0, N, N),      # Q
         h,
         direction,
         false,

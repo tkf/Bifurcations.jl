@@ -41,7 +41,7 @@ residual.
 - `u::AbstractVector` (size: `(N,)`)
 - `cache::AbstractProblemCache`
 """
-function residual end
+function residual end  # TODO: remove it (make it internal)
 
 """
     residual!(H, u, cache) ↦ H

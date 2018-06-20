@@ -1,4 +1,4 @@
-using .Continuations: AbstractContinuationProblem
+using ..Continuations: AbstractContinuationProblem
 
 abstract type BifurcationProblem{
         skind <: StateKind,
