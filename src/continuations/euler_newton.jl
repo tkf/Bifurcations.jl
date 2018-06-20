@@ -166,7 +166,9 @@ function predictor_corrector_step!(cache::ContinuationCache,
             return
         # elseif isalmostzero(H, rtol, atol)
         #     # If close enough to the solution, let it pass?  Should I?
-        elseif f0 > 2
+        elseif f0 <= 2
+            cache.adaptation_success = true
+        else
             continue
         end
 
@@ -185,7 +187,6 @@ function predictor_corrector_step!(cache::ContinuationCache,
         cache.u = v
         cache.J = J
         cache.h = h
-        cache.adaptation_success = true
 
         tJv = tangent(L, Q)
         if tJ ⋅ tJv < 0
