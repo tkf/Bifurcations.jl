@@ -1,5 +1,4 @@
 module TestSmoke
-using Compat
 using Base.Test
 using Plots
 using Bifurcations
@@ -7,8 +6,8 @@ using Bifurcations.Codim1: resolved_points, SpecialPoint
 using Bifurcations.Examples: PROBLEMS
 include("utils.jl")
 
-function nullshow(plt)
-    show(devnull, MIME("image/png"), plt)
+function nullshow(plt::Plots.Plot)
+    nullshow(MIME("image/png"), plt)
 end
 
 for prob in PROBLEMS
@@ -16,6 +15,18 @@ for prob in PROBLEMS
     solve!(solver)
     points = resolved_points(solver)
     @test all(isa.(points, SpecialPoint))
+
+    @testset "show" begin
+        @test_nothrow nullshow(solver)
+        @test_nothrow nullshow(solver.sol)
+
+        for sweep in solver.sol.sweeps
+            @test_nothrow nullshow(sweep)
+            for point in sweep.special_points
+                @test_nothrow nullshow(point)
+            end
+        end
+    end
 end
 
 for prob in PROBLEMS
