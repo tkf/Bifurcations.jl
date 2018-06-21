@@ -88,6 +88,10 @@ function warn_include_points(include_points)
         warn("""include_points = true is set.
              Note that it is known to disturb line styles and colors
              such that stability information is wrongly plotted.
+             As a workaround, use:
+                 Bifurcations.plot(sweep)
+                 Bifurcations.plot(sol)
+                 Bifurcations.plot(solver)
              """)
     end
 end
@@ -151,3 +155,21 @@ end
         end
     end
 end
+
+function plot(plottable::Union{Codim1Sweep,
+                               Codim1Solution,
+                               Codim1Solver};
+              resolve_points = plottable isa Codim1Solver,
+              include_points = true,
+              kwargs...)
+    plt = Main.Plots.plot()
+    for point in maybe_get_points(plottable, include_points, resolve_points)
+        Main.Plots.plot!(plt, point)
+    end
+    Main.Plots.plot!(plt, plottable;
+                     include_points = false,
+                     kwargs...)
+    return plt
+end
+
+plot(args...; kwargs...) = Main.Plots.plot(args...; kwargs...)
