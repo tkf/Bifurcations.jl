@@ -2,9 +2,7 @@ using Parameters: @unpack
 using ..Continuations: find_zero!
 
 resolved_points(solver::Codim1Solver) =
-    [resolve_point(point, solver)
-     for sweep in solver.sol.sweeps
-     for point in sweep.special_points]
+    [resolve_point(point, solver) for point in special_points(solver)]
 
 function resolve_point(point::AbstractSpecialPoint, solver::Codim1Solver)
     super = as(solver, ContinuationSolver)

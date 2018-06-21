@@ -29,10 +29,12 @@ end
     end
 
     @testset "plot" begin
-        @test_nothrow begin
-            sol = solve(prob)
-            plt = plot(sol)
-            nullshow(plt)
+        sol = solve(prob)
+        @test_nothrow nullshow(plot(sol))
+        @test_nothrow nullshow(plot(sol; include_points=true))
+
+        for p in points
+            @test_nothrow nullshow(plot(p))
         end
     end
 end
