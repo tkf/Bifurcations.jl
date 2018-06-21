@@ -10,7 +10,7 @@ function nullshow(plt::Plots.Plot)
     nullshow(MIME("image/png"), plt)
 end
 
-for prob in PROBLEMS
+@testset "smoke PROBLEMS[$i]" for (i, prob) in enumerate(PROBLEMS)
     solver = init(prob)
     solve!(solver)
     points = resolved_points(solver)
@@ -27,13 +27,13 @@ for prob in PROBLEMS
             end
         end
     end
-end
 
-for prob in PROBLEMS
-    @test_nothrow begin
-        sol = solve(prob)
-        plt = plot(sol)
-        nullshow(plt)
+    @testset "plot" begin
+        @test_nothrow begin
+            sol = solve(prob)
+            plt = plot(sol)
+            nullshow(plt)
+        end
     end
 end
 
