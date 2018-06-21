@@ -2,7 +2,8 @@ using RecipesBase
 
 using .Continuations: as, ContinuationSweep,
     ContinuationSolution, sweeps_as_vectors
-using .Codim1: Codim1Sweep, Codim1Solution, stabilities, curves_by_stability,
+using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
+    stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, special_points, resolved_points
 
 const AbstractSweep = Union{ContinuationSweep, Codim1Sweep}
@@ -71,6 +72,17 @@ end
     end
 end
 
+function maybe_get_points(sweep, include_points, resolve_points)
+    if include_points
+        if resolve_points
+            return resolved_points(sweep)
+        else
+            return special_points(sweep)
+        end
+    end
+    return []
+end
+
 @recipe function f(sweep::Codim1Sweep;
                    vars = (0, 1),
                    resolve_points = false,
@@ -92,17 +104,9 @@ end
         push!(linecolor, style[stable][:linecolor])
     end
 
-    if include_points
-        if resolve_points
-            point_list = resolved_points(sweep)
-        else
-            point_list = special_points(sweep)
-        end
-
-        for point in point_list
-            @series begin
-                point
-            end
+    for point in maybe_get_points(sweep, include_points, resolve_points)
+        @series begin
+            point
         end
     end
 
@@ -115,6 +119,24 @@ end
 @recipe function f(sol::Codim1Solution)
     for sweep in sol.sweeps
         @series begin
+            sweep
+        end
+    end
+end
+
+@recipe function f(solver::Codim1Solver;
+                   resolve_points = true,
+                   include_points = true)
+
+    for point in maybe_get_points(solver, include_points, resolve_points)
+        @series begin
+            point
+        end
+    end
+
+    for sweep in solver.sol.sweeps
+        @series begin
+            include_points := false  # already included
             sweep
         end
     end

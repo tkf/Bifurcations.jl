@@ -36,6 +36,9 @@ end
         @test_nothrow nullshow(plot(sol))
         @test_nothrow nullshow(plot(sol; include_points=true))
 
+        @test_nothrow nullshow(plot(solver))
+        @test_nothrow nullshow(plot(solver; include_points=true))
+
         for p in points
             @test_nothrow nullshow(plot(p))
         end
