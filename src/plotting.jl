@@ -83,12 +83,21 @@ function maybe_get_points(sweep, include_points, resolve_points)
     return []
 end
 
+function warn_include_points(include_points)
+    if include_points
+        warn("""include_points = true is set.
+             Note that it is known to disturb line styles and colors
+             such that stability information is wrongly plotted.
+             """)
+    end
+end
+# TODO: Make `include_points` work.
+
 @recipe function f(sweep::Codim1Sweep;
                    vars = (0, 1),
                    resolve_points = false,
                    include_points = false)
-    # TODO: turn on `include_points`.  It is turned off at the moment
-    # since it disturbs line style and color.
+    warn_include_points(include_points)
     ix, iy = (var_as_index(sweep, v) for v in vars)
     (info, (xs, ys)) = curves_by_stability(sweep, (ix, iy))
 
@@ -127,6 +136,7 @@ end
 @recipe function f(solver::Codim1Solver;
                    resolve_points = true,
                    include_points = true)
+    warn_include_points(include_points)
 
     for point in maybe_get_points(solver, include_points, resolve_points)
         @series begin
