@@ -1,6 +1,9 @@
 module TestSmoke
 using Base.Test
+
+import GR  # Workaround Plots.jl world age problem
 using Plots
+
 using Bifurcations
 using Bifurcations.Codim1: resolved_points, SpecialPoint
 using Bifurcations.Examples: PROBLEMS
