@@ -25,7 +25,7 @@ export BifurcationProblem
 include("codim1/codim1.jl")
 
 include("fixedpoint.jl")
-include("interface.jl")
+include("api.jl")
 include("diffeq.jl")
 
 include("codim2/codim2.jl")
