@@ -2,6 +2,7 @@
 
 ```@contents
 Pages = [
+    "examples.md",
     "api.md",
     "internals.md",
 ]

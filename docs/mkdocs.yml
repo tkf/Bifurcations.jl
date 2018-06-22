@@ -23,3 +23,6 @@ pages:
   - Home: index.md
   - API: api.md
   - Internals: internals.md
+  - Examples:
+    - examples.md
+    - examples/calcium.md

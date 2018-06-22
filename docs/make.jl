@@ -1,6 +1,9 @@
 using Documenter, Bifurcations
 using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
+import Plots
+
+Plots.default(dpi=15)
 
 makedocs()
 
