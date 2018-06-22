@@ -7,6 +7,15 @@ abstract type Codim2BifurcationProblem{skind, tkind} <:
     BifurcationProblem{skind, tkind}
 end
 
+"""
+    BifurcationProblem(point::AbstractSpecialPoint,
+                       solver::Codim1Solver,
+                       param_axis2::Lens,
+                       t2_domain::Tuple)
+
+Construct codimension-2 bifurcation problem given a bifurcation
+`point`.
+"""
 function BifurcationProblem(point::AbstractSpecialPoint,
                             solver::Codim1Solver,
                             param_axis2::Lens,

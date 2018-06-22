@@ -6,7 +6,7 @@ using StaticArrays: SVector
 using Setfield: @lens
 import Setfield
 
-using ...Bifurcations: FixedPointBifurcationProblem
+using ...Bifurcations: BifurcationProblem
 
 @with_kw struct CalciumParam{
         vlType, vcaType, iType, glType, gcaType, cType, v1Type, v2Type}
@@ -38,6 +38,6 @@ p = CalciumParam()
 ode = ODEProblem(f, u0, tspan, p)
 
 param_axis = @lens _.i
-prob = FixedPointBifurcationProblem(ode, param_axis, (-300.0, 100.0))
+prob = BifurcationProblem(ode, param_axis, (-300.0, 100.0))
 
 end  # module

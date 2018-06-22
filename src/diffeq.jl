@@ -32,10 +32,10 @@ maybe_subtract!(H, x, ::ImmutableState, ::Discrete) = H .- x
 
 
 """
-    FixedPointBifurcationProblem(ode_or_map::AbstractODEProblem,
-                                 param_axis::Lens,
-                                 t_domain::Tuple;
-                                 <keyword arguments>)
+    BifurcationProblem(ode_or_map::AbstractODEProblem,
+                       param_axis::Lens,
+                       t_domain::Tuple;
+                       <keyword arguments>)
 
 # Arguments
 - `ode_or_map`: An `ODEProblem` or `DiscreteProblem`.
@@ -43,7 +43,7 @@ maybe_subtract!(H, x, ::ImmutableState, ::Discrete) = H .- x
 - `t_domain :: Tuple`: A pair of numbers specifying the lower and
   upper bound for `param_axis`.
 """
-function FixedPointBifurcationProblem(
+function BifurcationProblem(
         de_prob::DEP, param_axis::Lens, t_domain::Tuple;
         kwargs...)
     u0 = de_prob.u0

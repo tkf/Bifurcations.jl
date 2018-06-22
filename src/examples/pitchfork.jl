@@ -8,7 +8,7 @@ module Pitchfork
 using DiffEqBase: ODEProblem
 using Setfield: @lens
 
-using ...Bifurcations: FixedPointBifurcationProblem
+using ...Bifurcations: BifurcationProblem
 
 f(u, p, t) = p * u - u^3
 
@@ -18,7 +18,7 @@ p = -1.0
 ode = ODEProblem(f, u0, tspan, p)
 
 param_axis = @lens _
-prob = FixedPointBifurcationProblem(ode, param_axis, (-1.0, 1.0))
+prob = BifurcationProblem(ode, param_axis, (-1.0, 1.0))
 
 
 using StaticArrays: @SVector

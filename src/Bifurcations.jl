@@ -20,6 +20,7 @@ using .BifurcationsBase: statekind, MutableState, ImmutableState
 import .BifurcationsBase: StateKind
 
 using .BifurcationsBase: BifurcationProblem
+export BifurcationProblem
 
 include("codim1/codim1.jl")
 

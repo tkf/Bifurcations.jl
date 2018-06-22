@@ -55,11 +55,11 @@ ode = ODEProblem(f, u0, tspan, p)
 Create a bifurcation problem:
 
 ```@example calcium
-using Bifurcations: FixedPointBifurcationProblem
+using Bifurcations: BifurcationProblem
 using Setfield: @lens
 
 param_axis = @lens _.i
-prob = FixedPointBifurcationProblem(ode, param_axis, (-300.0, 100.0))
+prob = BifurcationProblem(ode, param_axis, (-300.0, 100.0))
 nothing # hide
 ```
 
@@ -97,8 +97,6 @@ point = point_list[1]
 Numerical continuation of the Saddle-Node bifurcation point:
 
 ```@example calcium
-using Bifurcations: BifurcationProblem
-
 sn_prob = BifurcationProblem(
     point,
     solver,
