@@ -9,4 +9,5 @@ include("interface.jl")
 include("zero_point.jl")
 include("branching.jl")
 include("display.jl")
+include("diagnosis.jl")
 end

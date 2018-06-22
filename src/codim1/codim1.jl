@@ -5,4 +5,5 @@ include("analysis.jl")
 include("interface.jl")
 include("resolve_point.jl")
 include("display.jl")
+include("diagnosis.jl")
 end  # module
