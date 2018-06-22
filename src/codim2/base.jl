@@ -41,15 +41,5 @@ function output_vars(H)
 end
 
 cat_outputs(H1, H2, H3) = vcat(H1, H2, H3)
-
-function cat_outputs(H1::SVector{S, T1},
-                     H2::SVector{S, T2},
-                     H3::T3) where {S, T1, T2, T3}
-    values = [
-        [:(H1[$i]) for i in 1:S]
-        [:(H2[$i]) for i in 1:S]
-        :(H3)
-    ]
-    T = promote_type(T1, T2, T3)
-    return Expr(:call :(SVector{eq_dim(S), T}), values...)
-end
+cat_outputs(H1::SVector, H2::SVector, H3::Number) :: SVector =
+    vcat(H1, H2, SVector(H3))
