@@ -22,8 +22,14 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         (cd1_prob.t_domain[2], t2_domain[2]),
     )
 
+    # Manually cast.  The fact that `resolved.u` is not of type xtype
+    # indicates type instability somewhere.  Until it is fixed, let's
+    # silently cast always.  After type stability is established, it
+    # has to be changed to emit warning before cast.
+    xtype = typeof(de_prob.u0)
+
     resolved = resolve_point(point, solver)
-    x0 = resolved.u[1:end - 1]
+    x0 = xtype(resolved.u[1:end - 1])
     t0 = SVector(resolved.u[end], get(param_axis2, de_prob.p))
 
     vals, vecs = eig(Codim1.ds_jacobian(resolved.J))
@@ -35,7 +41,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         val, idx = findmax(real.(vals))
         # @assert val ≈ 0
     end
-    v0 = vecs[:, idx]
+    v0 = xtype(vecs[:, idx])
     v0 = v0 ./ norm(v0)
 
     return DiffEqCodim2BifurcationProblem(
