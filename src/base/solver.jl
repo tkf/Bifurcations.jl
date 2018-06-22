@@ -28,7 +28,7 @@ end
 
 function step!(solver::BifurcationSolver)
     step!(solver.super)
-    # calling [[../continuations/interface.jl::step!]]
+    # calling [[../continuations/solver.jl::step!]]
 
     analyze!(solver.cache, solver.opts)
     record!(solver.sol, solver.cache)
@@ -38,7 +38,7 @@ end
 
 function new_sweep!(solver::BifurcationSolver, setup::SweepSetup)
     new_sweep!(solver.super, setup)
-    # calling [[../continuations/interface.jl::new_sweep!]]
+    # calling [[../continuations/solver.jl::new_sweep!]]
 
     allocate_sweep!(solver.sol, as(solver, ContinuationSolver))
 

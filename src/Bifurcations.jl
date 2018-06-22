@@ -3,7 +3,7 @@ module Bifurcations
 # Re-export methods from DifferentialEquations extended here:
 export init, solve, solve!, step!
 using DiffEqBase: init, solve, solve!, step!
-# see: continuations/interface.jl
+# see: continuations/solver.jl
 
 include("continuations/continuations.jl")
 using .Continuations: AbstractContinuationProblem, AbstractProblemCache
