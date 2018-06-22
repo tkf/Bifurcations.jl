@@ -1,9 +1,10 @@
-using .Codim1: Codim1Solver, AbstractSpecialPoint
+using .BifurcationsBase: BifurcationProblem, BifurcationSolver
+using .Codim1: AbstractSpecialPoint
 using .Continuations: ContinuationOptions
 import .Continuations: init
 
-init(prob::FixedPointBifurcationProblem; kwargs...) =
-    Codim1Solver(prob, ContinuationOptions(; kwargs...))
+init(prob::BifurcationProblem; kwargs...) =
+    BifurcationSolver(prob, ContinuationOptions(; kwargs...))
 
 init(point::AbstractSpecialPoint, args...; kwargs...) =
     init(BifurcationProblem(point, args...); kwargs...)

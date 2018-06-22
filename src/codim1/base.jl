@@ -5,10 +5,23 @@ using ..Continuations: AbstractContinuationProblem, AbstractContinuationSolver,
     as, SweepSetup, ContinuationSweep, ContinuationSolution,
     ContinuationCache, ContinuationOptions, ContinuationSolver,
     residual_jacobian!
-import ..Continuations: step!, new_sweep!
 
 using ..BifurcationsBase: timekind, Continuous, Discrete
 import ..BifurcationsBase: TimeKind
+
+using ..BifurcationsBase
+using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
+    BifurcationSweep, BifurcationSolution, BifurcationSolver,
+    BifurcationProblem, BifurcationCache,
+    eigvals_prototpye, allocate_sweep!, check_sweep_length, record!
+import ..BifurcationsBase: analyze!, re_analyze!
+
+abstract type Codim1Problem{skind, tkind} <: BifurcationProblem{skind, tkind} end
+
+# Once (a reference to) bifurcation problem is stored in points,
+# sweeps, and solutions, set proper type aliases.
+const Codim1Sweep = BifurcationSweep
+const Codim1Solution = BifurcationSolution
 
 module PointTypes
 @enum(
@@ -23,89 +36,17 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
-abstract type AbstractSpecialPoint{tkind <: TimeKind} end
-TimeKind(::Type{<: AbstractSpecialPoint{tkind}}) where tkind = tkind()
+BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
-struct SpecialPoint{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
-    timekind::tkind
-    point_type::PointType
-    point_index::Int
-    u::uType
-    J::JType
-    sweep::WeakRef
-end
-# TODO: put BifurcationProblem in SpecialPoint/Interval struct so that
-# init(point) can initiate codim+1 bifurcation solver.
-
-struct SpecialPointInterval{tkind, uType, JType} <: AbstractSpecialPoint{tkind}
-    timekind::tkind
-    point_type::PointType
-    point_index::Int
-    u0::uType
-    u1::uType
-    # J0::JType
-    J1::JType
-    sweep::WeakRef
-end
-
-struct Codim1Sweep{tkind <: TimeKind,
-                   S <: ContinuationSweep,
-                   JType <: AbstractArray,
-                   eType <: AbstractArray,
-                   pType <: SpecialPointInterval{tkind}}
-    timekind::tkind
-    super::S
-    jacobians::Vector{JType}
-    eigvals::Vector{eType}
-    special_points::Vector{pType}
-end
-# See: [[../continuations/solution.jl::ContinuationSweep]]
-
-Codim1Sweep{tkind, S, JType, eType, pType}(super::S) where{
-    tkind <: TimeKind,
-    S <: ContinuationSweep,
-    JType <: AbstractArray,
-    eType <: AbstractArray,
-    pType <: SpecialPointInterval{tkind},
-} = Codim1Sweep{tkind, S, JType, eType, pType}(
-    tkind(),
-    super,
-    JType[],
-    eType[],
-    pType[],
-)
-
-TimeKind(::Type{<: Codim1Sweep{tkind}}) where tkind = tkind()
-
-eigvals_prototpye(cache::ContinuationCache) = cache.u[1:end - 1]
+BifurcationsBase.eigvals_prototpye(prob::Codim1Problem,
+                                   cache::ContinuationCache) =
+    cache.u[1:end - 1]
 # TODO: improve it for SVector
-
-function sweeptype(solver::ContinuationSolver,
-                   JType::Type = typeof(solver.cache.J),
-                   eType::Type = typeof(eigvals_prototpye(solver.cache)),
-                   )
-    tkind = typeof(timekind(solver.cache))
-    S = eltype(solver.sol.sweeps)
-    pType = SpecialPointInterval{tkind, eltype(S), JType}
-    return Codim1Sweep{tkind, S, JType, eType, pType}
-end
-
-Base.length(sweep::Codim1Sweep) = length(as(sweep, ContinuationSweep))
-
-struct Codim1Solution{S <: ContinuationSolution,
-                      W <: Codim1Sweep}
-    super::S
-    sweeps::Vector{W}
-end
-
-Codim1Solution(super::ContinuationSolution,
-               SweepType::Type{<: Codim1Sweep}) =
-    Codim1Solution(super, SweepType[])
 
 
 mutable struct Codim1Cache{P, C <: ContinuationCache{P},
                            JType, eType,
-                           } <: AbstractContinuationCache{P}
+                           } <: BifurcationCache{P}
     # TODO: declare types
     super::C
     J::JType
@@ -121,86 +62,26 @@ function Codim1Cache(super::C,
                               JType, eType}
     return Codim1Cache{P, C, JType, eType}(super, J, eigvals, point_type)
 end
+# TODO: Remove this constructor after removing the type parameter `P`.
 
-Codim1Cache(super::ContinuationCache) =
+Codim1Cache(prob::Codim1Problem, super::ContinuationCache) =
     Codim1Cache(
         super,
         ds_jacobian(super),
-        copy(eigvals_prototpye(super)),
+        copy(eigvals_prototpye(prob, super)),
     )
 
-struct Codim1Solver{R <: ContinuationSolver,
-                    P <: AbstractContinuationProblem,
-                    C <: Codim1Cache,
-                    S <: Codim1Solution,
-                    } <: AbstractContinuationSolver
-    super::R
-    prob::P
-    opts::ContinuationOptions
-    cache::C
-    sol::S
-end
+BifurcationsBase.BifurcationCache(prob::Codim1Problem,
+                                  super::ContinuationCache) =
+    Codim1Cache(prob, super)
 
-function Codim1Solver(prob::AbstractContinuationProblem,
-                      opts::ContinuationOptions)
-    super = ContinuationSolver(prob, opts)
-    cache = Codim1Cache(super.cache)
-    sol = Codim1Solution(super.sol, sweeptype(super))
-    return Codim1Solver(super, prob, opts, cache, sol)
-end
-
-function push_special_point!(sweep::Codim1Sweep,
-                             cache::Codim1Cache)
-    push_special_point!(sweep,
-                        cache.point_type,
-                        as(cache, ContinuationCache).J)
-end
-
-function push_special_point!(sweep::Codim1Sweep, point_type::PointType,
-                             J1)
-    super = as(sweep, ContinuationSweep)
-    point = SpecialPointInterval(
-        timekind(sweep),
-        point_type,
-        length(sweep),
-        super.u[end - 1],
-        super.u[end],
-        J1,
-        WeakRef(sweep),
-    )
-    push!(sweep.special_points, point)
-end
-
-function new_sweep!(solver::Codim1Solver, setup::SweepSetup)
-    new_sweep!(solver.super, setup)
-    # calling [[../continuations/interface.jl::new_sweep!]]
-
-    _new_sweep!(solver.sol, as(solver, ContinuationSolver))
-
-    for u in setup.past_points
-        re_analyze!(solver, u)
-    end
-    re_analyze!(solver, setup.u0)
-    check_sweep_length(solver.sol.sweeps[end])
-end
-# TODO: `new_sweep!(solver.super, setup)` sets up `solver.super.cache`
-# but `re_analyze!(solver, u)` rewrites the cache.  It causes no
-# problem at the moment since the last `re_analyze!(solver, setup.u0)`
-# set the cache back to the first state.
-
-function check_sweep_length(sweep)
-    @assert length(sweep) == length(sweep.jacobians) == length(sweep.eigvals)
-end
-
-function _new_sweep!(sol::Codim1Solution, solver::ContinuationSolver)
-    super = as(sol, ContinuationSolution)
-    sweep = Codim1Sweep(super.sweeps[end], solver)
-    push!(sol.sweeps, sweep)
-end
-
-function Codim1Sweep(super::ContinuationSweep, solver::ContinuationSolver)
-    return sweeptype(solver)(super)
-end
+const Codim1Solver{
+        R <: ContinuationSolver,
+        P <: Codim1Problem,
+        C <: Codim1Cache,
+        S <: Codim1Solution,
+        } =
+    BifurcationSolver{R, P, C, S}
 
 function re_analyze!(solver::Codim1Solver, u::AbstractVector)
     residual_jacobian!(as(solver.cache, ContinuationCache), u)
@@ -213,31 +94,11 @@ function re_analyze!(solver::Codim1Solver, u::AbstractVector)
     record!(solver.sol, solver.cache)
 end
 
-function step!(solver::Codim1Solver)
-    step!(solver.super)
-    # calling [[../continuations/interface.jl::step!]]
-
-    analyze!(solver.cache, solver.opts)
-    record!(solver.sol, solver.cache)
-    check_sweep_length(solver.sol.sweeps[end])
-end
-
 function analyze!(cache::Codim1Cache, opts)
     cache.J = J = ds_jacobian(cache)
     eigvals = ds_eigvals(timekind(cache), J)
     cache.point_type = guess_point_type(timekind(cache), cache, eigvals, opts)
     cache.eigvals = eigvals
-end
-
-function record!(sol::Codim1Solution, cache::Codim1Cache)
-    super = as(cache, ContinuationCache)
-    sweep = sol.sweeps[end]
-    push!(sweep.jacobians, copy(super.J))
-    push!(sweep.eigvals, copy(cache.eigvals))
-
-    if cache.point_type != PointTypes.none
-        push_special_point!(sweep, cache)
-    end
 end
 
 ds_jacobian(solver) = ds_jacobian(as(solver, ContinuationSolver).cache)

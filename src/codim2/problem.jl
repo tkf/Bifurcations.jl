@@ -63,3 +63,12 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         t0 = t0,
     )
 end
+
+
+using ..BifurcationsBase
+using ..Continuations: ContinuationSolver, ContinuationOptions
+
+# Bypass BifurcationSolver at the moment:
+BifurcationsBase.BifurcationSolver(prob::Codim2BifurcationProblem,
+                                   opts::ContinuationOptions) =
+    ContinuationSolver(prob, opts)

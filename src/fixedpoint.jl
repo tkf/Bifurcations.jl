@@ -2,6 +2,8 @@ using DiffEqBase: numargs
 using StaticArrays: SVector, push
 using ForwardDiff
 
+using .Codim1: Codim1Problem
+
 
 """
 Fixed point bifurcation problem.
@@ -29,7 +31,7 @@ See also: [`AbstractContinuationProblem`](@ref)
 struct FixedPointBifurcationProblem{skind <: StateKind,
                                     tkind <: TimeKind,
                                     HJ, H, U, T, P,
-                                    } <: BifurcationProblem{skind, tkind}
+                                    } <: Codim1Problem{skind, tkind}
     statekind::skind
     timekind::tkind
     homotopy_jacobian::HJ
