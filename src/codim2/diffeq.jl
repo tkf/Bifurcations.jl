@@ -96,7 +96,7 @@ end
 function isindomain(u, cache::DiffEqCodim2BifurcationCache)
     t = SVector(u[end-1], u[end])
     tmin, tmax = cache.prob.t_domain
-    return all(@. tmin <= t <= tmax)
+    return all(tmin .<= t .<= tmax)
 end
 
 residual!(H, u, cache::DiffEqCodim2BifurcationCache) =
