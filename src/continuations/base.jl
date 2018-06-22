@@ -22,9 +22,11 @@ solve by providing how to compute:
 abstract type AbstractContinuationProblem end
 
 """
+    AbstractProblemCache{P <: AbstractContinuationProblem}
+
 Cache for computing ``H`` and its Jacobian.
 """
-abstract type AbstractProblemCache{P} end
+abstract type AbstractProblemCache{P <: AbstractContinuationProblem} end
 
 """
     residual(u, cache) ↦ H
