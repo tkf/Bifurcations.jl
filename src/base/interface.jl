@@ -1,4 +1,9 @@
 """
+    point_type_type(::BifurcationProblem) :: Type
+"""
+function point_type_type end  # TODO: rename
+
+"""
     eigvals_prototpye(::BifurcationProblem, ::ContinuationCache)
 """
 function eigvals_prototpye end

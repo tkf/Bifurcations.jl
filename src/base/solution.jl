@@ -5,7 +5,7 @@ using ..Continuations: as,
 abstract type AbstractSpecialPoint{tkind <: TimeKind} end
 TimeKind(::Type{<: AbstractSpecialPoint{tkind}}) where tkind = tkind()
 
-struct SpecialPoint{tkind, uType, JType, ptType,
+struct SpecialPoint{tkind, ptType, uType, JType,
                     } <: AbstractSpecialPoint{tkind}
     timekind::tkind
     point_type::ptType
@@ -17,7 +17,7 @@ end
 # TODO: put BifurcationProblem in SpecialPoint/Interval struct so that
 # init(point) can initiate codim+1 bifurcation solver.
 
-struct SpecialPointInterval{tkind, uType, JType, ptType,
+struct SpecialPointInterval{tkind, ptType, uType, JType,
                             } <: AbstractSpecialPoint{tkind}
     timekind::tkind
     point_type::ptType
@@ -31,10 +31,12 @@ end
 
 struct BifurcationSweep{
         tkind <: TimeKind,
+        ptType,
         S <: ContinuationSweep,
         JType <: AbstractArray,
         eType <: AbstractArray,
-        pType <: SpecialPointInterval{tkind}}
+        pType <: SpecialPointInterval{tkind, ptType},
+        }
     timekind::tkind
     super::S
     jacobians::Vector{JType}
@@ -43,13 +45,14 @@ struct BifurcationSweep{
 end
 # See: [[../continuations/solution.jl::ContinuationSweep]]
 
-BifurcationSweep{tkind, S, JType, eType, pType}(super::S) where{
+BifurcationSweep{tkind, ptType, S, JType, eType, pType}(super::S) where{
     tkind <: TimeKind,
+    ptType,
     S <: ContinuationSweep,
     JType <: AbstractArray,
     eType <: AbstractArray,
-    pType <: SpecialPointInterval{tkind},
-} = BifurcationSweep{tkind, S, JType, eType, pType}(
+    pType <: SpecialPointInterval{tkind, ptType},
+} = BifurcationSweep{tkind, ptType, S, JType, eType, pType}(
     tkind(),
     super,
     JType[],
@@ -72,8 +75,10 @@ function sweeptype(prob::BifurcationProblem,
                    )
     tkind = typeof(timekind(solver.cache))
     S = eltype(solver.sol.sweeps)
-    pType = SpecialPointInterval{tkind, eltype(S), JType}
-    return BifurcationSweep{tkind, S, JType, eType, pType}
+    uType = eltype(S)
+    ptType = point_type_type(prob)
+    pType = SpecialPointInterval{tkind, ptType, uType, JType}
+    return BifurcationSweep{tkind, ptType, S, JType, eType, pType}
 end
 
 function BifurcationSweep(super::ContinuationSweep, solver::ContinuationSolver)

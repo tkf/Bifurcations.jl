@@ -18,11 +18,6 @@ import ..BifurcationsBase: analyze!, re_analyze!
 
 abstract type Codim1Problem{skind, tkind} <: BifurcationProblem{skind, tkind} end
 
-# Once (a reference to) bifurcation problem is stored in points,
-# sweeps, and solutions, set proper type aliases.
-const Codim1Sweep = BifurcationSweep
-const Codim1Solution = BifurcationSolution
-
 module PointTypes
 @enum(
     PointType,
@@ -35,6 +30,11 @@ module PointTypes
 )
 end  # module
 using .PointTypes: PointType
+
+const Codim1Sweep{tkind, ptType <: PointType} = BifurcationSweep{tkind, ptType}
+const Codim1Solution{S, W <: Codim1Sweep} = BifurcationSolution{S, W}
+
+BifurcationsBase.point_type_type(::Codim1Problem) = PointType
 
 BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 

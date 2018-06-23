@@ -17,11 +17,6 @@ using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     eigvals_prototpye, allocate_sweep!, check_sweep_length, record!
 import ..BifurcationsBase: analyze!, re_analyze!
 
-# Once (a reference to) bifurcation problem is stored in points,
-# sweeps, and solutions, set proper type aliases.
-const Codim2Sweep = BifurcationSweep
-const Codim2Solution = BifurcationSolution
-
 
 """
 Codimension 2 bifurcation points and special points.
@@ -42,6 +37,11 @@ module PointTypes
 )
 end  # module
 using .PointTypes: PointType
+
+const Codim2Sweep{tkind, ptType <: PointType} = BifurcationSweep{tkind, ptType}
+const Codim2Solution{S, W <: Codim2Sweep} = BifurcationSolution{S, W}
+
+BifurcationsBase.point_type_type(::Codim2Problem) = PointType
 
 BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
