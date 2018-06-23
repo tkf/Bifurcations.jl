@@ -31,7 +31,8 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
-const Codim1Sweep{tkind, ptType <: PointType} = BifurcationSweep{tkind, ptType}
+const Codim1Sweep{tkind <: TimeKind, ptType <: PointType} =
+    BifurcationSweep{tkind, ptType}
 const Codim1Solution{S, W <: Codim1Sweep} = BifurcationSolution{S, W}
 
 BifurcationsBase.point_type_type(::Codim1Problem) = PointType

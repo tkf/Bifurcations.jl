@@ -2,12 +2,12 @@ using RecipesBase
 
 using .Continuations: as, ContinuationSweep,
     ContinuationSolution, sweeps_as_vectors
-using .BifurcationsBase: special_points
+using .BifurcationsBase: BifurcationSweep, BifurcationSolution, special_points
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
 
-const AbstractSweep = Union{ContinuationSweep, Codim1Sweep}
+const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
 
 domain_prototype(sweep::AbstractSweep) = as(sweep, ContinuationSweep).u[1]
 domain_prototype(point::SpecialPoint) = point.u
@@ -39,6 +39,20 @@ const STYLE = Dict(
         ),
     ),
 )
+
+@recipe function plot(
+        wrapper::AbstractSweep;
+        vars = (0, 1),
+        # To be compatible with Codim1Sweep plotter. They are ignored:
+        resolve_points = nothing,
+        include_points = nothing,
+        )
+    sweep = as(wrapper, ContinuationSweep)
+    ix, iy = (var_as_index(sweep, v) for v in vars)
+    xs = [u[ix] for u in sweep.u]
+    ys = [u[iy] for u in sweep.u]
+    (xs, ys)
+end
 
 @recipe function f(sol::ContinuationSolution; vars = (0, 1))
     ix, iy = vars
@@ -130,7 +144,7 @@ end
     (xs, ys)
 end
 
-@recipe function f(sol::Codim1Solution)
+@recipe function f(sol::BifurcationSolution)
     for sweep in sol.sweeps
         @series begin
             sweep
@@ -138,8 +152,8 @@ end
     end
 end
 
-@recipe function f(solver::Codim1Solver;
-                   resolve_points = true,
+@recipe function f(solver::BifurcationSolver;
+                   resolve_points = solver isa Codim1Solver,
                    include_points = true)
     warn_include_points(include_points)
 
