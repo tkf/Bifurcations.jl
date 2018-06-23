@@ -38,8 +38,13 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
-const Codim2Sweep{tkind, ptType <: PointType} = BifurcationSweep{tkind, ptType}
-const Codim2Solution{S, W <: Codim2Sweep} = BifurcationSolution{S, W}
+const Codim2Sweep{tkind <: TimeKind, ptType <: PointType} =
+    BifurcationSweep{tkind, ptType}
+const Codim2Solution{S <: ContinuationSolution, W <: Codim2Sweep} =
+    BifurcationSolution{S, W}
+# The constraints `<: TimeKind` and `<: ContinuationSolution` are
+# important.
+# See: [[../codim1/solver.jl::Codim1Sweep]]
 
 BifurcationsBase.point_type_type(::Codim2Problem) = PointType
 

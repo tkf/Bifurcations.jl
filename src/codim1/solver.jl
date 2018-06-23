@@ -33,7 +33,12 @@ using .PointTypes: PointType
 
 const Codim1Sweep{tkind <: TimeKind, ptType <: PointType} =
     BifurcationSweep{tkind, ptType}
-const Codim1Solution{S, W <: Codim1Sweep} = BifurcationSolution{S, W}
+const Codim1Solution{S <: ContinuationSolution, W <: Codim1Sweep} =
+    BifurcationSolution{S, W}
+# The constraints `<: TimeKind` and `<: ContinuationSolution` are
+# important.  For example, the compiler didn't infer that
+# `Codim1Sweep` was more specific than `BifurcationSweep` when `tkind`
+# type parameter for `Codim1Sweep` was unconstrained.
 
 BifurcationsBase.point_type_type(::Codim1Problem) = PointType
 
