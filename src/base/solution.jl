@@ -71,7 +71,7 @@ end
 function sweeptype(prob::BifurcationProblem,
                    solver::ContinuationSolver,
                    JType::Type = typeof(solver.cache.J),
-                   eType::Type = typeof(eigvals_prototpye(prob, solver.cache)),
+                   eType::Type = typeof(eigvals_prototype(prob, solver.cache)),
                    )
     tkind = typeof(timekind(solver.cache))
     S = eltype(solver.sol.sweeps)

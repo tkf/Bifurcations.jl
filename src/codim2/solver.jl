@@ -14,7 +14,7 @@ using ..BifurcationsBase
 using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     BifurcationSweep, BifurcationSolution, BifurcationSolver,
     BifurcationProblem, BifurcationCache,
-    eigvals_prototpye, allocate_sweep!, check_sweep_length, record!
+    eigvals_prototype, allocate_sweep!, check_sweep_length, record!
 import ..BifurcationsBase: analyze!, re_analyze!
 
 
@@ -45,7 +45,7 @@ BifurcationsBase.point_type_type(::Codim2Problem) = PointType
 
 BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
-function BifurcationsBase.eigvals_prototpye(prob::Codim2Problem,
+function BifurcationsBase.eigvals_prototype(prob::Codim2Problem,
                                             cache::ContinuationCache)
     N = length(cache.u) ÷ 2 - 1
     return cache.u[1:N]
@@ -76,7 +76,7 @@ Codim2Cache(prob::Codim2Problem, super::ContinuationCache) =
     Codim2Cache(
         super,
         ds_jacobian(super),
-        copy(eigvals_prototpye(prob, super)),
+        copy(eigvals_prototype(prob, super)),
     )
 
 BifurcationsBase.BifurcationCache(prob::Codim2Problem,

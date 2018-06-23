@@ -13,7 +13,7 @@ using ..BifurcationsBase
 using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     BifurcationSweep, BifurcationSolution, BifurcationSolver,
     BifurcationProblem, BifurcationCache,
-    eigvals_prototpye, allocate_sweep!, check_sweep_length, record!
+    eigvals_prototype, allocate_sweep!, check_sweep_length, record!
 import ..BifurcationsBase: analyze!, re_analyze!
 
 abstract type Codim1Problem{skind, tkind} <: BifurcationProblem{skind, tkind} end
@@ -38,7 +38,7 @@ BifurcationsBase.point_type_type(::Codim1Problem) = PointType
 
 BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
-BifurcationsBase.eigvals_prototpye(prob::Codim1Problem,
+BifurcationsBase.eigvals_prototype(prob::Codim1Problem,
                                    cache::ContinuationCache) =
     cache.u[1:end - 1]
 # TODO: improve it for SVector
@@ -67,7 +67,7 @@ Codim1Cache(prob::Codim1Problem, super::ContinuationCache) =
     Codim1Cache(
         super,
         ds_jacobian(super),
-        copy(eigvals_prototpye(prob, super)),
+        copy(eigvals_prototype(prob, super)),
     )
 
 BifurcationsBase.BifurcationCache(prob::Codim1Problem,

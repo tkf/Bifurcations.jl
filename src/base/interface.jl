@@ -4,9 +4,9 @@
 function point_type_type end  # TODO: rename
 
 """
-    eigvals_prototpye(::BifurcationProblem, ::ContinuationCache)
+    eigvals_prototype(::BifurcationProblem, ::ContinuationCache)
 """
-function eigvals_prototpye end
+function eigvals_prototype end
 
 """
     regular_point(::Type{P <: AbstractSpecialPoint}) :: P
