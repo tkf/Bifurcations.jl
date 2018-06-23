@@ -110,7 +110,7 @@ solve!(sn_solver)
 Plot the phase diagram:
 
 ```@example calcium
-plt2 = plot(sn_solver.sol; vars=(5, 6))
+plt2 = plot(sn_solver.sol)
 savefig(plt2, "calcium-2.png"); nothing # hide
 ```
 

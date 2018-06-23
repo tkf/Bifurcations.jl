@@ -1,15 +1,23 @@
 using RecipesBase
 
-using .Continuations: as, ContinuationSweep,
-    ContinuationSolution, sweeps_as_vectors
-using .BifurcationsBase: BifurcationSweep, BifurcationSolution, special_points
+using .Continuations: as, ContinuationSweep, ContinuationSolution,
+    ContinuationSolver, sweeps_as_vectors
+using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
+    BifurcationSolver, special_points
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
-using .Codim2: Codim2Sweep
+using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver
 
+const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
+const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
 const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
+const Codim1Ctx = Union{Codim1Sweep, Codim1Solution, Codim1Solver}
+const Codim2Ctx = Union{Codim2Sweep, Codim2Solution, Codim2Solver}
 
+dim_domain(ctx) = length(domain_prototype(ctx))
+domain_prototype(solver::AbstractSolver) = domain_prototype(solver.sol)
+domain_prototype(sol::AbstractSolution) = domain_prototype(sol.sweeps[1])
 domain_prototype(sweep::AbstractSweep) = as(sweep, ContinuationSweep).u[1]
 domain_prototype(point::SpecialPoint) = point.u
 domain_prototype(point::SpecialPointInterval) = point.u0
@@ -19,6 +27,35 @@ function var_as_index(thing, i)
         i = length(domain_prototype(thing))
     end
     return i
+end
+
+assert_non_empty(solver::AbstractSolver) = assert_non_empty(solver.sol)
+function assert_non_empty(sol::AbstractSolution)
+    if isempty(sol.sweeps)
+        error("Solution does not have a sweep:\n",
+              sprint(showcompact, sol))
+    end
+    for sweep in sol.sweeps
+        assert_non_empty(sweep)
+    end
+end
+function assert_non_empty(sweep::AbstractSweep)
+    if isempty(as(sweep, ContinuationSweep).u)
+        error("Sweep does not have a point:\n",
+              sprint(showcompact, sweep))
+    end
+end
+
+default_vars(::Any) = (0, 1)
+function default_vars(ctx::Codim1Ctx)
+    assert_non_empty(ctx)
+    D = dim_domain(ctx)
+    return (D, 1)
+end
+function default_vars(ctx::Codim2Ctx)
+    assert_non_empty(ctx)
+    D = dim_domain(ctx)
+    return (D - 1, D)
 end
 
 const STYLE = Dict(
@@ -52,7 +89,7 @@ const STYLE = Dict(
 
 @recipe function plot(
         wrapper::AbstractSweep;
-        vars = (0, 1),
+        vars = default_vars(wrapper),
         # To be compatible with Codim1Sweep plotter. They are ignored:
         bif_style = nothing,
         resolve_points = nothing,
@@ -65,7 +102,8 @@ const STYLE = Dict(
     (xs, ys)
 end
 
-@recipe function plot(sol::ContinuationSolution; vars = (0, 1))
+@recipe function plot(sol::ContinuationSolution;
+                      vars = default_vars(sol))
     ix, iy = vars
     xs = sweeps_as_vectors(sol, ix)
     ys = sweeps_as_vectors(sol, iy)
@@ -77,7 +115,7 @@ end
 @recipe function plot(
         point::Union{SpecialPoint,
                      SpecialPointInterval};
-        vars = (0, 1),
+        vars = default_vars(point),
         bif_style = STYLE)
     ix, iy = (var_as_index(point, v) for v in vars)
 
@@ -126,7 +164,7 @@ end
 
 @recipe function plot(
         sweep::Codim1Sweep;
-        vars = (0, 1),
+        vars = default_vars(sweep),
         bif_style = STYLE,
         resolve_points = false,
         include_points = false)
@@ -208,7 +246,7 @@ function plot(plottable::Union{BifurcationSweep,
                                BifurcationSolver};
               resolve_points = plottable isa Codim1Solver,
               include_points = true,
-              vars = (0, 1),
+              vars = default_vars(plottable),
               bif_style = STYLE,
               kwargs...)
     plt = Main.Plots.plot()

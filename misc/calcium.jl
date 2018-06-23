@@ -27,5 +27,5 @@ codim2_prob = BifurcationProblem(
 codim2_solver = init(codim2_prob)
 solve!(codim2_solver)
 
-plt2 = plot(codim2_solver.sol; vars=(5, 6))
+plt2 = plot(codim2_solver.sol)
 display(plt2)
