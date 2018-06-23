@@ -65,7 +65,15 @@ mutable struct Codim2Cache{P, C <: ContinuationCache{P},
     J::JType
     eigvals::eType
     point_type::PointType
+
+    """
+    The quadratic coefficient ``a(0)``.
+    See: http://www.scholarpedia.org/article/Saddle-node_bifurcation
+    """
+    quadratic_coefficient::Float64
 end
+# TODO: Maybe rename Codim2Cache to SNContCache for something.
+# Or put bifurcation type-specific cache in a sub-cache?
 
 function Codim2Cache(super::C,
                      J::JType,
@@ -73,7 +81,8 @@ function Codim2Cache(super::C,
                      point_type = PointTypes.none,
                      ) where {P, C <: ContinuationCache{P},
                               JType, eType}
-    return Codim2Cache{P, C, JType, eType}(super, J, eigvals, point_type)
+    return Codim2Cache{P, C, JType, eType}(super, J, eigvals, point_type,
+                                           NaN)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
 
@@ -109,8 +118,10 @@ end
 
 function analyze!(cache::Codim2Cache, opts)
     cache.J = J = ds_jacobian(cache)
-    cache.point_type = guess_point_type(timekind(cache), cache, opts)
+    a0 = sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
+    cache.point_type = guess_point_type(timekind(cache), cache, a0, opts)
     cache.eigvals = ds_eigvals(timekind(cache), J)
+    cache.quadratic_coefficient = a0
 end
 
 ds_jacobian(solver) = ds_jacobian(as(solver, ContinuationSolver).cache)
@@ -127,3 +138,13 @@ function ds_jacobian(HJ::SMatrix)
     return HJ[1:N, 1:N]
 end
 # TOOD: optimize it for StaticArrays using generated functions
+
+# TODO: define ds_f!
+ds_f(x, prob, cache::Codim2Cache) = ds_f(x, as(cache, ContinuationCache))
+
+function ds_f(x, cache::ContinuationCache)
+    prob = cache.prob_cache.prob  # TODO: interface
+    f = prob.de_prob.f  # TODO: interface
+    p = modified_param!(prob, cache.u)
+    return f(x, p, 0)
+end
