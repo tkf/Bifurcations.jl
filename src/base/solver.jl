@@ -25,6 +25,8 @@ function BifurcationSolver(prob::BifurcationProblem,
     return BifurcationSolver(super, prob, opts, cache, sol)
 end
 
+TimeKind(::Type{<: BifurcationSolver{_, P}}) where {_, P} = TimeKind(P)
+
 
 function step!(solver::BifurcationSolver)
     step!(solver.super)

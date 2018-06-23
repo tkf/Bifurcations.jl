@@ -94,3 +94,5 @@ end
 BifurcationSolution(super::ContinuationSolution,
                     SweepType::Type{<: BifurcationSweep}) =
     BifurcationSolution(super, SweepType[])
+
+TimeKind(::Type{<: BifurcationSolution{_, W}}) where {_, W} = TimeKind(W)

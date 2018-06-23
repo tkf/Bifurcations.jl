@@ -4,10 +4,6 @@ tkindstr(x) = tkindstr(timekind(x))
 tkindstr(::Discrete) = "Discrete"
 tkindstr(::Continuous) = "Continuous"
 
-tkindstr(sol::BifurcationSolution) =
-    isempty(sol.sweeps) ? "?" : tkindstr(sol.sweeps[1])  # FIXME
-tkindstr(solver::BifurcationSolver) = tkindstr(solver.sol)
-
 function print_header(io::IO, point::Union{SpecialPoint,
                                            SpecialPointInterval})
     print(io, aliasof(point), " <",
