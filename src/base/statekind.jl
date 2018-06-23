@@ -3,7 +3,6 @@ struct MutableState <: StateKind end
 struct ImmutableState <: StateKind end
 
 statekind(::T) where T = StateKind(T)
-# TODO: Use StateKind everywhere instead of boolean iip type parameter.
 
 
 StateKind(::Type{<: AbstractContinuationCache{PC}}) where PC = StateKind(PC)
