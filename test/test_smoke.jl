@@ -21,15 +21,7 @@ end
     @test all(isa.(points, SpecialPoint))
 
     @testset "show" begin
-        @test_nothrow nullshow(solver)
-        @test_nothrow nullshow(solver.sol)
-
-        for sweep in solver.sol.sweeps
-            @test_nothrow nullshow(sweep)
-            for point in sweep.special_points
-                @test_nothrow nullshow(point)
-            end
-        end
+        smoke_test_solver_show(solver)
     end
 
     @testset "plot" begin

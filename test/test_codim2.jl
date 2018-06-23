@@ -1,11 +1,19 @@
 module TestCodim2
 using Base.Test
 
+import GR  # Workaround Plots.jl world age problem
+using Plots
+
 using Bifurcations
+using Bifurcations: plot  # TODO: stop doing this
 using Bifurcations: BifurcationProblem, special_points
 using Bifurcations.Examples: Calcium
 using Setfield: @lens
 include("utils.jl")
+
+function nullshow(plt::Plots.Plot)
+    nullshow(MIME("image/png"), plt)
+end
 
 @testset "smoke Calcium codim-2" begin
     codim1 = init(Calcium.prob)
@@ -20,6 +28,14 @@ include("utils.jl")
         )
         codim2_solver = init(codim2_prob)
         @test_nothrow solve!(codim2_solver)
+
+        @testset "show" begin
+            smoke_test_solver_show(codim2_solver)
+        end
+
+        @testset "plot" begin
+            smoke_test_solver_plot(codim2_solver)
+        end
     end
 end
 
