@@ -28,6 +28,7 @@ end
         sol = solve(prob)
         @test_nothrow nullshow(plot(sol))
         @test_nothrow nullshow(plot(sol; include_points=true))
+        @test_nothrow nullshow(plot(sol; bif_style=Dict()))
 
         @test_nothrow nullshow(plot(solver))
         @test_nothrow nullshow(plot(solver; include_points=false))

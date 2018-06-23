@@ -49,6 +49,7 @@ const STYLE = Dict(
         wrapper::AbstractSweep;
         vars = (0, 1),
         # To be compatible with Codim1Sweep plotter. They are ignored:
+        bif_style = nothing,
         resolve_points = nothing,
         include_points = nothing,
         )
@@ -72,15 +73,15 @@ end
         point::Union{SpecialPoint,
                      SpecialPointInterval};
         vars = (0, 1),
-        style = STYLE)
+        bif_style = STYLE)
     ix, iy = (var_as_index(point, v) for v in vars)
 
-    delete!(plotattributes, :vars)
-    delete!(plotattributes, :style)
-
-    merge!(plotattributes,
-           style[:point][:default],
-           style[:point][point.point_type])
+    if haskey(bif_style, :point)
+        point_style = bif_style[:point]
+        merge!(plotattributes,
+               get(point_style, :default, Dict()),
+               get(point_style, point.point_type, Dict()))
+    end
 
     label --> ""
     if point isa SpecialPointInterval
@@ -121,6 +122,7 @@ end
 @recipe function plot(
         sweep::Codim1Sweep;
         vars = (0, 1),
+        bif_style = STYLE,
         resolve_points = false,
         include_points = false)
     warn_include_points(include_points)
@@ -197,15 +199,18 @@ function plot(plottable::Union{BifurcationSweep,
               resolve_points = plottable isa Codim1Solver,
               include_points = true,
               vars = (0, 1),
+              bif_style = STYLE,
               kwargs...)
     plt = Main.Plots.plot()
     for point in maybe_get_points(plottable, include_points, resolve_points)
         Main.Plots.plot!(plt, point;
-                         vars = vars)
+                         vars = vars,
+                         bif_style = bif_style)
     end
     Main.Plots.plot!(plt, plottable;
                      include_points = false,
                      vars = vars,
+                     bif_style = bif_style,
                      kwargs...)
     return plt
 end
