@@ -1,6 +1,6 @@
 module Codim1
 using Compat
-include("base.jl")
+include("solver.jl")
 include("analysis.jl")
 include("tools.jl")
 include("resolve_point.jl")
