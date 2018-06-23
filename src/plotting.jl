@@ -54,7 +54,7 @@ const STYLE = Dict(
     (xs, ys)
 end
 
-@recipe function f(sol::ContinuationSolution; vars = (0, 1))
+@recipe function plot(sol::ContinuationSolution; vars = (0, 1))
     ix, iy = vars
     xs = sweeps_as_vectors(sol, ix)
     ys = sweeps_as_vectors(sol, iy)
@@ -63,10 +63,11 @@ end
     (xs, ys)
 end
 
-@recipe function f(point::Union{SpecialPoint,
-                                SpecialPointInterval};
-                   vars = (0, 1),
-                   style = STYLE)
+@recipe function plot(
+        point::Union{SpecialPoint,
+                     SpecialPointInterval};
+        vars = (0, 1),
+        style = STYLE)
     ix, iy = (var_as_index(point, v) for v in vars)
 
     delete!(plotattributes, :vars)
@@ -112,10 +113,11 @@ function warn_include_points(include_points)
 end
 # TODO: Make `include_points` work.
 
-@recipe function f(sweep::Codim1Sweep;
-                   vars = (0, 1),
-                   resolve_points = false,
-                   include_points = false)
+@recipe function plot(
+        sweep::Codim1Sweep;
+        vars = (0, 1),
+        resolve_points = false,
+        include_points = false)
     warn_include_points(include_points)
     ix, iy = (var_as_index(sweep, v) for v in vars)
     (info, (xs, ys)) = curves_by_stability(sweep, (ix, iy))
@@ -144,7 +146,7 @@ end
     (xs, ys)
 end
 
-@recipe function f(sol::BifurcationSolution)
+@recipe function plot(sol::BifurcationSolution)
     for sweep in sol.sweeps
         @series begin
             sweep
@@ -152,9 +154,10 @@ end
     end
 end
 
-@recipe function f(solver::BifurcationSolver;
-                   resolve_points = solver isa Codim1Solver,
-                   include_points = true)
+@recipe function plot(
+        solver::BifurcationSolver;
+        resolve_points = solver isa Codim1Solver,
+        include_points = true)
     warn_include_points(include_points)
 
     for point in maybe_get_points(solver, include_points, resolve_points)
