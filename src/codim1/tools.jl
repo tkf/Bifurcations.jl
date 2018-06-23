@@ -59,8 +59,3 @@ function curves_by_stability(sol::Codim1Solution)
     end
     return info, curves
 end
-
-special_points(solver::Codim1Solver) = special_points(solver.sol)
-special_points(sol::Codim1Solution) =
-    [point for sweep in sol.sweeps for point in special_points(sweep)]
-special_points(sweep::Codim1Sweep) = sweep.special_points

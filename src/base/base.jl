@@ -6,5 +6,6 @@ include("problem.jl")
 include("solution.jl")
 include("solver.jl")
 include("interface.jl")
+include("tools.jl")
 include("display.jl")
 end  # module

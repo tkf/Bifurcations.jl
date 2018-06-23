@@ -2,9 +2,10 @@ using RecipesBase
 
 using .Continuations: as, ContinuationSweep,
     ContinuationSolution, sweeps_as_vectors
+using .BifurcationsBase: special_points
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
-    SpecialPoint, SpecialPointInterval, special_points, resolved_points
+    SpecialPoint, SpecialPointInterval, resolved_points
 
 const AbstractSweep = Union{ContinuationSweep, Codim1Sweep}
 

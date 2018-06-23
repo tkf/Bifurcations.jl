@@ -1,6 +1,6 @@
 using Parameters: @unpack
 using ..Continuations: find_zero!
-using ..BifurcationsBase: AbstractSpecialPoint
+using ..BifurcationsBase: AbstractSpecialPoint, special_points
 
 resolved_points(solver::Codim1Solver) =
     [resolve_point(point, solver) for point in special_points(solver)]
