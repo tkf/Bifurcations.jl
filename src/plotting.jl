@@ -22,6 +22,11 @@ function var_as_index(thing, i)
 end
 
 const STYLE = Dict(
+    :stability => Dict(
+        # is_stable => plotattributes
+        true => Dict(:linestyle => :solid, :linecolor => 1),
+        false => Dict(:linestyle => :dot, :linecolor => 2),
+    ),
     :point => Dict(
         :default => Dict(
             :markersize => 5,
@@ -129,11 +134,16 @@ end
     ix, iy = (var_as_index(sweep, v) for v in vars)
     (info, (xs, ys)) = curves_by_stability(sweep, (ix, iy))
 
-    # stability => style
-    style = Dict(
-        true => Dict(:linestyle => :solid, :linecolor => 1),
-        false => Dict(:linestyle => :dot, :linecolor => 2),
-    )
+    # is_stable => Dict(:linestyle => ?, :linecolor => ?)
+    style = deepcopy(STYLE[:stability])
+    # Empty `style` won't work so copying the default...  Not ideal.
+    # TODO: support arbitrary keys, not just linestyle and linecolor
+    if haskey(bif_style, :stability)
+        stability_style = bif_style[:stability]
+        merge!(style[true], get(stability_style, true, Dict()))
+        merge!(style[false], get(stability_style, false, Dict()))
+    end
+
     linestyle = []
     linecolor = []
     for stable in info
