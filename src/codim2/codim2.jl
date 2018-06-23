@@ -23,6 +23,7 @@ include("diffeq.jl")
 include("solver.jl")
 include("analysis.jl")
 include("api.jl")
+include("display.jl")
 include("diagnosis.jl")
 
 end  # module
