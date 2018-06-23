@@ -6,6 +6,7 @@ using .BifurcationsBase: BifurcationSweep, BifurcationSolution, special_points
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
+using .Codim2: Codim2Sweep
 
 const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
 
@@ -36,6 +37,10 @@ const STYLE = Dict(
         Codim1.PointTypes.period_doubling => Dict(
             :markercolor => 5,
             :markershape => :triangle,
+        ),
+        Codim2.PointTypes.cusp => Dict(
+            :markercolor => 6,
+            :markershape => :diamond,
         ),
     ),
 )
@@ -146,6 +151,12 @@ end
     (xs, ys)
 end
 
+@recipe function plot(sweep::Codim2Sweep)
+    label --> ""
+    linecolor --> 1
+    as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
+end
+
 @recipe function plot(sol::BifurcationSolution)
     for sweep in sol.sweeps
         @series begin
@@ -174,18 +185,27 @@ end
     end
 end
 
-function plot(plottable::Union{Codim1Sweep,
-                               Codim1Solution,
-                               Codim1Solver};
+"""
+    plot(...)
+
+A thin wrapper of `Plots.plot` with some workarounds for
+`Bifurcations`-related objects.
+"""
+function plot(plottable::Union{BifurcationSweep,
+                               BifurcationSolution,
+                               BifurcationSolver};
               resolve_points = plottable isa Codim1Solver,
               include_points = true,
+              vars = (0, 1),
               kwargs...)
     plt = Main.Plots.plot()
     for point in maybe_get_points(plottable, include_points, resolve_points)
-        Main.Plots.plot!(plt, point)
+        Main.Plots.plot!(plt, point;
+                         vars = vars)
     end
     Main.Plots.plot!(plt, plottable;
                      include_points = false,
+                     vars = vars,
                      kwargs...)
     return plt
 end
