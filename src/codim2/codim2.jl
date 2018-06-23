@@ -17,7 +17,7 @@ import ..BifurcationsBase: BifurcationProblem
 using Setfield: Lens
 using StaticArrays: SVector
 
-include("base.jl")
+include("utils.jl")
 include("problem.jl")
 include("diffeq.jl")
 include("solver.jl")
