@@ -25,6 +25,11 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
     end
     y, cotJ = _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
     tJ2 = (@view Q[:, 1:end-1]) * y
+
+    if y isa SVector  # TODO: don't
+        return SVector(tJ2...), cotJ
+    end
+
     return tJ2, cotJ
 end
 
