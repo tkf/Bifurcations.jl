@@ -178,7 +178,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
         f = max(min(f0, 2), 1/2)
         h = h / f
         if h < opts.h_min
-            return
+            break
         # elseif isalmostzero(H, rtol, atol)
         #     # If close enough to the solution, let it pass?  Should I?
         elseif f0 <= 2
@@ -186,6 +186,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
             @goto adaptation_success
         end
     end
+    error("Failed to adapt steplength h.")  # TODO: redesign
     # step adaptation failed
     return
 
@@ -198,6 +199,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
         end
         v, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
     end
+    error("Failed in corrector loop.")  # TODO: redesign
     # corrector failed
     return
 

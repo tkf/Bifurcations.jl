@@ -39,12 +39,16 @@ solve(prob::AbstractContinuationProblem; kwargs...) =
 
 function step!(solver::ContinuationSolver)
     predictor_corrector_step!(solver.cache, solver.opts)
+
+    # Errors are now thrown in predictor_corrector_step!.  I need to
+    # reconsider the error handling...
     if ! solver.cache.adaptation_success
         error("Failed to adapt steplength h.")
     end
     if ! solver.cache.corrector_success
         error("Failed in corrector loop.")
     end
+
     record!(solver.sol, solver.cache)
     solver.i += 1
 end
