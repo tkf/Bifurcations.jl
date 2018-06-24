@@ -28,6 +28,8 @@ p = (0.0, 3, 5, 3)
 ode = ODEProblem(f, u0, tspan, p)
 
 param_axis = @lens _[1]
-prob = BifurcationProblem(ode, param_axis, (0.0, 1.0))
+prob = BifurcationProblem(ode, param_axis, (0.0, 1.0),
+                          phase_space = (SVector(-0.2, -Inf),  # u_min
+                                         SVector(1.0, Inf)))   # u_max
 
 end  # module

@@ -26,6 +26,8 @@ See also: [`AbstractContinuationProblem`](@ref)
 * `u0::Union{AbstractArray, Real}`: Initial state.
 * `t0::Real`: Initial parameter.
 * `t_domain::Tuple{<:Real, <:Real}`: Range of the parameter.
+* `phase_space::Tuple{typeof(u0), typeof(u0)}`: A pair of lower and
+  upper bound of the phase space.  Default is unbounded.
 * `p`: Model parameter (constants).
 """
 struct FixedPointBifurcationProblem{skind <: StateKind,
@@ -36,25 +38,38 @@ struct FixedPointBifurcationProblem{skind <: StateKind,
     timekind::tkind
     homotopy_jacobian::HJ
     homotopy::H
+    # TODO: rename u0 -> x0 (consistently use x for dynamical system state)
     u0::U
     t0::T
     t_domain::Tuple{T, T}
+    phase_space::Tuple{U, U}
     p::P
 
-    # TODO: Define domain for u.  Maybe use Domains.jl?
+    # TODO: Use Domains.jl?
 end
+
+"""
+    unbounded_phase_space(u0::AbstractVector)
+    unbounded_phase_space(u0::Real)
+"""
+function unbounded_phase_space(x0::X) where {X <: AbstractVector}
+    return (X(fill(-Inf, length(x0))),
+            X(fill(+Inf, length(x0))))
+end
+unbounded_phase_space(::X) where {X <: Real} = (X(-Inf), X(Inf))
 
 function FixedPointBifurcationProblem(
         statekind::StateKind, timekind::TimeKind,
         homotopy::H, u0::U, t0::Real, t_domain::Tuple,
         p::P = nothing;
         homotopy_jacobian::HJ = nothing,
+        phase_space = unbounded_phase_space(u0),
         ) where{HJ, H, U, P}
     T = promote_type(typeof(t0), map(typeof, t_domain)...)
     return FixedPointBifurcationProblem(
         statekind, timekind,
         homotopy_jacobian, homotopy,
-        u0, t0, t_domain, p)
+        u0, t0, t_domain, phase_space, p)
 end
 
 struct HasJac end
@@ -147,9 +162,11 @@ residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache) =
                         hasjac(cache.prob))
 
 function isindomain(u, cache::_C{<: FixedPointBifurcationProblem})
-    t = u[end]
     tmin, tmax = cache.prob.t_domain
-    return tmin <= t <= tmax
+    xmin, xmax = cache.prob.phase_space
+    umin = vcat(xmin, SVector(tmin))
+    umax = vcat(xmax, SVector(tmax))
+    return all(umin .<= u .<= umax)
 end
 
 # ----------------------------------------------------------- inplace interface
