@@ -18,6 +18,7 @@ using Setfield: Lens
 using StaticArrays: SVector
 
 include("utils.jl")
+include("augmented_systems.jl")
 include("problem.jl")
 include("diffeq.jl")
 include("solver.jl")

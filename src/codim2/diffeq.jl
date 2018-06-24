@@ -9,10 +9,12 @@ Codimension-2 fixed point bifurcation problem wrapper for DifferentialEquations.
 struct DiffEqCodim2Problem{
         skind <: StateKind,
         tkind <: TimeKind,
+        ASType <: AugmentedSystem,
         P, X, V, T, L1, L2,
         } <: Codim2Problem{skind, tkind}
     statekind::skind
     timekind::tkind
+    augmented_system::ASType
     de_prob::P
     x0::X
     v0::V
@@ -34,40 +36,52 @@ function DiffEqCodim2Problem(
         v0 = copy(x0),  # TODO: fix it. this default won't work
         t0 = SVector(get(param_axis1, de_prob.p),
                      get(param_axis2, de_prob.p)),
+        augmented_system = BackReferencingAS(),
         )
     t_domain = (SVector{2, eltype(t0)}(t_domain[1]),
                 SVector{2, eltype(t0)}(t_domain[2]))
     return DiffEqCodim2Problem(
         statekind(de_prob), timekind(de_prob),
+        augmented_system,
         de_prob, x0, v0, t0, t_domain,
         param_axis1, param_axis2)
 end
 
+AugmentedSystem(::Type{<: DiffEqCodim2Problem{_sk, _tk, ASType}}
+                ) where {_sk, _tk, ASType} = ASType()
+
+_get_augsys_cache(::BackReferencingAS, prob::DiffEqCodim2Problem) =
+    BackReferencingASCache(copy(prob.v0))
+
 # ------------------------------------------------ DiffEqCodim2BifurcationCache
 
-struct DiffEqCodim2BifurcationCache{P, C} <: AbstractProblemCache{P}
+struct DiffEqCodim2BifurcationCache{P, C, AC} <: AbstractProblemCache{P}
     prob::P
+    augsys_cache::AC
     cfg::C
 end
 
-DiffEqCodim2BifurcationCache(prob::DiffEqCodim2Problem) =
-    DiffEqCodim2BifurcationCache(
+function DiffEqCodim2BifurcationCache(prob::DiffEqCodim2Problem)
+    augsys_cache = get_augsys_cache(prob)
+    return DiffEqCodim2BifurcationCache(
         prob,
-        setup_fd_config(statekind(prob), prob))
+        augsys_cache,
+        setup_fd_config(statekind(prob), prob, augsys_cache))
+end
 
-function setup_fd_config(::MutableState, prob)
+function setup_fd_config(::MutableState, prob, augsys_cache)
     x = vcat(prob.x0, prob.v0, prob.t0)  # length = 2N + 1
     y = copy(x)
     return ForwardDiff.JacobianConfig(
-        (y, x) -> _residual!(y, x, prob, statekind(cache.prob)),
+        (y, x) -> _residual!(y, x, prob, augsys_cache, statekind(cache.prob)),
         y,
         x)
 end
 
-function setup_fd_config(::ImmutableState, prob)
+function setup_fd_config(::ImmutableState, prob, augsys_cache)
     x = vcat(prob.x0, prob.v0, prob.t0)  # length = 2N + 1
     return ForwardDiff.JacobianConfig(
-        (x) -> _residual!(x, x, prob, statekind(cache.prob)),
+        (x) -> _residual!(x, x, prob, augsys_cache, statekind(cache.prob)),
         x)
 end
 
@@ -97,7 +111,7 @@ function isindomain(u, cache::DiffEqCodim2BifurcationCache)
 end
 
 residual!(H, u, cache::DiffEqCodim2BifurcationCache) =
-    _residual!(H, u, cache.prob, statekind(cache.prob))
+    _residual!(H, u, cache.prob, cache.augsys_cache, statekind(cache.prob))
 
 residual_jacobian!(H, J, u, cache::DiffEqCodim2BifurcationCache) =
     _residual_jacobian!(H, J, u, cache, statekind(cache.prob))
@@ -115,6 +129,7 @@ end
 # ------------------------------------------------------------------- residual!
 
 function _residual!(H, u, prob::DiffEqCodim2Problem,
+                    ::NormalizingASCache,
                     ::MutableState)
     q = modified_param!(prob, u)
 
@@ -139,6 +154,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
 end
 
 function _residual!(::Any, u, prob::DiffEqCodim2Problem,
+                    ::NormalizingASCache,
                     ::ImmutableState)
     q = modified_param!(prob, u)
 

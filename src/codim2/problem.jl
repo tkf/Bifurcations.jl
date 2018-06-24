@@ -17,7 +17,8 @@ Construct codimension-2 bifurcation problem given a bifurcation
 function BifurcationProblem(point::AbstractSpecialPoint,
                             solver::Codim1Solver,
                             param_axis2::Lens,
-                            t2_domain::Tuple)
+                            t2_domain::Tuple;
+                            kwargs...)
 
     cd1_prob = solver.prob :: FixedPointBifurcationProblem
     de_wrapper = cd1_prob.p :: DiffEqWrapper
@@ -59,5 +60,6 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         x0 = x0,
         v0 = v0,
         t0 = t0,
-    )
+        augmented_system = preferred_augsys(point),
+        kwargs...)
 end
