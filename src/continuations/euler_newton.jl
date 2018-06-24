@@ -78,7 +78,7 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     max_misc_steps::Int = 100   # TODO: remove
     nominal_contraction::Float64 = 0.8
     nominal_distance::Float64 = 0.1
-    nominal_angle_rad::Float64 = 2π * (30 / 360)
+    nominal_angle_rad::Float64 = 2π * (10 / 360)
 end
 
 
