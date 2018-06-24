@@ -9,5 +9,6 @@ const PROBLEMS = [
     Pitchfork.prob,
     Transcritical.prob,
     Calcium.prob,
+    PredatorPrey.prob,
 ]
 end  # module

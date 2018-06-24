@@ -9,6 +9,7 @@ using Bifurcations.Examples.Calcium: CalciumParam
 using Setfield: @lens
 
 make_codim2(::Real, point, solver1) = nothing
+make_codim2(::Tuple, point, solver1) = nothing  # PredatorPrey
 
 make_codim2(::CalciumParam, point, solver1) =
     BifurcationProblem(
