@@ -46,7 +46,7 @@ BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
 BifurcationsBase.eigvals_prototype(prob::Codim1Problem,
                                    cache::ContinuationCache) =
-    cache.u[1:end - 1]
+    cache.u[1:end - 1] .+ 1im
 # TODO: improve it for SVector
 
 
