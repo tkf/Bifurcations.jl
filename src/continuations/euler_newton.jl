@@ -158,13 +158,11 @@ function predictor_corrector_step!(cache::ContinuationCache,
 
         # corrector
         v, dv, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
-        isalmostzero(H, rtol, atol) && @goto adaptation_skipped
         n1 = norm(dv)
         tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
 
         v, dv, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
-        isalmostzero(H, rtol, atol) && @goto adaptation_skipped
         n2 = norm(dv)
 
         # step adaptation
@@ -181,6 +179,8 @@ function predictor_corrector_step!(cache::ContinuationCache,
         h = h / f
         if h < opts.h_min
             break
+        elseif isalmostzero(H, rtol, atol)
+            @goto corrector_skipped
         elseif f0 <= 2
             cache.adaptation_success = true
             @goto adaptation_success
@@ -204,7 +204,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
     return
 
     # TODO: consider if I can avoid this special case
-    @label adaptation_skipped
+    @label corrector_skipped
     cache.adaptation_success = true
     cache.corrector_success = true
 
