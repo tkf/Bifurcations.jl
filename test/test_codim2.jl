@@ -7,6 +7,7 @@ using Plots
 using Bifurcations
 using Bifurcations: plot  # TODO: stop doing this
 using Bifurcations: BifurcationProblem, special_points
+using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
 using Bifurcations.Examples: Calcium
 using Setfield: @lens
 include("utils.jl")
@@ -15,7 +16,9 @@ function nullshow(plt::Plots.Plot)
     nullshow(MIME("image/png"), plt)
 end
 
-@testset "smoke Calcium codim-2" begin
+@testset "smoke Calcium codim-2 ($(nameof(ASType)))" for
+        ASType in [NormalizingAS, BackReferencingAS]
+
     codim1 = init(Calcium.prob)
     solve!(codim1)
 
@@ -25,6 +28,7 @@ end
             codim1,
             (@lens _.gca),
             (0.0, 8.0),
+            augmented_system = ASType(),
         )
         codim2_solver = init(codim2_prob)
         @test_nothrow solve!(codim2_solver)

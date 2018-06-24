@@ -128,8 +128,12 @@ end
 
 # ------------------------------------------------------------------- residual!
 
+eigvec_constraint(v, ::NormalizingASCache) = v ⋅ v - 1
+eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
+    augsys_cache.v ⋅ v - 1
+
 function _residual!(H, u, prob::DiffEqCodim2Problem,
-                    ::NormalizingASCache,
+                    augsys_cache,
                     ::MutableState)
     q = modified_param!(prob, u)
 
@@ -146,7 +150,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     )
 
     A_mul_B!(H2, J, v)
-    H3[] = v ⋅ v - 1
+    H3[] = eigvec_constraint(v, augsys_cache)
 
     maybe_subtract!(H1, x, statekind(prob), timekind(prob))
     maybe_subtract!(H2, v, statekind(prob), timekind(prob))
@@ -154,7 +158,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
 end
 
 function _residual!(::Any, u, prob::DiffEqCodim2Problem,
-                    ::NormalizingASCache,
+                    augsys_cache,
                     ::ImmutableState)
     q = modified_param!(prob, u)
 
@@ -170,7 +174,7 @@ function _residual!(::Any, u, prob::DiffEqCodim2Problem,
 
     v = ds_eigvec(u)
     H2 = J * v
-    H3 = v ⋅ v - 1
+    H3 = eigvec_constraint(v, augsys_cache)
 
     return cat_outputs(
         maybe_subtract!(H1, x, statekind(prob), timekind(prob)),

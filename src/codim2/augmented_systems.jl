@@ -1,3 +1,5 @@
+using ..Continuations: as, ContinuationCache
+
 """
 `AugmentedSystem` subtypes specify how to construct an augmented system.
 """
@@ -20,6 +22,19 @@ end
 
 get_augsys_cache(prob) = _get_augsys_cache(augsys(prob), prob)
 _get_augsys_cache(::NormalizingAS, ::Any) = NormalizingASCache()
+
+set_augsys_cache!(::NormalizingASCache, ::ContinuationCache) = nothing
+
+function set_augsys_cache!(augsys_cache::BackReferencingASCache,
+                           cont_cache::ContinuationCache)
+    augsys_cache.v = ds_eigvec(cont_cache.u)
+end
+
+function set_augsys_cache!(wrapper)
+    cont_cache = as(wrapper, ContinuationCache)
+    augsys_cache = cont_cache.prob_cache.augsys_cache  # TODO: interface
+    set_augsys_cache!(augsys_cache, cont_cache)
+end
 
 
 function preferred_augsys(point)

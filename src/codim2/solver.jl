@@ -122,6 +122,7 @@ function analyze!(cache::Codim2Cache, opts)
     cache.point_type = guess_point_type(timekind(cache), cache, a0, opts)
     cache.eigvals = ds_eigvals(timekind(cache), J)
     cache.quadratic_coefficient = a0
+    set_augsys_cache!(cache)
 end
 
 ds_jacobian(solver) = ds_jacobian(as(solver, ContinuationSolver).cache)
