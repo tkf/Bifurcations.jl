@@ -33,7 +33,19 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
     return tJ2, cotJ
 end
 
-function _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
+function _find_more_nullspaces(L2, R2,
+                               y :: T,
+                               rtol, atol, max_steps,
+                               ) where {T <: AbstractVector}
+    if abs(det(L2)) < atol
+        # TODO: optimize
+        ker_L2 = nullspace(Array(L2))
+        ker_R2 = nullspace(Array(R2))
+        if size(ker_L2, 2) > 0 && size(ker_R2, 2) > 0
+            return (T(@view ker_L2[:, 1]), T(@view ker_R2[:, 1]))
+        end
+        # Otherwise, let's fallback to the manual method.
+    end
     x0 = _similar(y, length(y))
     x1 = _similar(y, length(y))
 
@@ -48,7 +60,7 @@ function _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
         y = _A_ldiv_B!(y, L2, x1)
         y /= norm(y)
         if isapprox(x0, x1; rtol=rtol, atol=atol)
-            return y, x1
+            return y::T, x1::T
         end
     end
     error("Failed to find the cokernel.")
