@@ -1,3 +1,5 @@
+using ..Continuations: set_if_not
+
 aliasof(x) = nameof(typeof(x))
 
 tkindstr(x) = tkindstr(timekind(x))
@@ -17,8 +19,6 @@ function print_header(io::IO, ctx::Union{BifurcationSweep,
                                          BifurcationSolver})
     print(io, aliasof(ctx), " <", tkindstr(ctx), ">")
 end
-
-set_if_not(io, key, val) = haskey(io, key) ? io : IOContext(io, key => val)
 
 function Base.show(io::IO, point::SpecialPoint)
     print_header(io, point)

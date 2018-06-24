@@ -1,5 +1,31 @@
+set_if_not(io, key, val) = haskey(io, key) ? io : IOContext(io, key => val)
+
 function print_header(io::IO, x)
     print(io, nameof(typeof(x)))
+end
+
+function print_header(io::IO, point::SimpleBifurcationInterval)
+    i_sweep = try
+        point.sweep.value.i
+    catch
+        '?'
+    end
+    h = @sprintf "%.4g" norm(point.h)
+    print(io, nameof(typeof(point)),
+          " u0=sweeps[$i_sweep].u[$(point.i)]",
+          " h=", h,
+          " dir=", point.direction)
+end
+
+function Base.show(io::IO, point::SimpleBifurcationInterval)
+    print_header(io, point)
+    println(io)
+    if ! get(io, :compact, false)
+        io = set_if_not(io, :compact, true)  # reduce number of digits shown
+        println(io, "happened between:")
+        println(io, "  u0 = ", point.u0)
+        println(io, "  u1 = ", point.u1)
+    end
 end
 
 function Base.show(io::IO, sweep::ContinuationSweep)
