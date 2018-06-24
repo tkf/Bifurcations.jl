@@ -108,11 +108,7 @@ function solve_simple_bifurcation!(cache, opts,
     @assert norm(tv1) ≈ 1
     @assert norm(tv2) ≈ 1
 
-    if abs(tv1 ⋅ tJ1) > abs(tv2 ⋅ tJ1)
-        return tv1, tv2
-    else
-        return tv2, tv1
-    end
+    return tv1, tv2
 end
 
 
@@ -121,10 +117,16 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     # TODO: handle not-found case
 
     tv1, tv2 = solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
+
+    # Choose the direction `tv` of the new branch.  Use the one least
+    # parallel to the direction `tv0` along the previous curve.
     tv0 = sbint.u1 .- sbint.u0
     tv0 /= norm(tv0)
-    @assert abs(tv1 ⋅ tv0) > abs(tv2 ⋅ tv0)  # TODO: just warn
-    tv = tv2
+    if abs(tv1 ⋅ tv0) > abs(tv2 ⋅ tv0)
+        tv = tv2
+    else
+        tv = tv1
+    end
 
     args = (sbint.h, sbint.direction)
     u1, h1 = predictor_corrector_step!(cache, opts, u0, tv, args...)
