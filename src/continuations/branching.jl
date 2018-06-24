@@ -50,12 +50,16 @@ function _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
 end
 
 
-function solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
+function solve_simple_bifurcation!(cache, opts,
+                                   u0::TV, tJ::TV,
+                                   L, Q,
+                                   ) where {TV <: AbstractVector}
     rtol = opts.rtol
     atol = opts.atol
 
     tJ1 = tJ
     tJ2, cotJ = find_more_nullspaces(Q, L, rtol, atol, opts.max_misc_steps)
+    tJ2 :: TV
 
     function g(xi)
         prob_cache = cache.prob_cache
