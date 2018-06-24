@@ -132,6 +132,32 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     u1, h1 = predictor_corrector_step!(cache, opts, u0, tv, args...)
     u2, h2 = predictor_corrector_step!(cache, opts, u0, -tv, args...)
 
+    # TODO: Make error message creation lazy; i.e., store the points
+    # and vectors in a custom exception type and construct the message
+    # in showerror.
+    parallel_to_old = du -> abs(du ⋅ tv0) > abs(du ⋅ tv)
+    failures = []
+    if parallel_to_old(u1 .- u0) || parallel_to_old(u2 .- u0)
+        push!(failures, string(
+            "New branch candidates are more parallel to the old curve",
+            " than the computed new direction."))
+    end
+    if (isapprox(u1, u0; atol=opts.atol, rtol=opts.rtol) ||
+        isapprox(u2, u0; atol=opts.atol, rtol=opts.rtol))
+        push!(failures,
+              "New points are approximately equal to the branch point.")
+    end
+    if ! isempty(failures)
+        failure_msg = join(failures, "\n    * ")
+        error("""
+            Failed to branch off from old curve.
+            Reason(s):
+                * $(failure_msg)
+            Possible fix(es):
+                * Decrease h0 (= $(opts.h0))
+            """)
+    end
+
     return [
         (u0, u1, sbint.direction, h1),
         (u0, u2, sbint.direction, h2),

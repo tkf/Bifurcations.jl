@@ -66,7 +66,7 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
 
 @with_kw struct ContinuationOptions
     direction::Int = 1
-    h0::Float64 = 1.0
+    h0::Float64 = 0.01
     h_min::Float64 = 1e-6
     h_zero::Float64 = 1e-6
     rtol::Float64 = 0.01
