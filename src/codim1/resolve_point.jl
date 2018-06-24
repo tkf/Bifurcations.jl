@@ -49,6 +49,8 @@ const Instability = Union{
 functional_for(::Instability, tkind::TimeKind, u, J, L, Q) =
     stability_index(tkind, ds_jacobian(J))
 
-stability_index(tkind::Discrete, J) = ds_eigvals(tkind, J)[1] - 1
-stability_index(tkind::Continuous, J) = ds_eigvals(tkind, J)[1] # TODO: improve!
+stability_index(tkind::Discrete, J) =
+    abs(ds_eigvals(tkind, J)[1]) - 1
+stability_index(tkind::Continuous, J) =
+    real(ds_eigvals(tkind, J)[1]) # TODO: improve!
 # I don't need to calculate all eigenvalues here.
