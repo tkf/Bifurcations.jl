@@ -1,3 +1,5 @@
+using Compat.TypeUtils: typename
+
 # ds_dim(x::AbstractVector) = ds_dim(length(x))
 # ds_dim(var_dim) = var_dim ÷ 2 - 1
 eq_dim(N) = 2N + 1
@@ -31,3 +33,32 @@ end
 cat_outputs(H1, H2, H3) = vcat(H1, H2, H3)
 cat_outputs(H1::SVector, H2::SVector, H3::Number) :: SVector =
     vcat(H1, H2, SVector(H3))
+
+cast_container(::Type{A}, v::A) where {A <: AbstractArray} = v
+
+function cast_container(::Type{A}, v) where {A <: AbstractArray}
+    constructor = typename(A).wrapper  # e.g., Array
+    return constructor(v)
+end
+
+@generated function cast_container(::Type{<: SVector{S, <:Number}},
+                                   v::AbstractArray{T},
+                                   ) where {S, T}
+    quote
+        SVector{$S, $T}(v)
+    end
+end
+
+function _as_reals(S, T)
+    values = [:($part(v[$i])) for i in 1:S for part in [:real, :imag]]
+    quote
+        SVector{$(2S), $T}($(values...))
+    end
+end
+
+as_reals(v::AbstractVector{<: Real}) = v
+as_reals(v::Vector{<: Complex{T}}) where T = reinterpret(T, v)
+
+# manually doing this since reinterpret does not work with SVector:
+@generated as_reals(v::SVector{S, Complex{T}}) where {S, T} =
+    _as_reals(S, T)

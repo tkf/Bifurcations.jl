@@ -49,8 +49,18 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         val, idx = findmax(real.(vals))
         # @assert val ≈ 0
     end
-    v0 = xtype(vecs[:, idx])
+    v0 = cast_container(xtype, vecs[:, idx])
     v0 = v0 ./ norm(v0)
+
+    # Sanity checks:
+    if point.point_type == Codim1.PointTypes.saddle_node
+        @assert eltype(v0) <: Real
+    elseif point.point_type == Codim1.PointTypes.hopf
+        @assert eltype(v0) <: Complex
+    end
+    if xtype <: SVector
+        v0 :: SVector
+    end
 
     return DiffEqCodim2Problem(
         de_prob,

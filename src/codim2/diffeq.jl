@@ -93,15 +93,15 @@ get_prob_cache(prob::DiffEqCodim2Problem) =
 get_u0(prob::DiffEqCodim2Problem) = _get_u0(prob, prob.x0)
 
 function _get_u0(prob::DiffEqCodim2Problem, ::AbstractVector)
-    return vcat(prob.x0, prob.v0, prob.t0)
+    return vcat(prob.x0, as_reals(prob.v0), prob.t0)
 end
 
 function _get_u0(prob::DiffEqCodim2Problem, ::SVector) :: SVector
-    return vcat(prob.x0, prob.v0, prob.t0)
+    return vcat(prob.x0, as_reals(prob.v0), prob.t0)
 end
 
 function _get_u0(prob::DiffEqCodim2Problem, ::Real)
-    return SVector(prob.x0, prob.v0, prob.t0...)
+    return SVector(prob.x0, as_reals(prob.v0), prob.t0...)
 end
 
 function isindomain(u, cache::DiffEqCodim2BifurcationCache)
