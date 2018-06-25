@@ -111,10 +111,22 @@ imag_eigval(prob) = _imag_eigval(eltype(prob.v0), prob.w0)
 _imag_eigval(::Type{T}, ::Real) where {T <: Real} = SVector{0, T}()
 _imag_eigval(::Type{<: Complex}, w0::Real) = SVector(w0)
 
-function isindomain(u, cache::DiffEqCodim2BifurcationCache)
+isindomain(u, cache::DiffEqCodim2BifurcationCache) =
+    _isindomain(u, cache, eltype(cache.prob.v0))
+
+function _isindomain(u, cache, ::Type{<: Real})
     t = SVector(u[end-1], u[end])
     tmin, tmax = cache.prob.t_domain
     return all(tmin .<= t .<= tmax)
+end
+
+function _isindomain(u, cache, ::Type{<: Complex})
+    # Constrain to positive angular velocity (w = u[end-2])
+    p = SVector(u[end-2], u[end-1], u[end])
+    tmin, tmax = cache.prob.t_domain
+    pmin = SVector(zero(tmin[1]), tmin[1], tmin[2])
+    pmax = SVector(typemax(tmax[1]), tmax[1], tmax[2])
+    return all(pmin .<= p .<= pmax)
 end
 
 residual!(H, u, cache::DiffEqCodim2BifurcationCache) =
