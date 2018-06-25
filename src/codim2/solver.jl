@@ -140,6 +140,11 @@ function ds_jacobian(HJ::SMatrix)
 end
 # TOOD: optimize it for StaticArrays using generated functions
 
+function ds_state(cache::ContinuationCache)
+    prob = cache.prob_cache.prob  # TODO: interface
+    return ds_state(prob, cache.u)
+end
+
 # TODO: define ds_f!
 ds_f(x, prob, cache::Codim2Cache) = ds_f(x, as(cache, ContinuationCache))
 

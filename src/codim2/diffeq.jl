@@ -139,6 +139,22 @@ eigvec_constraint(v, ::NormalizingASCache) = as_reals(v ⋅ v - 1)
 eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
     as_reals(augsys_cache.v ⋅ v - 1)
 
+ds_state(prob::DiffEqCodim2Problem, u::AbstractArray) =
+    _ds_state(eltype(prob.v0), u)
+
+function _ds_state(E::Type, u)
+    d = dims_from_augsys(length(u), E)
+    return @view u[1:d.ds_dim]
+end
+
+@generated function _ds_state(::Type{E}, u::SVector{S, T}) where {E, S, T}
+    d = dims_from_augsys(S, E)
+    values = [:(u[$i]) for i in 1:d.ds_dim]
+    quote
+        SVector{$(length(values)), $T}($(values...))
+    end
+end
+
 ds_eigvec(prob::DiffEqCodim2Problem, u::AbstractArray) =
     _ds_eigvec(eltype(prob.v0), u::AbstractArray)
 
@@ -192,7 +208,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     q = modified_param!(prob, u)
 
     H1, H2, H3 = output_vars(H)
-    x = ds_state(u)
+    x = ds_state(prob, u)
     v = ds_eigvec(prob, u)
     iw = ds_eigval(prob, u)
 
@@ -222,7 +238,7 @@ function _residual!(::Any, u, prob::DiffEqCodim2Problem,
 
     # TODO: Can I compute H and J in one go?  Or is it already
     # maximally efficient?
-    x = ds_state(u)
+    x = ds_state(prob, u)
     H1 = prob.de_prob.f(x, q, 0)
     J = ForwardDiff.jacobian(
         (x) -> prob.de_prob.f(x, q, 0),

@@ -35,7 +35,7 @@ function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
     J = ds_jacobian(cache)
     q = right_eigvec(tkind, J)
     p = left_eigvec(tkind, J)
-    x0 = ds_state(cache.u)
+    x0 = ds_state(cache)
     second_derivative = ForwardDiff.hessian(
         t -> p ⋅ ds_f((@. t[1] * q + x0), cache),
         SVector(zero(x0)),
