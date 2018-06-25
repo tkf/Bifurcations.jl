@@ -72,7 +72,7 @@ function DiffEqCodim2BifurcationCache(prob::DiffEqCodim2Problem)
 end
 
 function setup_fd_config(::MutableState, prob, augsys_cache)
-    x = vcat(prob.x0, prob.v0, prob.t0)  # length = 2N + 1
+    x = copy(get_u0(prob))
     y = copy(x)
     return ForwardDiff.JacobianConfig(
         (y, x) -> _residual!(y, x, prob, augsys_cache, statekind(cache.prob)),
@@ -81,7 +81,7 @@ function setup_fd_config(::MutableState, prob, augsys_cache)
 end
 
 function setup_fd_config(::ImmutableState, prob, augsys_cache)
-    x = vcat(prob.x0, prob.v0, prob.t0)  # length = 2N + 1
+    x = copy(get_u0(prob))
     return ForwardDiff.JacobianConfig(
         (x) -> _residual!(x, x, prob, augsys_cache, statekind(cache.prob)),
         x)
