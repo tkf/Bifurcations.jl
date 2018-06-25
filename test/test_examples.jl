@@ -1,12 +1,9 @@
 module TestExamples
-using Base.Test
+include("preamble.jl")
 
-using Bifurcations
-using Bifurcations: BifurcationProblem, special_points
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations.Examples: PROBLEMS
 using Bifurcations.Examples.Calcium: CalciumParam
-using Setfield: @lens
 
 make_codim2(::Real, point, solver1) = nothing
 make_codim2(::Tuple, point, solver1) = nothing  # PredatorPrey

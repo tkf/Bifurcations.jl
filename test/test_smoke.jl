@@ -1,18 +1,8 @@
 module TestSmoke
-using Base.Test
+include("preamble_plots.jl")
 
-import GR  # Workaround Plots.jl world age problem
-using Plots
-
-using Bifurcations
-using Bifurcations: plot  # TODO: stop doing this
 using Bifurcations.Codim1: resolved_points, SpecialPoint
 using Bifurcations.Examples: PROBLEMS
-include("utils.jl")
-
-function nullshow(plt::Plots.Plot)
-    nullshow(MIME("image/png"), plt)
-end
 
 @testset "smoke PROBLEMS[$i]" for (i, prob) in enumerate(PROBLEMS)
     solver = init(prob)

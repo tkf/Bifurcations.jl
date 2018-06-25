@@ -1,5 +1,8 @@
+using Base.Test
 using Compat
+using Setfield: @lens
 
+using Bifurcations
 using Bifurcations: BifurcationProblem, special_points
 
 macro test_nothrow(ex)

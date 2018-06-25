@@ -1,7 +1,6 @@
 module TestNormalForm
+include("preamble.jl")
 
-using Base.Test
-using Bifurcations
 using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 using Bifurcations.Examples: Pitchfork, Transcritical
 

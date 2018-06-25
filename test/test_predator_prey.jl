@@ -1,19 +1,7 @@
 module TestPredatorPrey
-using Base.Test
+include("preamble_plots.jl")
 
-import GR  # Workaround Plots.jl world age problem
-using Plots
-
-using Bifurcations
-using Bifurcations: plot  # TODO: stop doing this
-using Bifurcations: BifurcationProblem, special_points
 using Bifurcations.Examples: PredatorPrey
-using Setfield: @lens
-include("utils.jl")
-
-function nullshow(plt::Plots.Plot)
-    nullshow(MIME("image/png"), plt)
-end
 
 @testset "smoke PredatorPrey codim-2" begin
     codim1_solver = init(PredatorPrey.prob)

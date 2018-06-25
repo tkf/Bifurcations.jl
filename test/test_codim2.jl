@@ -1,20 +1,8 @@
 module TestCodim2
-using Base.Test
+include("preamble_plots.jl")
 
-import GR  # Workaround Plots.jl world age problem
-using Plots
-
-using Bifurcations
-using Bifurcations: plot  # TODO: stop doing this
-using Bifurcations: BifurcationProblem, special_points
 using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
 using Bifurcations.Examples: Calcium
-using Setfield: @lens
-include("utils.jl")
-
-function nullshow(plt::Plots.Plot)
-    nullshow(MIME("image/png"), plt)
-end
 
 @testset "smoke Calcium codim-2 ($(nameof(ASType)))" for
         ASType in [NormalizingAS, BackReferencingAS]
