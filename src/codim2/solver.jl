@@ -118,10 +118,12 @@ end
 
 function analyze!(cache::Codim2Cache, opts)
     cache.J = J = ds_jacobian(cache)
-    a0 = sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
-    cache.point_type = guess_point_type(timekind(cache), cache, a0, opts)
-    cache.eigvals = ds_eigvals(timekind(cache), J)
-    cache.quadratic_coefficient = a0
+    if need_quadratic_coefficient(cache)
+        a0 = sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
+        cache.point_type = guess_point_type(timekind(cache), cache, a0, opts)
+        cache.eigvals = ds_eigvals(timekind(cache), J)
+        cache.quadratic_coefficient = a0
+    end
     set_augsys_cache!(cache)
 end
 
@@ -153,4 +155,12 @@ function ds_f(x, cache::ContinuationCache)
     f = prob.de_prob.f  # TODO: interface
     p = modified_param!(prob, cache.u)
     return f(x, p, 0)
+end
+
+function need_quadratic_coefficient(cache::Codim2Cache)
+    prob = as(cache, ContinuationCache).prob_cache.prob  # TODO: interface
+    if eltype(prob.v0) <: Real
+        return true
+    end
+    return false
 end
