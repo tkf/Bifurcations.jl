@@ -8,11 +8,6 @@ function ds_state(x::AbstractArray)
     return @view x[1:N]
 end
 
-function ds_eigvec(x::AbstractArray)
-    N = length(x) ÷ 2 - 1
-    return @view x[N+1:2N]
-end
-
 function sarray_slice_epxr(C, x, indices)
     values = [:($x[$i]) for i in indices]
     return Expr(:call, C, values...)
@@ -23,13 +18,6 @@ end
     @assert var_dim(N) == S
     C = :(SVector{$N, T})
     return sarray_slice_epxr(C, :x, 1:N)
-end
-
-@generated function ds_eigvec(x::SVector{S, T}) where {S, T}
-    N = S ÷ 2 - 1
-    @assert var_dim(N) == S
-    C = :(SVector{$N, T})
-    return sarray_slice_epxr(C, :x, N+1:2N)
 end
 
 function output_vars(H)

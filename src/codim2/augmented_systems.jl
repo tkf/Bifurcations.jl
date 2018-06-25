@@ -27,7 +27,8 @@ set_augsys_cache!(::NormalizingASCache, ::ContinuationCache) = nothing
 
 function set_augsys_cache!(augsys_cache::BackReferencingASCache,
                            cont_cache::ContinuationCache)
-    augsys_cache.v = ds_eigvec(cont_cache.u)
+    prob = cont_cache.prob_cache.prob  # TODO: interface
+    augsys_cache.v = ds_eigvec(prob, cont_cache.u)
 end
 
 function set_augsys_cache!(wrapper)

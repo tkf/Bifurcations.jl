@@ -132,6 +132,20 @@ eigvec_constraint(v, ::NormalizingASCache) = v ⋅ v - 1
 eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
     augsys_cache.v ⋅ v - 1
 
+function ds_eigvec(prob::DiffEqCodim2Problem, x::AbstractArray)
+    N = length(x) ÷ 2 - 1
+    return @view x[N+1:2N]
+end
+
+@generated function ds_eigvec(prob::DiffEqCodim2Problem,
+                              x::SVector{S, T},
+                              ) where {S, T}
+    N = S ÷ 2 - 1
+    @assert var_dim(N) == S
+    C = :(SVector{$N, T})
+    return sarray_slice_epxr(C, :x, N+1:2N)
+end
+
 function _residual!(H, u, prob::DiffEqCodim2Problem,
                     augsys_cache,
                     ::MutableState)
@@ -139,7 +153,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
 
     H1, H2, H3 = output_vars(H)
     x = ds_state(u)
-    v = ds_eigvec(u)
+    v = ds_eigvec(prob, u)
 
     # TODO: don't allocate J
     J = ForwardDiff.jacobian(
@@ -172,7 +186,7 @@ function _residual!(::Any, u, prob::DiffEqCodim2Problem,
         # TODO: setup cache
     )
 
-    v = ds_eigvec(u)
+    v = ds_eigvec(prob, u)
     H2 = J * v
     H3 = eigvec_constraint(v, augsys_cache)
 
