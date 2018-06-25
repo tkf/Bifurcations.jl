@@ -10,7 +10,7 @@ struct DiffEqCodim2Problem{
         skind <: StateKind,
         tkind <: TimeKind,
         ASType <: AugmentedSystem,
-        P, X, V, T, L1, L2,
+        P, X, V, W, T, L1, L2,
         } <: Codim2Problem{skind, tkind}
     statekind::skind
     timekind::tkind
@@ -18,6 +18,7 @@ struct DiffEqCodim2Problem{
     de_prob::P
     x0::X
     v0::V
+    w0::W
     t0::T
     t_domain::Tuple{T, T}
     param_axis1::L1
@@ -34,6 +35,7 @@ function DiffEqCodim2Problem(
         t_domain::Tuple;
         x0 = copy(de_prob.u0),
         v0 = copy(x0),  # TODO: fix it. this default won't work
+        w0 = 0,
         t0 = SVector(get(param_axis1, de_prob.p),
                      get(param_axis2, de_prob.p)),
         augmented_system = BackReferencingAS(),
@@ -43,7 +45,7 @@ function DiffEqCodim2Problem(
     return DiffEqCodim2Problem(
         statekind(de_prob), timekind(de_prob),
         augmented_system,
-        de_prob, x0, v0, t0, t_domain,
+        de_prob, x0, v0, w0, t0, t_domain,
         param_axis1, param_axis2)
 end
 
@@ -93,16 +95,21 @@ get_prob_cache(prob::DiffEqCodim2Problem) =
 get_u0(prob::DiffEqCodim2Problem) = _get_u0(prob, prob.x0)
 
 function _get_u0(prob::DiffEqCodim2Problem, ::AbstractVector)
-    return vcat(prob.x0, as_reals(prob.v0), prob.t0)
+    return vcat(prob.x0, as_reals(prob.v0), imag_eigval(prob), prob.t0)
 end
 
 function _get_u0(prob::DiffEqCodim2Problem, ::SVector) :: SVector
-    return vcat(prob.x0, as_reals(prob.v0), prob.t0)
+    return vcat(prob.x0, as_reals(prob.v0), imag_eigval(prob), prob.t0)
 end
 
 function _get_u0(prob::DiffEqCodim2Problem, ::Real)
-    return SVector(prob.x0, as_reals(prob.v0), prob.t0...)
+    return SVector(prob.x0, as_reals(prob.v0)...,
+                   imag_eigval(prob)..., prob.t0...)
 end
+
+imag_eigval(prob) = _imag_eigval(eltype(prob.v0), prob.w0)
+_imag_eigval(::Type{T}, ::Real) where {T <: Real} = SVector{0, T}()
+_imag_eigval(::Type{<: Complex}, w0::Real) = SVector(w0)
 
 function isindomain(u, cache::DiffEqCodim2BifurcationCache)
     t = SVector(u[end-1], u[end])
@@ -128,9 +135,9 @@ end
 
 # ------------------------------------------------------------------- residual!
 
-eigvec_constraint(v, ::NormalizingASCache) = v ⋅ v - 1
+eigvec_constraint(v, ::NormalizingASCache) = as_reals(v ⋅ v - 1)
 eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
-    augsys_cache.v ⋅ v - 1
+    as_reals(augsys_cache.v ⋅ v - 1)
 
 ds_eigvec(prob::DiffEqCodim2Problem, u::AbstractArray) =
     _ds_eigvec(eltype(prob.v0), u::AbstractArray)
@@ -169,6 +176,16 @@ _ds_eigvec(T::Type{<: Complex}, u::SVector) = _ds_eigvec_svec(T, u)
     return _ds_eigvec_expr(eigvec_eltype, eigvec_range(d))
 end
 
+ds_eigval(prob::DiffEqCodim2Problem, u::AbstractArray) =
+    _ds_eigval(eltype(prob.v0), u::AbstractArray)
+
+_ds_eigval(::Type{<: Real}, ::AbstractArray) = 0
+
+function _ds_eigval(T::Type{<: Complex}, u::AbstractArray)
+    d = dims_from_augsys(length(u), T)
+    return u[eigval_index(d)] * im
+end
+
 function _residual!(H, u, prob::DiffEqCodim2Problem,
                     augsys_cache,
                     ::MutableState)
@@ -177,6 +194,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     H1, H2, H3 = output_vars(H)
     x = ds_state(u)
     v = ds_eigvec(prob, u)
+    iw = ds_eigval(prob, u)
 
     # TODO: don't allocate J
     J = ForwardDiff.jacobian(
@@ -187,7 +205,10 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     )
 
     A_mul_B!(H2, J, v)
-    H3[] = eigvec_constraint(v, augsys_cache)
+    if iw != 0
+        @. H2 -= iw * v
+    end
+    H3[:] = eigvec_constraint(v, augsys_cache)
 
     maybe_subtract!(H1, x, statekind(prob), timekind(prob))
     maybe_subtract!(H2, v, statekind(prob), timekind(prob))
@@ -210,7 +231,8 @@ function _residual!(::Any, u, prob::DiffEqCodim2Problem,
     )
 
     v = ds_eigvec(prob, u)
-    H2 = J * v
+    iw = ds_eigval(prob, u)
+    H2 = as_reals(J * v .- iw .* v)
     H3 = eigvec_constraint(v, augsys_cache)
 
     return cat_outputs(

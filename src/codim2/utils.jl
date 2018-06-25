@@ -1,5 +1,20 @@
 using Compat.TypeUtils: typename
 
+"""
+    VarDims
+
+A type for calculating conversions between dimensions of the dynamical
+system and the augmented system (continuation problem).
+
+| Bifurcation | Variables  | Equations  | `eigvec_dim` | `eigvec_eltype` |
+| ----------- | ---------- | ---------- | ------------ | --------------- |
+| Saddle-node | ``2n + 2`` | ``2n + 1`` | ``n``        | `<: Real`       |
+| Hopf        | ``3n + 3`` | ``3n + 2`` | ``2n``       | `<: Complex`    |
+
+where ``n`` is `ds_dim`, the number of variables is `dim(dom(H))`, and
+the number of equations is `dim(codom(H))`.
+
+"""
 struct VarDims
     ds_dim::Int
     eigvec_dim::Int
@@ -9,6 +24,7 @@ end
 augsys_dim(d::VarDims) =
     d.ds_dim + d.eigvec_dim + 2 + (d.eigvec_eltype <: Complex)
 eigvec_range(d::VarDims) = d.ds_dim + (1:d.eigvec_dim)
+eigval_index(d::VarDims) = d.ds_dim + d.eigvec_dim + 1
 
 function dims_from_augsys(as_dim::Int, T::Type)
     if T <: Real
@@ -88,3 +104,6 @@ as_reals(v::Vector{<: Complex{T}}) where T = reinterpret(T, v)
 # manually doing this since reinterpret does not work with SVector:
 @generated as_reals(v::SVector{S, Complex{T}}) where {S, T} =
     _as_reals(S, T)
+
+as_reals(s::Real) = SVector(s)
+as_reals(s::Complex) = SVector(real(s), imag(s))
