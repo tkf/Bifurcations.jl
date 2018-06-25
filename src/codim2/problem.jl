@@ -51,7 +51,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     end
     v0 = cast_container(xtype, vecs[:, idx])
     v0 = v0 ./ norm(v0)
-    w0 = imag(val)
+    w0 = imag(vals[idx])
 
     # Sanity checks:
     if point.point_type == Codim1.PointTypes.saddle_node
