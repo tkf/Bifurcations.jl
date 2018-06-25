@@ -132,18 +132,41 @@ eigvec_constraint(v, ::NormalizingASCache) = v ⋅ v - 1
 eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
     augsys_cache.v ⋅ v - 1
 
-function ds_eigvec(prob::DiffEqCodim2Problem, x::AbstractArray)
-    N = length(x) ÷ 2 - 1
-    return @view x[N+1:2N]
+ds_eigvec(prob::DiffEqCodim2Problem, u::AbstractArray) =
+    _ds_eigvec(eltype(prob.v0), u::AbstractArray)
+
+function _ds_eigvec(::Type{E}, u::AbstractArray) where {E <: Real}
+    d = dims_from_augsys(length(u), E)
+    return @view u[eigvec_range(d)]
 end
 
-@generated function ds_eigvec(prob::DiffEqCodim2Problem,
-                              x::SVector{S, T},
-                              ) where {S, T}
-    N = S ÷ 2 - 1
-    @assert var_dim(N) == S
-    C = :(SVector{$N, T})
-    return sarray_slice_epxr(C, :x, N+1:2N)
+function _ds_eigvec(::Type{E}, u::Array{T}) where {E <: Complex, T}
+    d = dims_from_augsys(length(u), E)
+    # return ComplexView(u, eigvec_range(d))  # TODO: implement
+    ofs, r = divrem(d.ds_dim, 2)
+    @assert r == 0
+    uc = reinterpret(Complex{T}, u)
+    return @view uc[ofs + 1:ofs + d.ds_dim]
+end
+
+function _ds_eigvec_expr(C::Type{<: Real}, indices)
+    values = [:(u[$i]) for i in indices]
+    return Expr(:call, SVector, values...)
+end
+
+function _ds_eigvec_expr(::Type{<: Complex}, indices)
+    values = [:(u[$i] + u[$i + 1] * im) for i in indices[1:2:end]]
+    return Expr(:call, SVector, values...)
+end
+
+# Disambiguation:
+_ds_eigvec(T::Type{<: Real}, u::SVector) = _ds_eigvec_svec(T, u)
+_ds_eigvec(T::Type{<: Complex}, u::SVector) = _ds_eigvec_svec(T, u)
+
+@generated function _ds_eigvec_svec(::Type{eigvec_eltype}, u::SVector{S, T}
+                                    ) where {eigvec_eltype, S, T}
+    d = dims_from_augsys(S, eigvec_eltype)
+    return _ds_eigvec_expr(eigvec_eltype, eigvec_range(d))
 end
 
 function _residual!(H, u, prob::DiffEqCodim2Problem,

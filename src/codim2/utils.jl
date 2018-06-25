@@ -1,5 +1,31 @@
 using Compat.TypeUtils: typename
 
+struct VarDims
+    ds_dim::Int
+    eigvec_dim::Int
+    eigvec_eltype::Type
+end
+
+augsys_dim(d::VarDims) =
+    d.ds_dim + d.eigvec_dim + 2 + (d.eigvec_eltype <: Complex)
+eigvec_range(d::VarDims) = d.ds_dim + (1:d.eigvec_dim)
+
+function dims_from_augsys(as_dim::Int, T::Type)
+    if T <: Real
+        ds_dim, r = divrem(as_dim - 2, 2)
+        eigvec_dim = ds_dim
+    else
+        @assert T <: Complex
+        ds_dim, r = divrem(as_dim - 3, 3)
+        @assert r == 0
+        eigvec_dim = 2 * ds_dim
+    end
+    @assert r == 0
+    d = VarDims(ds_dim, eigvec_dim, T)
+    @assert augsys_dim(d) == as_dim
+    return d
+end
+
 # ds_dim(x::AbstractVector) = ds_dim(length(x))
 # ds_dim(var_dim) = var_dim ÷ 2 - 1
 eq_dim(N) = 2N + 1
