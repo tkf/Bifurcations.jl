@@ -248,7 +248,18 @@ function _residual!(::Any, u, prob::DiffEqCodim2Problem,
 
     v = ds_eigvec(prob, u)
     iw = ds_eigval(prob, u)
+
+    # Whe v is complex and _residual! is invoked via ForwardDiff,
+    # eltype(J * v) becomes Any.  `as_reals` relies on the eltype to
+    # do the right thing so I need to fix this.  Here is a hack to
+    # workaround it.
+    H2ʹ = fixeltype(promote_type(eltype.((v, J, iw))...),  # TODO: don't
+                    J * v .- iw .* v)
+    H2 = as_reals(H2ʹ)
+    #=
     H2 = as_reals(J * v .- iw .* v)
+    =#
+
     H3 = eigvec_constraint(v, augsys_cache)
 
     return cat_outputs(
