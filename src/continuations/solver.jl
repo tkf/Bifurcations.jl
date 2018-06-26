@@ -130,6 +130,11 @@ function solve!(wrapper::AbstractContinuationSolver)
             break
         end
         sbint = shift!(bifurcations)
+        if ! isindomain(sbint.u1, cache.prob_cache)
+            # Stepped outside the domain.  Skip it.
+            # TODO: maybe at least try to find the zero?
+            continue
+        end
         for (u0, u1, direction, h) in new_branches!(cache, opts, sbint)
             sweep!(wrapper;
                    u0 = u1,
