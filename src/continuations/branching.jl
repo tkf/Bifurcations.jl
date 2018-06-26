@@ -9,11 +9,15 @@ ker(J') = span{cotJ} (left nullspace or cokernel):
 """
 function find_more_nullspaces(Q, L, rtol, atol, max_steps)
     y = _zeros(Q, size(Q, 1) - 1)
-    y = @set y[length(y)] = 1   # y[end] doesn't work
+    if y isa SArray
+        y = @set y[length(y)] = 1   # y[end] doesn't work
+    else
+        y[end] = 1
+    end
 
     if abs(L[end-1, end-1]) < atol
         tJ2 = Q[:, end-1]
-        cotJ = _A_ldiv_B!((@view Q[1:end-1, 1:end-1]), y)
+        cotJ = (@view Q[1:end-1, 1:end-1]) \ y
         return tJ2, cotJ
     end
 
@@ -49,16 +53,12 @@ function _find_more_nullspaces(L2, R2,
     x0 = _similar(y, length(y))
     x1 = _similar(y, length(y))
 
-    x1 = _A_ldiv_B!(x1, R2, y)
-    x1 /= norm(x1)
-    y = _A_ldiv_B!(y, L2, x1)
-    y /= norm(y)
+    x1 = _normalize!(R2 \ y)
+    y = _normalize!(L2 \ x1)
     for _ in 2:max_steps
         (x0, x1) = (x1, x0)
-        x1 = _A_ldiv_B!(x1, R2, y)
-        x1 /= norm(x1)
-        y = _A_ldiv_B!(y, L2, x1)
-        y /= norm(y)
+        x1 = _normalize!(R2 \ y)
+        y = _normalize!(L2 \ x1)
         if isapprox(x0, x1; rtol=rtol, atol=atol)
             return y::T, x1::T
         end

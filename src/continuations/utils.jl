@@ -44,6 +44,14 @@ function lq!(_, A::SMatrix)
     return (LowerTriangular(R'), Q)
 end
 
+function _normalize!(x)
+    normalize!(x)
+    return x
+end
+
+_normalize!(x::SVector) = x ./ norm(x)
+
+# TODO: use \ instead of A_ldiv_B!
 _A_ldiv_B!(A, B::T) where T = _A_ldiv_B!(T, A, B)
 _A_ldiv_B!(Y, A, B::T) where T = _A_ldiv_B!(T, Y, A, B)
 

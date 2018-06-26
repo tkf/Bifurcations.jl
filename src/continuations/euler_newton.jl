@@ -117,7 +117,7 @@ function corrector_step!(H::HType,
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = lq!(Q, A)
-    y = _A_ldiv_B!((@view L[1:end-1, 1:end-1]), H)
+    y = (@view L[1:end-1, 1:end-1]) \ H
     dv = (@view Q[:, 1:end-1]) * y
     w = v - dv
     return (w :: vType,
