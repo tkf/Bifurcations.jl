@@ -63,6 +63,7 @@ rng = MersenneTwister(0)
 @testset begin
     for args in [
             ([0, 0], [0, 1], 0.6, 5),
+            ([0, 0], [-1, 0], 0.384806, 7.79613),
             ]
         test_predator_prey(args...)
     end
