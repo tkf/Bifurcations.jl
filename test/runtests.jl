@@ -8,6 +8,7 @@ using Base.Test
         "test_jacobian.jl",
         "test_calcium.jl",
         "test_predator_prey.jl",
+        "test_bazykin_85.jl",
         "test_examples.jl",
         ]
     @time include(file)
