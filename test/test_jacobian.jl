@@ -44,6 +44,8 @@ function test_predator_prey(
 
     prob = prob_cache.prob
     pr = collect(Float64, prob.de_prob.p)
+    pr[1] = p1
+    pr[3] = p3
     ur = SVector(vcat(xr, vr, pr[1], pr[3])...) :: SVector{6, Float64}
     all_values = vcat(pr, xr, vr) :: Vector{Float64}
     evaluated = (e) -> Float64(subs(e, zip(all_symbols, all_values)...))
