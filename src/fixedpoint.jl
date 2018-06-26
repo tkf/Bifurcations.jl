@@ -148,9 +148,6 @@ function _get_u0(prob::FixedPointBifurcationProblem, ::SVector)
     return push(prob.u0, prob.t0)
 end
 
-residual!(H, u, cache::_C{<: FixedPointBifurcationProblem}) =
-    residual!(H, u, cache.prob)
-
 residual!(H, u, cache::FixedPointBifurcationCache) =
     _residual!(H, u, cache.prob,
                statekind(cache.prob),
@@ -161,7 +158,7 @@ residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache) =
                         statekind(cache.prob),
                         hasjac(cache.prob))
 
-function isindomain(u, cache::_C{<: FixedPointBifurcationProblem})
+function isindomain(u, cache::FixedPointBifurcationCache)
     tmin, tmax = cache.prob.t_domain
     xmin, xmax = cache.prob.phase_space
     umin = vcat(xmin, SVector(tmin))

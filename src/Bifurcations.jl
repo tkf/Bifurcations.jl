@@ -9,7 +9,6 @@ include("continuations/continuations.jl")
 using .Continuations: AbstractContinuationProblem, AbstractProblemCache
 import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
-const _C = AbstractProblemCache
 
 include("base/base.jl")
 # TimeKind trait:
