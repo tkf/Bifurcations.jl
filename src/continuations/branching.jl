@@ -130,7 +130,7 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
         tv = tv1
     end
 
-    args = (min(sbint.h, opts.h0), sbint.direction)
+    args = (sbint.h, sbint.direction)
     u1, h1 = predictor_corrector_step!(cache, opts, u0, tv, args...)
     u2, h2 = predictor_corrector_step!(cache, opts, u0, -tv, args...)
 
