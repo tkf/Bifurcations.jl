@@ -15,11 +15,13 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
         y[end] = 1
     end
 
+    #=
     if abs(L[end-1, end-1]) < atol
         tJ2 = Q[:, end-1]
         cotJ = (@view Q[1:end-1, 1:end-1]) \ y
         return tJ2, cotJ
     end
+    =#
 
     L2 = @view L[1:end-1, 1:end-1]
     R2 = L2'
