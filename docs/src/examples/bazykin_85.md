@@ -40,7 +40,6 @@ for point in point_list[2:3]
     )
     codim2_solver = init(
         codim2_prob;
-        # h0 = 0.001,
         nominal_angle_rad = 0.01,
         max_samples = 1000,
     )
