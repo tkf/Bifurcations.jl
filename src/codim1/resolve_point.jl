@@ -22,7 +22,7 @@ function resolve_point!(point::SpecialPointInterval,
                         opts::ContinuationOptions,
                         ) :: SpecialPoint
     @unpack point_type, point_index = point
-    f = functional_for(point_type, timekind(cache))
+    f = testfn_for(point_type, timekind(cache))
     direction = as(point.sweep.value, ContinuationSweep).direction
     u, tJ, L, Q, J =
         find_zero!(cache, opts, f, point.u0, point.u1, direction)
@@ -31,14 +31,12 @@ function resolve_point!(point::SpecialPointInterval,
                         WeakRef(point.sweep.value))
 end
 
-function functional_for(point_type::PointType, tkind::TimeKind)
+function testfn_for(point_type::PointType, tkind::TimeKind)
     ptype = Val{point_type}()
     # For call signature of `f`, see:
     # [[../continuations/zero_point.jl::f(]]
-    return (u, J, L, Q) -> functional_for(ptype, tkind, u, J, L, Q)
+    return (u, J, L, Q) -> testfn_for(ptype, tkind, u, J, L, Q)
 end
-# It evaluates to a scalar so I'm calling it a functional.  Are there
-# better names?  Root-findee?
 
 const Instability = Union{
     Val{PointTypes.saddle_node},
@@ -46,7 +44,7 @@ const Instability = Union{
     Val{PointTypes.hopf},
 }
 
-functional_for(::Instability, tkind::TimeKind, u, J, L, Q) =
+testfn_for(::Instability, tkind::TimeKind, u, J, L, Q) =
     stability_index(tkind, ds_jacobian(J))
 
 stability_index(tkind::Discrete, J) =
