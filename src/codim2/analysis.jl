@@ -8,11 +8,50 @@ function guess_point_type(::SaddleNodeCont, ::Continuous, cache, opts)
     if cache.prev_quadratic_coefficient * cache.quadratic_coefficient < 0
         return PointTypes.cusp
     end
+
+    sign_changed, is_real = eigval_changes(cache, opts, 2)
+    if sign_changed
+        if is_real
+            return PointTypes.bogdanov_takens
+        else
+            return PointTypes.fold_hopf
+        end
+    end
+
     return PointTypes.none
 end
 
 function guess_point_type(::HopfCont, ::Continuous, cache, opts)
+    w = as(cache, ContinuationCache).u[end - 2]
+    if w <= 0
+        # Relying on that it was started positive.
+        # See: [[./problem.jl::w0 < 0]]
+        return PointTypes.bogdanov_takens
+    end
+
+    # i=3 to skip the conjugat; probably not robust...  # TODO: fix
+    sign_changed, is_real = eigval_changes(cache, opts, 3)
+    if sign_changed
+        if is_real
+            return PointTypes.fold_hopf
+        else
+            return PointTypes.hopf_hopf
+        end
+    end
+
     return PointTypes.none
+end
+
+function eigval_changes(cache, opts, i)
+    if length(cache.eigvals) >= i
+        ev0 = cache.prev_eigvals[i]
+        ev1 = cache.eigvals[i]
+        if real(ev0) * real(ev1) < 0
+            img = mean(abs.(imag.((ev0, ev1))))
+            return true, img < opts.atol
+        end
+    end
+    return false, false
 end
 
 function right_eigvec(::Discrete, J)

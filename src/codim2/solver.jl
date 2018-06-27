@@ -21,6 +21,25 @@ import ..BifurcationsBase: analyze!, re_analyze!
 """
 Codimension 2 bifurcation points and special points.
 
+These points are supported:
+
+- [Cusp bifurcation]
+- [Bogdanov-Takens bifurcation]
+- ([Bautin Bifurcation] not yet)
+- [Fold-Hopf Bifurcation]
+- [Hopf-Hopf Bifurcation]
+
+[Cusp bifurcation]:
+http://www.scholarpedia.org/article/Cusp_bifurcation
+[Bogdanov-Takens bifurcation]:
+http://www.scholarpedia.org/article/Bogdanov-Takens_bifurcation
+[Bautin Bifurcation]:
+http://www.scholarpedia.org/article/Bautin_bifurcation
+[Fold-Hopf Bifurcation]:
+http://www.scholarpedia.org/article/Fold-Hopf_bifurcation
+[Hopf-Hopf Bifurcation]:
+http://www.scholarpedia.org/article/Hopf-Hopf_bifurcation
+
 * http://www.scholarpedia.org/article/Bifurcation
 * https://www.encyclopediaofmath.org/index.php/Codimension-two_bifurcations
 """
@@ -64,6 +83,7 @@ mutable struct Codim2Cache{P, C <: ContinuationCache{P},
     super::C
     J::JType
     eigvals::eType
+    prev_eigvals::eType
     point_type::PointType
 
     """
@@ -79,10 +99,12 @@ end
 function Codim2Cache(super::C,
                      J::JType,
                      eigvals::eType,
-                     point_type = PointTypes.none,
+                     point_type::PointType = PointTypes.none,
                      ) where {P, C <: ContinuationCache{P},
                               JType, eType}
-    return Codim2Cache{P, C, JType, eType}(super, J, eigvals, point_type,
+    return Codim2Cache{P, C, JType, eType}(super, J,
+                                           eigvals, copy(eigvals),
+                                           point_type,
                                            NaN, NaN)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
@@ -134,6 +156,7 @@ end
 function analyze!(cache::Codim2Cache, opts)
     cnt = cont_type(cache)
     cache.J = J = ds_jacobian(cache)
+    cache.prev_eigvals = cache.eigvals
     cache.eigvals = ds_eigvals(timekind(cache), J)
     set_quadratic_coefficient!(cnt, cache)
     cache.point_type = guess_point_type(cnt, timekind(cache), cache, opts)
