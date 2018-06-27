@@ -1,11 +1,21 @@
 using Parameters: @unpack
 using ..Continuations: find_zero!
-using ..BifurcationsBase: AbstractSpecialPoint, special_points
+using ..BifurcationsBase: AbstractSpecialPoint, special_points,
+    contkind, FixedPointCont, ContinuationKind
 
-resolved_points(solver::Codim1Solver) =
+resolved_points(solver::BifurcationSolver) =
     [resolve_point(point, solver) for point in special_points(solver)]
 
-function resolve_point(point::AbstractSpecialPoint, solver::Codim1Solver)
+resolved_points(solver::BifurcationSolver,
+                point_types::NTuple{N, <:Enum},
+                ) where {N} =
+    [resolve_point(point, solver) for point in special_points(solver)
+     if point.point_type in point_types]
+
+resolved_points(solver::BifurcationSolver, point_type::Enum) =
+    resolved_points(solver, (point_type,))
+
+function resolve_point(point::AbstractSpecialPoint, solver::BifurcationSolver)
     super = as(solver, ContinuationSolver)
     return resolve_point(point, super.cache, super.opts)
 end
@@ -22,7 +32,7 @@ function resolve_point!(point::SpecialPointInterval,
                         opts::ContinuationOptions,
                         ) :: SpecialPoint
     @unpack point_type, point_index = point
-    f = testfn_for(point_type, timekind(cache))
+    f = testfn_for(point_type, timekind(cache), contkind(cache))
     direction = as(point.sweep.value, ContinuationSweep).direction
     u, tJ, L, Q, J =
         find_zero!(cache, opts, f, point.u0, point.u1, direction)
@@ -31,11 +41,11 @@ function resolve_point!(point::SpecialPointInterval,
                         WeakRef(point.sweep.value))
 end
 
-function testfn_for(point_type::PointType, tkind::TimeKind)
+function testfn_for(point_type::Enum, tkind::TimeKind, ckind::ContinuationKind)
     ptype = Val{point_type}()
     # For call signature of `f`, see:
     # [[../continuations/zero_point.jl::f(]]
-    return (u, J, L, Q) -> testfn_for(ptype, tkind, u, J, L, Q)
+    return (u, J, L, Q) -> testfn(ptype, tkind, ckind, u, J, L, Q)
 end
 
 const Instability = Union{
@@ -44,7 +54,8 @@ const Instability = Union{
     Val{PointTypes.hopf},
 }
 
-testfn_for(::Instability, tkind::TimeKind, u, J, L, Q) =
+testfn(::Instability, tkind::TimeKind, ::FixedPointCont,
+       u, J, L, Q) =
     stability_index(tkind, ds_jacobian(J))
 
 stability_index(tkind::Discrete, J) =

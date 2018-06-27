@@ -33,14 +33,34 @@ function dims_from_augsys(as_dim::Int, T::Type)
     else
         @assert T <: Complex
         ds_dim, r = divrem(as_dim - 3, 3)
-        @assert r == 0
         eigvec_dim = 2 * ds_dim
     end
+    return _VarDims(ds_dim, eigvec_dim, T, as_dim, r)
+end
+
+function _VarDims(ds_dim, eigvec_dim, T, as_dim, r)
     @assert r == 0
     d = VarDims(ds_dim, eigvec_dim, T)
     @assert augsys_dim(d) == as_dim
     return d
 end
+
+function dims_from_augsys(as_dom_dim::Int, ::SaddleNodeCont)
+    ds_dim, r = divrem(as_dom_dim - 2, 2)
+    eigvec_dim = ds_dim
+    eigvec_eltype = Real  # TODO: don't
+    return _VarDims(ds_dim, eigvec_dim, eigvec_eltype, as_dom_dim, r)
+end
+
+function dims_from_augsys(as_dom_dim::Int, ::HopfCont)
+    ds_dim, r = divrem(as_dom_dim - 3, 3)
+    eigvec_dim = 2 * ds_dim
+    eigvec_eltype = Complex  # TODO: don't
+    return _VarDims(ds_dim, eigvec_dim, eigvec_eltype, as_dom_dim, r)
+end
+
+dims_from_augsys(J::AbstractMatrix, ckind::ContinuationKind) =
+    dims_from_augsys(size(J, 2), ckind)
 
 # ds_dim(x::AbstractVector) = ds_dim(length(x))
 # ds_dim(var_dim) = var_dim ÷ 2 - 1

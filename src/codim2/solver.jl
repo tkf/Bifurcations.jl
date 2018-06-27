@@ -10,8 +10,6 @@ import ..Continuations: step!, new_sweep!
 using ..BifurcationsBase: timekind, Continuous, Discrete
 import ..BifurcationsBase: TimeKind
 
-using ..BifurcationsBase: contkind, SaddleNodeCont, HopfCont
-
 using ..BifurcationsBase
 using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     BifurcationSweep, BifurcationSolution, BifurcationSolver,
@@ -168,19 +166,17 @@ function ds_jacobian(cache::ContinuationCache)
     return ds_jacobian(prob, cache.J)
 end
 
-ds_jacobian(prob::DiffEqCodim2Problem, J) =
-    Array(_ds_jacobian(eltype(prob.v0), J))
-# Workaround: Only hermitian matrices are diagonalizable by *StaticArrays*.
+ds_jacobian(prob::DiffEqCodim2Problem, J) = ds_jacobian(contkind(prob), J)
 
-function _ds_jacobian(E::Type, J::AbstractMatrix)
-    d = dims_from_augsys(size(J, 2), E)
+function ds_jacobian(ckind::ContinuationKind, J::AbstractMatrix)
+    d = dims_from_augsys(J, ckind)
     return @view J[1:d.ds_dim, 1:d.ds_dim]
 end
 
-@generated function _ds_jacobian(::Type{E},
+@generated function ds_jacobian(ckind::ContinuationKind,
                                  J::SMatrix{S1, S2, T}
-                                 ) where {E, S1, S2, T}
-    d = dims_from_augsys(S2, E)
+                                 ) where {S1, S2, T}
+    d = dims_from_augsys(S2, ckind())
     N = d.ds_dim
     values = [:(J[$i, $j]) for j in 1:N for i in 1:N]
     quote

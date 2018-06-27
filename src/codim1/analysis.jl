@@ -1,5 +1,7 @@
+using ..ArrayUtils: _eigvals
+
 function ds_eigvals(::Discrete, J)
-    ev = eigvals(J)
+    ev = _eigvals(J)
     sort!(ev, by=abs, rev=true)
     return ev
 end
@@ -23,7 +25,7 @@ end
 isstable(::Discrete, eigvals) = abs(eigvals[1]) < 1
 
 function ds_eigvals(::Continuous, J)
-    ev = eigvals(J)
+    ev = _eigvals(J)
     sort!(ev, by=real, rev=true)
     return ev
 end

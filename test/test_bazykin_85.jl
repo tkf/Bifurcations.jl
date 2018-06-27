@@ -1,6 +1,7 @@
 module TestBazykin85
 include("preamble_plots.jl")
 
+using Bifurcations: Codim2, resolved_points
 using Bifurcations.Examples: Bazykin85
 
 @testset "smoke Bazykin85 codim-2" begin
@@ -29,6 +30,12 @@ using Bifurcations.Examples: Bazykin85
 
         @testset "plot" begin
             smoke_test_solver_plot(codim2_solver)
+        end
+
+        @testset "resolve $p" for p in [Codim2.PointTypes.bogdanov_takens,
+                                        Codim2.PointTypes.fold_hopf,
+                                        Codim2.PointTypes.hopf_hopf]
+            @test_nothrow resolved_points(codim2_solver, p)
         end
     end
 end

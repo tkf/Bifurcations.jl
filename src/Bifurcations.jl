@@ -5,6 +5,8 @@ export init, solve, solve!, step!
 using DiffEqBase: init, solve, solve!, step!
 # see: continuations/solver.jl
 
+include("utils/utils.jl")
+
 include("continuations/continuations.jl")
 using .Continuations: AbstractContinuationProblem, AbstractProblemCache
 import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,

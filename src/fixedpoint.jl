@@ -100,6 +100,11 @@ function FixedPointBifurcationProblem(tkind::TimeKind,
 end
 
 
+# TODO: trait
+BifurcationsBase.contkind(::FixedPointBifurcationProblem) =
+    BifurcationsBase.FixedPointCont()
+
+
 struct FixedPointBifurcationCache{P, C} <: AbstractProblemCache{P}
     prob::P
     cfg::C
