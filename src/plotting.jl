@@ -84,6 +84,22 @@ const STYLE = Dict(
             :markercolor => 6,
             :markershape => :diamond,
         ),
+        Codim2.PointTypes.bautin => Dict(
+            :markercolor => 7,
+            :markershape => :circle,
+        ),
+        Codim2.PointTypes.bogdanov_takens => Dict(
+            :markercolor => 8,
+            :markershape => :hexagon,
+        ),
+        Codim2.PointTypes.fold_hopf => Dict(
+            :markercolor => 9,
+            :markershape => :star8,
+        ),
+        Codim2.PointTypes.hopf_hopf => Dict(
+            :markercolor => 10,
+            :markershape => :star5,
+        ),
     ),
 )
 
@@ -201,7 +217,17 @@ end
     (xs, ys)
 end
 
-@recipe function plot(sweep::Codim2Sweep)
+@recipe function plot(
+        sweep::Codim2Sweep;
+        resolve_points = false,
+        include_points = false)
+
+    for point in maybe_get_points(sweep, include_points, resolve_points)
+        @series begin
+            point
+        end
+    end
+
     label --> ""
     linecolor --> 1
     as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
