@@ -3,6 +3,7 @@ using Compat
 using ..Continuations: AbstractContinuationCache, AbstractProblemCache
 include("timekind.jl")
 include("statekind.jl")
+include("contkind.jl")
 include("problem.jl")
 include("solution.jl")
 include("solver.jl")

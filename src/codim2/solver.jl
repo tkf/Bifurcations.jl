@@ -10,6 +10,8 @@ import ..Continuations: step!, new_sweep!
 using ..BifurcationsBase: timekind, Continuous, Discrete
 import ..BifurcationsBase: TimeKind
 
+using ..BifurcationsBase: contkind, SaddleNodeCont, HopfCont
+
 using ..BifurcationsBase
 using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     BifurcationSweep, BifurcationSolution, BifurcationSolver,
@@ -128,13 +130,8 @@ const Codim2Solver{
         } =
     BifurcationSolver{R, P, C, S}
 
-abstract type Codim1Continuation end
-struct SaddleNodeCont <: Codim1Continuation end
-struct HopfCont <: Codim1Continuation end
-
 # TODO: trait
-function cont_type(cache::Codim2Cache)
-    prob = as(cache, ContinuationCache).prob_cache.prob  # TODO: interface
+function BifurcationsBase.contkind(prob::DiffEqCodim2Problem)
     if eltype(prob.v0) <: Complex
         return HopfCont()
     else
@@ -154,7 +151,7 @@ function re_analyze!(solver::Codim2Solver, u::AbstractVector)
 end
 
 function analyze!(cache::Codim2Cache, opts)
-    cnt = cont_type(cache)
+    cnt = contkind(cache)
     cache.J = J = ds_jacobian(cache)
     cache.prev_eigvals = cache.eigvals
     cache.eigvals = ds_eigvals(timekind(cache), J)
