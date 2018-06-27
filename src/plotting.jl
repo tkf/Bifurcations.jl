@@ -262,20 +262,20 @@ end
 end
 
 """
-    plot(...)
+    plot!(...)
 
-A thin wrapper of `Plots.plot` with some workarounds for
+A thin wrapper of `Plots.plot!` with some workarounds for
 `Bifurcations`-related objects.
 """
-function plot(plottable::Union{BifurcationSweep,
-                               BifurcationSolution,
-                               BifurcationSolver};
-              resolve_points = plottable isa Codim1Solver,
-              include_points = true,
-              vars = default_vars(plottable),
-              bif_style = STYLE,
-              kwargs...)
-    plt = Main.Plots.plot()
+function plot!(plt,
+               plottable::Union{BifurcationSweep,
+                                BifurcationSolution,
+                                BifurcationSolver};
+               resolve_points = plottable isa Codim1Solver,
+               include_points = true,
+               vars = default_vars(plottable),
+               bif_style = STYLE,
+               kwargs...)
     for point in maybe_get_points(plottable, include_points, resolve_points)
         Main.Plots.plot!(plt, point;
                          vars = vars,
@@ -286,6 +286,24 @@ function plot(plottable::Union{BifurcationSweep,
                      vars = vars,
                      bif_style = bif_style,
                      kwargs...)
+    return plt
+end
+
+plot!(args...; kwargs...) = Main.Plots.plot!(args...; kwargs...)
+
+
+"""
+    plot(...)
+
+A thin wrapper of `Plots.plot` with some workarounds for
+`Bifurcations`-related objects.
+"""
+function plot(plottable::Union{BifurcationSweep,
+                               BifurcationSolution,
+                               BifurcationSolver};
+              kwargs...)
+    plt = Main.Plots.plot()
+    plot!(plt, plottable; kwargs...)
     return plt
 end
 
