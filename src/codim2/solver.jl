@@ -71,6 +71,7 @@ mutable struct Codim2Cache{P, C <: ContinuationCache{P},
     See: http://www.scholarpedia.org/article/Saddle-node_bifurcation
     """
     quadratic_coefficient::Float64
+    prev_quadratic_coefficient::Float64
 end
 # TODO: Maybe rename Codim2Cache to SNContCache for something.
 # Or put bifurcation type-specific cache in a sub-cache?
@@ -82,7 +83,7 @@ function Codim2Cache(super::C,
                      ) where {P, C <: ContinuationCache{P},
                               JType, eType}
     return Codim2Cache{P, C, JType, eType}(super, J, eigvals, point_type,
-                                           NaN)
+                                           NaN, NaN)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
 
@@ -105,6 +106,20 @@ const Codim2Solver{
         } =
     BifurcationSolver{R, P, C, S}
 
+abstract type Codim1Continuation end
+struct SaddleNodeCont <: Codim1Continuation end
+struct HopfCont <: Codim1Continuation end
+
+# TODO: trait
+function cont_type(cache::Codim2Cache)
+    prob = as(cache, ContinuationCache).prob_cache.prob  # TODO: interface
+    if eltype(prob.v0) <: Complex
+        return HopfCont()
+    else
+        return SaddleNodeCont()
+    end
+end
+
 function re_analyze!(solver::Codim2Solver, u::AbstractVector)
     residual_jacobian!(as(solver.cache, ContinuationCache), u)
     analyze!(solver.cache, solver.opts)
@@ -117,13 +132,11 @@ function re_analyze!(solver::Codim2Solver, u::AbstractVector)
 end
 
 function analyze!(cache::Codim2Cache, opts)
+    cnt = cont_type(cache)
     cache.J = J = ds_jacobian(cache)
-    if need_quadratic_coefficient(cache)
-        a0 = sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
-        cache.point_type = guess_point_type(timekind(cache), cache, a0, opts)
-        cache.eigvals = ds_eigvals(timekind(cache), J)
-        cache.quadratic_coefficient = a0
-    end
+    cache.eigvals = ds_eigvals(timekind(cache), J)
+    set_quadratic_coefficient!(cnt, cache)
+    cache.point_type = guess_point_type(cnt, timekind(cache), cache, opts)
     set_augsys_cache!(cache)
 end
 
@@ -157,10 +170,10 @@ function ds_f(x, cache::ContinuationCache)
     return f(x, p, 0)
 end
 
-function need_quadratic_coefficient(cache::Codim2Cache)
-    prob = as(cache, ContinuationCache).prob_cache.prob  # TODO: interface
-    if eltype(prob.v0) <: Real
-        return true
-    end
-    return false
+set_quadratic_coefficient!(::HopfCont, ::Codim2Cache) = nothing
+
+function set_quadratic_coefficient!(::SaddleNodeCont, cache::Codim2Cache)
+    cache.prev_quadratic_coefficient = cache.quadratic_coefficient
+    cache.quadratic_coefficient =
+        sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
 end

@@ -1,13 +1,17 @@
 using ..Codim1: ds_eigvals
 
-function guess_point_type(::Discrete, cache, quadratic_coefficient, opts)
+function guess_point_type(::Any, ::Discrete, cache, opts)
     return PointTypes.none
 end
 
-function guess_point_type(::Continuous, cache, quadratic_coefficient, opts)
-    if quadratic_coefficient * cache.quadratic_coefficient < 0
+function guess_point_type(::SaddleNodeCont, ::Continuous, cache, opts)
+    if cache.prev_quadratic_coefficient * cache.quadratic_coefficient < 0
         return PointTypes.cusp
     end
+    return PointTypes.none
+end
+
+function guess_point_type(::HopfCont, ::Continuous, cache, opts)
     return PointTypes.none
 end
 
