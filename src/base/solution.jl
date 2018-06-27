@@ -2,11 +2,11 @@ using ..Continuations: as,
     ContinuationSweep, ContinuationSolution,
     ContinuationCache, ContinuationSolver
 
-abstract type AbstractSpecialPoint{tkind <: TimeKind} end
+abstract type AbstractSpecialPoint{tkind <: TimeKind, ptType} end
 TimeKind(::Type{<: AbstractSpecialPoint{tkind}}) where tkind = tkind()
 
 struct SpecialPoint{tkind, ptType, uType, JType,
-                    } <: AbstractSpecialPoint{tkind}
+                    } <: AbstractSpecialPoint{tkind, ptType}
     timekind::tkind
     point_type::ptType
     point_index::Int
@@ -18,7 +18,7 @@ end
 # init(point) can initiate codim+1 bifurcation solver.
 
 struct SpecialPointInterval{tkind, ptType, uType, JType,
-                            } <: AbstractSpecialPoint{tkind}
+                            } <: AbstractSpecialPoint{tkind, ptType}
     timekind::tkind
     point_type::ptType
     point_index::Int
