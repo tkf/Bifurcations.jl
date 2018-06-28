@@ -45,3 +45,6 @@ function preferred_augsys(point)
     end
     return BackReferencingAS()
 end
+
+preferred_augsys(::HopfCont) = BackReferencingAS()
+preferred_augsys(::SaddleNodeCont) = NormalizingAS()

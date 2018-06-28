@@ -1,6 +1,7 @@
 module BifurcationsBase
 using Compat
-using ..Continuations: AbstractContinuationCache, AbstractProblemCache
+using ..Continuations: AbstractContinuationCache, AbstractProblemCache,
+    AbstractContinuationSolver
 include("timekind.jl")
 include("statekind.jl")
 include("contkind.jl")

@@ -170,6 +170,9 @@ end
 ds_eigvec(prob::DiffEqCodim2Problem, u::AbstractArray) =
     _ds_eigvec(eltype(prob.v0), u::AbstractArray)
 
+ds_eigvec(::HopfCont, u::AbstractArray) = _ds_eigvec(Complex, u)
+ds_eigvec(::SaddleNodeCont, u::AbstractArray) = _ds_eigvec(Real, u)
+
 function _ds_eigvec(::Type{E}, u::AbstractArray) where {E <: Real}
     d = dims_from_augsys(length(u), E)
     return @view u[eigvec_range(d)]

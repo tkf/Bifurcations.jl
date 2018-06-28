@@ -16,3 +16,5 @@ function contkind(cache::AbstractContinuationCache)  # TODO: trait
     prob = as(cache, ContinuationCache).prob_cache.prob  # TODO: interface
     return contkind(prob)
 end
+
+contkind(solver::AbstractContinuationSolver) = contkind(solver.prob)
