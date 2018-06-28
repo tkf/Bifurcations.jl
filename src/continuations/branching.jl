@@ -151,13 +151,16 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     end
     if ! isempty(failures)
         failure_msg = join(failures, "\n    * ")
-        error("""
+        warn("""
             Failed to branch off from old curve.
             Reason(s):
                 * $(failure_msg)
+            """)
+        # Not sure about this anymore:
+        #=
             Possible fix(es):
                 * Decrease h0 (= $(opts.h0))
-            """)
+        =#
     end
 
     return [
