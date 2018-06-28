@@ -3,17 +3,8 @@ using ..Continuations: find_zero!
 using ..BifurcationsBase: AbstractSpecialPoint, special_points,
     contkind, FixedPointCont, ContinuationKind
 
-resolved_points(solver::BifurcationSolver) =
-    [resolve_point(point, solver) for point in special_points(solver)]
-
-resolved_points(solver::BifurcationSolver,
-                point_types::NTuple{N, <:Enum},
-                ) where {N} =
-    [resolve_point(point, solver) for point in special_points(solver)
-     if point.point_type in point_types]
-
-resolved_points(solver::BifurcationSolver, point_type::Enum) =
-    resolved_points(solver, (point_type,))
+resolved_points(solver::BifurcationSolver, args...) =
+    [resolve_point(point, solver) for point in special_points(solver, args...)]
 
 function resolve_point(point::AbstractSpecialPoint, solver::BifurcationSolver)
     super = as(solver, ContinuationSolver)
