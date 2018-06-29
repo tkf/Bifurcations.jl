@@ -70,6 +70,7 @@ end
 
 
 @with_kw struct SimpleBifurcationSolution{RV, LV, M}
+    found::Bool
     tv1::RV
     tv2::RV
     tJ1::RV
@@ -96,31 +97,27 @@ function solve_simple_bifurcation!(cache, opts,
         return cotJ ⋅ residual(v, prob_cache)
     end
     hess = ForwardDiff.hessian(g, [0.0, 0.0])
+    H11, H12, _, H22 = hess
 
-    if abs(hess[1, 1]) < atol
-        if abs(hess[2, 2]) < atol
-            tv1 = tJ1
-            tv2 = tJ2
-        else
-            tv1 = tJ1
-            tv2 = tJ1 .* (- hess[2, 2] / 2 / hess[1, 2]) .+ tJ2
-            tv2 /= norm(tv2)
-        end
-    else
-        a = hess[1, 1]
-        b = hess[1, 2]
-        c = hess[2, 2]
-        y1 = (- b + sqrt(b^2 - a * c)) / a
-        y2 = (- b - sqrt(b^2 - a * c)) / a
-        tv1 = tJ1 * y1 + tJ2
-        tv2 = tJ1 * y2 + tJ2
-        tv1 /= norm(tv1)
-        tv2 /= norm(tv2)
+    # Solve (ξ₁, ξ₂)ᵀ H (ξ₁, ξ₂) = 0 where ξ₁=x and ξ₂=1-x
+   discriminant = - H11 * H22 + H12^2  # = det(hess)
+    if discriminant <= 0
+        tv1 = tJ1 .* NaN
+        tv2 = tJ2 .* NaN
+        return SimpleBifurcationSolution(false, tv1, tv2, tJ1, tJ2, cotJ, hess)
     end
-    @assert norm(tv1) ≈ 1
-    @assert norm(tv2) ≈ 1
 
-    return SimpleBifurcationSolution(tv1, tv2, tJ1, tJ2, cotJ, hess)
+    x1 = (- H12 + H22 + sqrt(discriminant)) / (H11 + H22 - 2 * H12)
+    x2 = (- H12 + H22 - sqrt(discriminant)) / (H11 + H22 - 2 * H12)
+    if abs(x1) < abs(x2)
+        x1, x2 = x2, x1
+    end
+    tv1 = @. x1 * tJ1 + (1 - x1) * tJ2
+    tv2 = @. x2 * tJ1 + (1 - x2) * tJ2
+    tv1 /= norm(tv1)
+    tv2 /= norm(tv2)
+
+    return SimpleBifurcationSolution(true, tv1, tv2, tJ1, tJ2, cotJ, hess)
 end
 
 
@@ -130,6 +127,7 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
 
     sbsol = solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
     @unpack tv1, tv2 = sbsol
+    @assert sbsol.found  # TODO: nicer error handling
 
     # Choose the direction `tv` of the new branch.  Use the one least
     # parallel to the direction `tv0` along the previous curve.
