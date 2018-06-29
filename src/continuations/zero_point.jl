@@ -1,3 +1,5 @@
+using Parameters: @with_kw
+
 calc_direction(_u, J, _L, Q) = det(vcat(J, (@view Q[:, end])'))
 # Q[:, end] --- tangent w/o det-fixing
 
@@ -7,6 +9,23 @@ find_simple_bifurcation!(cache, opts, sbint) =
 
 find_simple_bifurcation!(cache, opts, args...) =
     find_zero!(cache, opts, calc_direction, args...)
+
+@with_kw struct FindZeroInputError <: Exception
+    f0
+    f1
+    u0
+    u1
+    f
+end
+
+Base.showerror(io::IO, e::FindZeroInputError) = print(io, """
+Test function `f` evaluated at `u0` and `u1` have the same sign.
+f0 = $(e.f0)
+f1 = $(e.f1)
+u0 = $(e.u0)
+u1 = $(e.u1)
+f = $(e.f)
+""")
 
 function find_zero!(cache, opts, f, u0, u1, direction)
     prob_cache = cache.prob_cache
@@ -27,7 +46,9 @@ function find_zero!(cache, opts, f, u0, u1, direction)
     tJ = tangent(L, Q)
     f0 = f(u0, J, L, Q)
 
-    @assert f0 * f1 < 0
+    if f0 * f1 > 0
+        throw(FindZeroInputError(f0, f1, u0, u1, f))
+    end
 
     fu = f0
     u = u0
