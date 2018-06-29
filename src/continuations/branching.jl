@@ -69,6 +69,16 @@ function _find_more_nullspaces(L2, R2,
 end
 
 
+@with_kw struct SimpleBifurcationSolution{RV, LV, M}
+    tv1::RV
+    tv2::RV
+    tJ1::RV
+    tJ2::RV
+    cotJ::LV
+    hess::M
+end
+
+
 function solve_simple_bifurcation!(cache, opts,
                                    u0::TV, tJ::TV,
                                    L, Q,
@@ -110,7 +120,7 @@ function solve_simple_bifurcation!(cache, opts,
     @assert norm(tv1) ≈ 1
     @assert norm(tv2) ≈ 1
 
-    return tv1, tv2
+    return SimpleBifurcationSolution(tv1, tv2, tJ1, tJ2, cotJ, hess)
 end
 
 
@@ -118,7 +128,8 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     u0, tJ, L, Q = find_simple_bifurcation!(cache, opts, sbint)
     # TODO: handle not-found case
 
-    tv1, tv2 = solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
+    sbsol = solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
+    @unpack tv1, tv2 = sbsol
 
     # Choose the direction `tv` of the new branch.  Use the one least
     # parallel to the direction `tv0` along the previous curve.
