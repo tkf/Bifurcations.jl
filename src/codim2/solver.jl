@@ -158,6 +158,21 @@ function analyze!(cache::Codim2Cache, opts)
     set_augsys_cache!(cache)
 end
 
+function BifurcationsBase.post_step!(solver::Codim2Solver)
+    cache = solver.cache
+    if cache.point_type == PointTypes.bogdanov_takens &&
+            as(cache, ContinuationCache).simple_bifurcation
+        # Switching at Bogdanov-Takens point requires to switch
+        # problem type and so cannot be handled by the continuation
+        # solver.  As a quick solution, I'm removing the last
+        # SimpleBifurcationInterval (though communication by sharing
+        # is ugly...)
+        pop!(as(solver, ContinuationSolver).sol.sweeps[end].simple_bifurcation)
+        # TODO: Find a better solution to avoid registering
+        # Bogdanov-Takens point as a simple bifurcation point.
+    end
+end
+
 ds_jacobian(solver) = ds_jacobian(as(solver, ContinuationSolver).cache)
 ds_jacobian(cache::Codim2Cache) = ds_jacobian(as(cache, ContinuationCache))
 
