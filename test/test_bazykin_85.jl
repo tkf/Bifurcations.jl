@@ -1,18 +1,47 @@
 module TestBazykin85
 include("preamble_plots.jl")
 
-using Bifurcations: Codim2, resolved_points
+using DiffEqBase: ODEProblem
+using StaticArrays: SVector
+
+using Bifurcations: Codim1, Codim2, resolved_points
 using Bifurcations.BifurcationsBase: contkind, HopfCont
 using Bifurcations.Examples: Bazykin85
 
-@testset "smoke Bazykin85 codim-2" begin
-    codim1_solver = init(Bazykin85.prob)
+@testset "smoke Bazykin85 codim-2 (ϵ=$ϵ)" for ϵ in [0.01, 0.001]
+
+    ode = let
+        p = Bazykin85.Bazykin85Param(
+            ϵ = ϵ,
+        )
+        u0 = SVector(1 / p.ϵ, 0.0)
+        ODEProblem(Bazykin85.f, u0, Bazykin85.tspan, p)
+    end
+    prob = BifurcationProblem(
+        ode,
+        Bazykin85.param_axis,
+        (0.01, 1.5);
+        phase_space = (SVector(0.0, 0.0),  # u_min
+                       SVector(Inf, Inf)), # u_max
+    )
+
+    codim1_solver = init(prob)
     solve!(codim1_solver)
+
+    if ϵ > 0.001
+        @test length(special_points(codim1_solver)) == 4
+    else
+        @test_broken length(special_points(codim1_solver)) == 4
+    end
+
+    sn_point, = sort!(
+        special_points(codim1_solver, Codim1.PointTypes.saddle_node),
+        by=p->p.u0[1])
+    hopf_point, = special_points(codim1_solver, Codim1.PointTypes.hopf)
 
     hopf_solver1 = nothing
     sn_solver1 = nothing
-    point_list = sort!(special_points(codim1_solver), by=p->p.u0[end])
-    for point in point_list[2:3]  # TODO: avoid manual indexing
+    for point in [sn_point, hopf_point]
         codim2_prob = BifurcationProblem(
             point,
             codim1_solver,
