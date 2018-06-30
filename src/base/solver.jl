@@ -35,8 +35,12 @@ function step!(solver::BifurcationSolver)
     analyze!(solver.cache, solver.opts)
     record!(solver.sol, solver.cache)
     check_sweep_length(solver.sol.sweeps[end])
+    post_step!(solver)  # TODO: remove
 end
 
+# This exists only for quick-and-dirty Bogdanov-Takens point handling
+# in codim2 solver.  See: [[../codim2/solver.jl::post_step!]]
+function post_step!(::Any) end
 
 function new_sweep!(solver::BifurcationSolver, setup::SweepSetup)
     new_sweep!(solver.super, setup)
