@@ -154,13 +154,23 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
 
     args = (opts.h0, sbint.direction)
     u1, h1 = predictor_corrector_step!(cache, opts, u0, tv, args...)
+    simple_bifurcation1 = cache.simple_bifurcation
     u2, h2 = predictor_corrector_step!(cache, opts, u0, -tv, args...)
+    simple_bifurcation2 = cache.simple_bifurcation
 
     # TODO: Make error message creation lazy; i.e., store the points
     # and vectors in a custom exception type and construct the message
     # in showerror.
     parallel_to_old = du -> abs(du ⋅ tv0) > abs(du ⋅ tv)
     failures = []
+    if simple_bifurcation1 || simple_bifurcation2
+        push!(failures, "Simple bifurcation during the first corrector.")
+        if ! simple_bifurcation1
+            push!(failures, "Only the second branch had simple bifurcation.")
+        elseif ! simple_bifurcation2
+            push!(failures, "Only the first branch had simple bifurcation.")
+        end
+    end
     if parallel_to_old(u1 .- u0) || parallel_to_old(u2 .- u0)
         push!(failures, string(
             "New branch candidates are more parallel to the old curve",
