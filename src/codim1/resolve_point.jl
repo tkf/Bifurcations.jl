@@ -3,8 +3,26 @@ using ..Continuations: find_zero!
 using ..BifurcationsBase: AbstractSpecialPoint, special_points,
     contkind, FixedPointCont, ContinuationKind
 
-resolved_points(solver::BifurcationSolver, args...) =
-    [resolve_point(point, solver) for point in special_points(solver, args...)]
+function resolved_points(solver::BifurcationSolver, args...)
+    points = []
+    for interval in special_points(solver, args...)
+        try
+            push!(points, resolve_point(interval, solver))
+        catch err
+            # [[../continuations/branching.jl::SingularException]]
+            if err isa LinAlg.SingularException
+                warn(err)
+                warn("""
+                    Failed to find bifurcation point within:
+                    $(interval)
+                    """)
+                continue
+            end
+            rethrow()
+        end
+    end
+    return points
+end
 
 function resolve_point(point::AbstractSpecialPoint, solver::BifurcationSolver)
     super = as(solver, ContinuationSolver)
