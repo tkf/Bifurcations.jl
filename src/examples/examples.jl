@@ -11,6 +11,6 @@ const PROBLEMS = [
     Transcritical.prob,
     Calcium.prob,
     PredatorPrey.prob,
-    # Bazykin85.prob,  # TODO: add it
+    Bazykin85.prob,
 ]
 end  # module
