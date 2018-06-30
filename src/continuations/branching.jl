@@ -122,8 +122,21 @@ end
 
 
 function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
-    u0, tJ, L, Q = find_simple_bifurcation!(cache, opts, sbint)
-    # TODO: handle not-found case
+    u0, tJ, L, Q = try
+        find_simple_bifurcation!(cache, opts, sbint)
+    catch err
+        # Maybe there is the singularity (around which det(J; tJ)
+        # flips) within `sbint` and the root finder hits that?
+        if err isa LinAlg.SingularException
+            warn(err)
+            warn("""
+                Failed to find bifurcation point within:
+                $(sbint)
+                """)
+            return []
+        end
+        rethrow()
+    end
 
     sbsol = solve_simple_bifurcation!(cache, opts, u0, tJ, L, Q)
     @unpack tv1, tv2 = sbsol
