@@ -69,7 +69,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         error("corrector failed")
 
         @label corrector_success
-        tJ = tangent(L, Q)
+        tJv = tangent(L, Q)
         fv = f(v, J, L, Q)
         @assert all(isfinite.(v))
 
@@ -79,8 +79,13 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         fu = fv
 
         if abs(h) < opts.h_zero
-            return v, tJ, L, Q, J
+            return v, tJv, L, Q, J
         end
+
+        if tJ ⋅ tJv < 0
+            direction *= -1
+        end
+        tJ = tJv
     end
     error("zero not found")
 end
