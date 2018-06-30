@@ -43,7 +43,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
     H, J = residual_jacobian!(H, J, u0, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = lq!(Q, A)
-    tJ = Q[:, end]
+    tJ = tangent(L, Q)
     f0 = f(u0, J, L, Q)
 
     if f0 * f1 > 0
@@ -53,10 +53,9 @@ function find_zero!(cache, opts, f, u0, u1, direction)
     fu = f0
     u = u0
     h = norm(u0 .- u1) / 2
-    # TODO: fix h direction
     for _ in 1:opts.max_adaptations
         # predictor
-        v = u .+ h .* tJ
+        v = u .+ direction * h .* tJ
 
         # corrector
         for _ in 1:opts.max_corrector_steps
@@ -70,7 +69,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         error("corrector failed")
 
         @label corrector_success
-        tJ = Q[:, end]
+        tJ = tangent(L, Q)
         fv = f(v, J, L, Q)
         @assert all(isfinite.(v))
 
