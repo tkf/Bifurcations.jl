@@ -158,45 +158,78 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     u2, h2 = predictor_corrector_step!(cache, opts, u0, -tv, args...)
     simple_bifurcation2 = cache.simple_bifurcation
 
-    # TODO: Make error message creation lazy; i.e., store the points
-    # and vectors in a custom exception type and construct the message
-    # in showerror.
-    parallel_to_old = du -> abs(du ⋅ tv0) > abs(du ⋅ tv)
-    failures = []
-    if simple_bifurcation1 || simple_bifurcation2
-        push!(failures, "Simple bifurcation during the first corrector.")
-        if ! simple_bifurcation1
-            push!(failures, "Only the second branch had simple bifurcation.")
-        elseif ! simple_bifurcation2
-            push!(failures, "Only the first branch had simple bifurcation.")
-        end
-    end
-    if parallel_to_old(u1 .- u0) || parallel_to_old(u2 .- u0)
-        push!(failures, string(
-            "New branch candidates are more parallel to the old curve",
-            " than the computed new direction."))
-    end
-    if (isapprox(u1, u0; atol=opts.atol, rtol=opts.rtol) ||
-        isapprox(u2, u0; atol=opts.atol, rtol=opts.rtol))
-        push!(failures,
-              "New points are approximately equal to the branch point.")
-    end
-    if ! isempty(failures)
-        failure_msg = join(failures, "\n    * ")
-        warn("""
-            Failed to branch off from old curve.
-            Reason(s):
-                * $(failure_msg)
-            """)
-        # Not sure about this anymore:
-        #=
-            Possible fix(es):
-                * Decrease h0 (= $(opts.h0))
-        =#
-    end
+    # Maybe return BranchResult?
+    check(BranchResult(
+        tv, tv0, tv1, tv2, u0, u1, u2,
+        simple_bifurcation1, simple_bifurcation2,
+    ), opts)
 
     return [
         (u0, u1, sbint.direction, h1),
         (u0, u2, sbint.direction, h2),
     ]
+end
+
+
+struct BranchResult{T}
+    tv::T
+    tv0::T
+    tv1::T
+    tv2::T
+    u0::T
+    u1::T
+    u2::T
+    simple_bifurcation1::Bool
+    simple_bifurcation2::Bool
+end
+
+struct BranchError{T} <: Exception
+    result::BranchResult{T}
+    opts::ContinuationOptions
+end
+
+function check(result::BranchResult, opts)
+    @unpack tv, tv0, tv1, tv2, u0, u1, u2,
+        simple_bifurcation1, simple_bifurcation2 = result
+
+    parallel_to_old = du -> abs(du ⋅ tv0) > abs(du ⋅ tv)
+
+    if simple_bifurcation1 || simple_bifurcation2 ||
+            parallel_to_old(u1 .- u0) || parallel_to_old(u2 .- u0) ||
+            isapprox(u1, u0; atol=opts.atol, rtol=opts.rtol) ||
+            isapprox(u2, u0; atol=opts.atol, rtol=opts.rtol)
+        # throw(BranchError(result, opts))
+        warn(BranchError(result, opts))
+    end
+end
+
+
+function Base.showerror(io::IO, err::BranchError)
+    @unpack tv, tv0, tv1, tv2, u0, u1, u2,
+        simple_bifurcation1, simple_bifurcation2 = err.result
+    opts = err.opts
+
+    sep = "\n    * "
+    _print = (args...) -> print(io, sep, args...)
+
+    parallel_to_old = du -> abs(du ⋅ tv0) > abs(du ⋅ tv)
+
+    print(io, "Possible errors while branching off from old curve:")
+
+    if simple_bifurcation1 || simple_bifurcation2
+        _print("Simple bifurcation during the first corrector.")
+        if ! simple_bifurcation1
+            _print("Only the second branch had simple bifurcation.")
+        elseif ! simple_bifurcation2
+            _print("Only the first branch had simple bifurcation.")
+        end
+    end
+    if parallel_to_old(u1 .- u0) || parallel_to_old(u2 .- u0)
+        _print("New branch candidates are more parallel to the old curve",
+               " than the computed new direction.")
+    end
+    if (isapprox(u1, u0; atol=opts.atol, rtol=opts.rtol) ||
+        isapprox(u2, u0; atol=opts.atol, rtol=opts.rtol))
+        _print("New points are approximately equal to the branch point.")
+    end
 end
