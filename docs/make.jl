@@ -3,8 +3,6 @@ using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
 
-Plots.default(dpi=15)
-
 makedocs()
 
 # https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
