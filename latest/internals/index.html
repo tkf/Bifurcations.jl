@@ -126,14 +126,14 @@ H(u) = 0
 <li>an initial guess $u_0$: <a href="./#Bifurcations.Continuations.get_u0"><code>get_u0</code></a></li>
 <li>and computation cache: <a href="./#Bifurcations.Continuations.get_prob_cache"><code>get_prob_cache</code></a>.</li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L1-L21' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L1-L21' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.AbstractProblemCache' href='#Bifurcations.Continuations.AbstractProblemCache'>#</a>
 <strong><code>Bifurcations.Continuations.AbstractProblemCache</code></strong> &mdash; <em>Type</em>.</p>
 <pre><code>AbstractProblemCache{P &lt;: AbstractContinuationProblem}
 </code></pre>
 
 <p>Cache for computing $H$ and its Jacobian.</p>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L24-L28' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L24-L28' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.residual' href='#Bifurcations.Continuations.residual'>#</a>
 <strong><code>Bifurcations.Continuations.residual</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>residual(u, cache) ↦ H
@@ -146,7 +146,7 @@ H(u) = 0
 <li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
 <li><code>cache::AbstractProblemCache</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L31-L45' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L31-L45' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.residual!' href='#Bifurcations.Continuations.residual!'>#</a>
 <strong><code>Bifurcations.Continuations.residual!</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>residual!(H, u, cache) ↦ H
@@ -160,7 +160,7 @@ H(u) = 0
 <li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
 <li><code>cache::AbstractProblemCache</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L48-L61' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L48-L61' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.residual_jacobian!' href='#Bifurcations.Continuations.residual_jacobian!'>#</a>
 <strong><code>Bifurcations.Continuations.residual_jacobian!</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>residual_jacobian!(H, J, u, cache) ↦ (H, J)
@@ -174,7 +174,7 @@ H(u) = 0
 <li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
 <li><code>cache::AbstractProblemCache</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L64-L74' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L64-L74' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.isindomain' href='#Bifurcations.Continuations.isindomain'>#</a>
 <strong><code>Bifurcations.Continuations.isindomain</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>isindomain(u, cache) :: Bool
@@ -185,19 +185,19 @@ H(u) = 0
 <li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
 <li><code>cache::AbstractProblemCache</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L77-L83' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L77-L83' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.get_prob_cache' href='#Bifurcations.Continuations.get_prob_cache'>#</a>
 <strong><code>Bifurcations.Continuations.get_prob_cache</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>get_prob_cache(prob::AbstractContinuationProblem) :: AbstractProblemCache
 </code></pre>
 
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L86-L88' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L86-L88' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcations.Continuations.get_u0' href='#Bifurcations.Continuations.get_u0'>#</a>
 <strong><code>Bifurcations.Continuations.get_u0</code></strong> &mdash; <em>Function</em>.</p>
 <pre><code>get_u0(prob::AbstractContinuationProblem) ↦ u0
 </code></pre>
 
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/interface.jl#L93-L95' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/interface.jl#L93-L95' class='documenter-source'>source</a><br></p>
 <p><a id='Continuation-algorithm-1'></a></p>
 <h2 id="continuation-algorithm">Continuation algorithm</h2>
 <p><a id='Bifurcations.Continuations.ContinuationCache' href='#Bifurcations.Continuations.ContinuationCache'>#</a>
@@ -217,7 +217,7 @@ H(u) = 0
 <li><code>adaptation_success::Bool</code></li>
 <li><code>simple_bifurcation::Bool</code></li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/continuations/euler_newton.jl#L13-L29' class='documenter-source'>source</a><br></p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/continuations/euler_newton.jl#L13-L29' class='documenter-source'>source</a><br></p>
 <p><a id='Bifurcation-problem-1'></a></p>
 <h2 id="bifurcation-problem">Bifurcation problem</h2>
 <p><a id='Bifurcations.FixedPointBifurcationProblem' href='#Bifurcations.FixedPointBifurcationProblem'>#</a>
@@ -234,7 +234,7 @@ H(u) = 0
 <li><code>phase_space::Tuple{typeof(u0), typeof(u0)}</code>: A pair of lower and upper bound of the phase space.  Default is unbounded.</li>
 <li><code>p</code>: Model parameter (constants).</li>
 </ul>
-<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/a813946859f1e1fd98657159049782eb7317425d/src/fixedpoint.jl#L8-L32' class='documenter-source'>source</a><br></p></div>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/6fc6443e046b7bdf2456e243cc6ae9b9aa7af624/src/fixedpoint.jl#L8-L32' class='documenter-source'>source</a><br></p></div>
         </div>
 
         <footer class="col-md-12">
