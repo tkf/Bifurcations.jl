@@ -3,7 +3,7 @@ include("preamble.jl")
 
 using Bifurcations: Codim1, resolved_points
 using Bifurcations.Continuations: find_errors, print_errors
-using Bifurcations.Examples: PROBLEMS
+using Bifurcations: examples
 using Bifurcations.Examples.Calcium: CalciumParam
 using Bifurcations.Examples.Bazykin85: Bazykin85Param
 
@@ -31,7 +31,8 @@ function make_codim2(::Bazykin85Param, point, solver1)
     )
 end
 
-@testset "PROBLEMS[$i]" for (i, prob1) in enumerate(PROBLEMS)
+@testset "example $name" for (name, ex) in examples()
+    prob1 = ex.prob
     solver1 = init(prob1)
     solve!(solver1)
     errors = find_errors(solver1)

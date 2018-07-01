@@ -6,11 +6,18 @@ include("calcium.jl")
 include("predator_prey.jl")
 include("bazykin_85.jl")
 
-const PROBLEMS = [
-    Pitchfork.prob,
-    Transcritical.prob,
-    Calcium.prob,
-    PredatorPrey.prob,
-    Bazykin85.prob,
+using Compat
+
+example_modules() = [
+    Pitchfork,
+    Transcritical,
+    Calcium,
+    PredatorPrey,
+    Bazykin85,
 ]
+
+examples() = [nameof(ex) => ex for ex in example_modules()]
+
 end  # module
+
+using .Examples: examples

@@ -2,9 +2,10 @@ module TestSmoke
 include("preamble_plots.jl")
 
 using Bifurcations.Codim1: resolved_points, SpecialPoint
-using Bifurcations.Examples: PROBLEMS
+using Bifurcations: examples
 
-@testset "smoke PROBLEMS[$i]" for (i, prob) in enumerate(PROBLEMS)
+@testset "smoke $name" for (name, ex) in examples()
+    prob = ex.prob
     solver = init(prob)
     solve!(solver)
     points = resolved_points(solver)
