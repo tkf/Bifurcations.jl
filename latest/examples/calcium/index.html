@@ -157,11 +157,11 @@ u0: [-170.0, -170.0]
 </code></pre>
 
 <p>Create a bifurcation problem:</p>
-<pre><code class="julia">using Bifurcations: FixedPointBifurcationProblem
+<pre><code class="julia">using Bifurcations: BifurcationProblem
 using Setfield: @lens
 
 param_axis = @lens _.i
-prob = FixedPointBifurcationProblem(ode, param_axis, (-300.0, 100.0))
+prob = BifurcationProblem(ode, param_axis, (-300.0, 100.0))
 </code></pre>
 
 <p>Solve it:</p>
@@ -174,7 +174,7 @@ sol = solver.sol
 
 <pre><code>Codim1Solution &lt;Continuous&gt;
 # sweeps             : 2
-# points             : 86
+# points             : 93
 # simple bifurcations: 0
 # special points     : 2
 </code></pre>
@@ -196,14 +196,12 @@ point = point_list[1]
 
 <pre><code>SpecialPointInterval &lt;Continuous saddle_node&gt;
 happened between:
-  u0 = [14.9292, 14.9292, -210.404]
-  u1 = [15.5784, 15.5784, -210.473]
+  u0 = [15.36, 15.36, -210.476]
+  u1 = [15.822, 15.822, -210.44]
 </code></pre>
 
 <p>Numerical continuation of the Saddle-Node bifurcation point:</p>
-<pre><code class="julia">using Bifurcations: BifurcationProblem
-
-sn_prob = BifurcationProblem(
+<pre><code class="julia">sn_prob = BifurcationProblem(
     point,
     solver,
     (@lens _.gca),
@@ -213,11 +211,15 @@ sn_solver = init(sn_prob)
 solve!(sn_solver)
 </code></pre>
 
-<pre><code>ContinuationSolver 0/53 bifurcations/points
+<pre><code>Codim2Solver &lt;Continuous&gt;
+# sweeps             : 2
+# points             : 59
+# simple bifurcations: 0
+# special points     : 1
 </code></pre>
 
 <p>Plot the phase diagram:</p>
-<pre><code class="julia">plt2 = plot(sn_solver.sol; vars=(5, 6))
+<pre><code class="julia">plt2 = plot(sn_solver.sol)
 </code></pre>
 
 <p><img alt="" src="../calcium-2.png" /></p></div>
