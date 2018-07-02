@@ -35,9 +35,18 @@ end
 u0 = SVector(-170.0, -170.0)
 tspan = (0.0, 30.0)
 p = CalciumParam()
-ode = ODEProblem(f, u0, tspan, p)
 
-param_axis = @lens _.i
-prob = BifurcationProblem(ode, param_axis, (-300.0, 100.0))
+
+make_prob(;
+        ode = ODEProblem(f, u0, tspan, p),
+        param_axis = (@lens _.i),
+        t_domain = (-300.0, 100.0),
+        kwargs...) =
+    BifurcationProblem(ode, param_axis, t_domain;
+                       kwargs...)
+
+prob = make_prob()
+ode = prob.p.de_prob
+param_axis = prob.p.param_axis
 
 end  # module

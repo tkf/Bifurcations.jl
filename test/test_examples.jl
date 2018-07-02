@@ -1,11 +1,18 @@
 module TestExamples
 include("preamble.jl")
 
+using DiffEqBase: remake
+
 using Bifurcations: Codim1, resolved_points
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
+using Bifurcations.Examples: Calcium
 using Bifurcations.Examples.Calcium: CalciumParam
 using Bifurcations.Examples.Bazykin85: Bazykin85Param
+
+struct Example{P}
+    prob::P
+end
 
 make_codim2(::Real, point, solver1) = nothing
 make_codim2(::Tuple, point, solver1) = nothing  # PredatorPrey
@@ -31,7 +38,16 @@ function make_codim2(::Bazykin85Param, point, solver1)
     )
 end
 
-@testset "example $name" for (name, ex) in examples()
+EXAMPLES = [
+    examples()...,
+    :CalciumSTDArray => Example(Calcium.make_prob(
+        ode = remake(Calcium.ode;
+                     f = generalized_f(Calcium),
+                     u0 = Array(Calcium.u0)),
+    )),
+]
+
+@testset "example $name" for (name, ex) in EXAMPLES
     prob1 = ex.prob
     solver1 = init(prob1)
     solve!(solver1)
