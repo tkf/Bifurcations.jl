@@ -2,9 +2,17 @@ module TestUtils
 using Base.Test
 using Compat
 
-using StaticArrays: SVector
+using StaticArrays: SVector, SMatrix
 
+using Bifurcations.ArrayUtils: container_array_of
 using Bifurcations.Codim2: cast_container, as_reals, _ds_eigvec
+
+@testset "container_array_of" begin
+    @test container_array_of([1, 2, 3]) == Vector
+    @test container_array_of([1 2; 3 4]) == Matrix
+    @test container_array_of(SVector(1.0, 2.0, 3.0)) === SVector{3}
+    @test container_array_of(SMatrix{2, 2}(1, 2, 3, 4)) === SMatrix{2, 2}
+end
 
 @testset "cast_container" begin
     # No cast if it's already of the correct type:

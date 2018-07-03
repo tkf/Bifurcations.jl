@@ -12,7 +12,7 @@ sjac(f, x) = [diff(f[i], x[j]) for i in 1:length(f), j in 1:length(x)]
 
 nx = length(PredatorPrey.u0)
 np = length(PredatorPrey.p)
-f = PredatorPrey.f
+f = generalized_f(PredatorPrey)
 pe = [symbols("p_$i") for i in 1:np]
 xe = [symbols("x_$i") for i in 1:nx]
 ve = [symbols("v_$i") for i in 1:nx]
