@@ -60,6 +60,7 @@ end
 function step!(wrapper::AbstractContinuationSolver, max_steps)
     solver = as(wrapper, ContinuationSolver)
     cache = solver.cache
+    cache.h = solver.opts.h0
     for _ in 1:max_steps
         step!(wrapper)
         if ! isindomain(cache.u, cache.prob_cache)
