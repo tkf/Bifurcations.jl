@@ -16,16 +16,23 @@ import Setfield
 
 using ...Bifurcations: BifurcationProblem
 
+f1(u, p) =
+    p[2] * u[1] * (1 - u[1]) - u[1] * u[2] - p[1] * (1 - exp(- p[3] * u[1]))
+f2(u, p) =
+    - u[2] + p[4] * u[1] * u[2]
 
-f(u::SVector, p, t) = SVector(
-    p[2] * u[1] * (1 - u[1]) - u[1] * u[2] - p[1] * (1 - exp(- p[3] * u[1])),
-    - u[2] + p[4] * u[1] * u[2],
-)
+f(u::SVector, p, t) = SVector(f1(u, p), f2(u, p))
+
+function f(du, u, p, t)
+    du[1] = f1(u, p)
+    du[2] = f2(u, p)
+    nothing
+end
 
 u0 = SVector(0.0, 0.0)
 tspan = (0.0, 30.0)
 p = (0.0, 3, 5, 3)
-ode = ODEProblem(f, u0, tspan, p)
+ode = ODEProblem{false}(f, u0, tspan, p)
 
 param_axis = @lens _[1]
 prob = BifurcationProblem(ode, param_axis, (0.0, 1.0),
