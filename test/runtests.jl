@@ -10,6 +10,7 @@ using Base.Test
         "test_predator_prey.jl",
         "test_bazykin_85.jl",
         "test_examples.jl",
+        "test_vs_svector.jl",
         ]
     @time include(file)
 end
