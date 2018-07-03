@@ -86,11 +86,15 @@ function cast_container(::Type{A}, v) where {A <: AbstractArray}
     return constructor(v)
 end
 
-@generated function cast_container(::Type{<: SVector{S, <:Number}},
+cast_container(::Type{<:SubArray{T, N, P}}, v) where {T, N, P} =
+    cast_container(P, v)
+
+@generated function cast_container(::Type{<: SVector{S}},
                                    v::AbstractArray{T},
                                    ) where {S, T}
+    values = [:(v[$i]) for i in 1:S]
     quote
-        SVector{$S, $T}(v)
+        SVector{$S, $T}($(values...))
     end
 end
 

@@ -4,6 +4,7 @@ using Setfield: @lens
 
 using Bifurcations
 using Bifurcations: BifurcationProblem, special_points
+using Bifurcations.Codim2: cast_container
 using Bifurcations.ArrayUtils: container_array_of
 
 macro test_nothrow(ex)
@@ -47,7 +48,9 @@ function smoke_test_solver_plot(solver)
 end
 
 _generalize_f(f, A) = function(u::U, p, t) where {T, U <: AbstractArray{T}}
-    U(f(A(u), p, t))
+    v = cast_container(A, u)
+    H = f(v, p, t)
+    return cast_container(U, H)
 end
 
 generalized_f(mod) = _generalize_f(mod.f, container_array_of(mod.u0))
