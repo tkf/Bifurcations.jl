@@ -15,6 +15,7 @@ using Setfield: @lens
 import Setfield
 
 using ...Bifurcations: BifurcationProblem
+using ...Codim2: cast_container
 
 f1(u, p) =
     p[2] * u[1] * (1 - u[1]) - u[1] * u[2] - p[1] * (1 - exp(- p[3] * u[1]))
@@ -29,14 +30,29 @@ function f(du, u, p, t)
     nothing
 end
 
-u0 = SVector(0.0, 0.0)
-tspan = (0.0, 30.0)
-p = (0.0, 3, 5, 3)
-ode = ODEProblem{false}(f, u0, tspan, p)
 
-param_axis = @lens _[1]
-prob = BifurcationProblem(ode, param_axis, (0.0, 1.0),
-                          phase_space = (SVector(-0.2, -Inf),  # u_min
-                                         SVector(1.0, Inf)))   # u_max
+function make_prob(
+        p = (0.0, 3, 5, 3);
+        u0 = SVector(0.0, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
+        param_axis = (@lens _[1]),
+        t_domain = (0.0, 1.0),
+        kwargs...)
+    x_min = SVector(-0.2, -Inf)
+    x_max = SVector(1.0, Inf)
+    x_min = cast_container(typeof(ode.u0), x_min)
+    x_max = cast_container(typeof(ode.u0), x_max)
+    return BifurcationProblem(
+        ode, param_axis, t_domain;
+        phase_space = (x_min, x_max),
+        kwargs...)
+end
+
+prob = make_prob()
+ode = prob.p.de_prob
+p = ode.p
+u0 = ode.u0
+param_axis = prob.p.param_axis
 
 end  # module

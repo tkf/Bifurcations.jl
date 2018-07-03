@@ -32,12 +32,11 @@ function f(u::SVector, p::CalciumParam, t)
     return SVector(dv, dw)
 end
 
-u0 = SVector(-170.0, -170.0)
-tspan = (0.0, 30.0)
-p = CalciumParam()
 
-
-make_prob(;
+make_prob(
+        p = CalciumParam();
+        u0 = SVector(-170.0, -170.0),
+        tspan = (0.0, 30.0),
         ode = ODEProblem(f, u0, tspan, p),
         param_axis = (@lens _.i),
         t_domain = (-300.0, 100.0),
@@ -47,6 +46,7 @@ make_prob(;
 
 prob = make_prob()
 ode = prob.p.de_prob
+u0 = ode.u0
 param_axis = prob.p.param_axis
 
 end  # module
