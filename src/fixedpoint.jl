@@ -204,6 +204,15 @@ end
 
 # ------------------------------------------------------ out-of-place interface
 
+ds_state(u::AbstractArray) = @view u[1:end-1]
+
+@generated function ds_state(u::SVector{S, T}) where {S, T}
+    values = [:(u[$i]) for i in 1:S-1]
+    quote
+        SVector{$(length(values)), $T}($(values...))
+    end
+end
+
 function _residual!(::Any, u, prob::FixedPointBifurcationProblem,
                     ::ImmutableState, ::Real)
     x = u[1]
@@ -213,7 +222,7 @@ end
 
 function _residual!(::Any, u, prob::FixedPointBifurcationProblem,
                     ::ImmutableState, ::AbstractArray)
-    x = u[1:end-1]
+    x = ds_state(u)
     t = u[end]
     return prob.homotopy(x, prob.p, t)
 end
@@ -221,7 +230,7 @@ end
 function _residual_jacobian!(_H, _J, u, cache::FixedPointBifurcationCache,
                              ::ImmutableState, ::HasJac)
     prob = cache.prob
-    x = u[1:end-1]
+    x = ds_state(u)
     t = u[end]
     return prob.homotopy_jacobian(x, prob.p, t)
 end
