@@ -87,7 +87,7 @@ function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
     p = cast_container(typeof(x0), p)
     second_derivative = ForwardDiff.hessian(
         t -> p ⋅ ds_f((@. t[1] * q + x0), cache),
-        SVector(zero(x0)),
+        SVector(zero(eltype(x0))),
         # TODO: store config
     )[1, 1]
     return second_derivative / 2
