@@ -34,7 +34,10 @@ end
 
 function lq!(Q, A)
     F = lqfact!(A)
+    #=
     A_mul_B!(F[:Q], eye!(Q))  # L = Matrix(F[:L])[...]; but lesser allocation
+    =#
+    transpose!(Q, F[:Q])  # TODO: don't
     return (LowerTriangular(F[:L]), Q)
 end
 
