@@ -57,34 +57,39 @@ _get_augsys_cache(::BackReferencingAS, prob::DiffEqCodim2Problem) =
 
 # ------------------------------------------------ DiffEqCodim2BifurcationCache
 
-struct DiffEqCodim2BifurcationCache{P, C, AC} <: AbstractProblemCache{P}
+struct DiffEqCodim2BifurcationCache{P, C, AC, F} <: AbstractProblemCache{P}
     prob::P
     augsys_cache::AC
     cfg::C
+    residual::F
 end
 
 function DiffEqCodim2BifurcationCache(prob::DiffEqCodim2Problem)
     augsys_cache = get_augsys_cache(prob)
+    return _DiffEqCodim2BifurcationCache(statekind(prob), prob, augsys_cache)
+end
+
+function _DiffEqCodim2BifurcationCache(::MutableState, prob, augsys_cache)
+    x = copy(get_u0(prob))
+    y = copy(x)
+    residual = (y, x) -> _residual!(y, x, prob, augsys_cache)
+    cfg = ForwardDiff.JacobianConfig(residual, y, x)
     return DiffEqCodim2BifurcationCache(
         prob,
         augsys_cache,
-        setup_fd_config(statekind(prob), prob, augsys_cache))
+        cfg,
+        residual)
 end
 
-function setup_fd_config(::MutableState, prob, augsys_cache)
+function _DiffEqCodim2BifurcationCache(::ImmutableState, prob, augsys_cache)
     x = copy(get_u0(prob))
-    y = copy(x)
-    return ForwardDiff.JacobianConfig(
-        (y, x) -> _residual!(y, x, prob, augsys_cache, statekind(cache.prob)),
-        y,
-        x)
-end
-
-function setup_fd_config(::ImmutableState, prob, augsys_cache)
-    x = copy(get_u0(prob))
-    return ForwardDiff.JacobianConfig(
-        (x) -> _residual!(x, x, prob, augsys_cache, statekind(cache.prob)),
-        x)
+    residual = (x) -> _residual!(nothing, x, prob, augsys_cache)
+    cfg = ForwardDiff.JacobianConfig(residual, x)
+    return DiffEqCodim2BifurcationCache(
+        prob,
+        augsys_cache,
+        cfg,
+        residual)
 end
 
 # ------------------------------------------------------ continuation interface
@@ -130,7 +135,10 @@ function _isindomain(u, cache, ::Type{<: Complex})
 end
 
 residual!(H, u, cache::DiffEqCodim2BifurcationCache) =
-    _residual!(H, u, cache.prob, cache.augsys_cache, statekind(cache.prob))
+    _residual!(H, u, cache.prob, cache.augsys_cache)
+
+_residual!(H, u, prob, augsys_cache) =
+    _residual!(H, u, prob, augsys_cache, statekind(prob))
 
 residual_jacobian!(H, J, u, cache::DiffEqCodim2BifurcationCache) =
     _residual_jacobian!(H, J, u, cache, statekind(cache.prob))
@@ -289,7 +297,7 @@ function _residual_jacobian!(H, J, u, cache::DiffEqCodim2BifurcationCache,
                              ::MutableState)
     ForwardDiff.jacobian!(
         J,
-        (y, x) -> residual!(y, x, cache),
+        cache.residual,
         H,  # y
         u,  # x
         cache.cfg,
@@ -301,9 +309,9 @@ function _residual_jacobian!(_H, _J, u, cache::DiffEqCodim2BifurcationCache,
                              ::ImmutableState)
     # TODO: Can I compute H and J in one go?  Or is it already
     # maximally efficient?
-    H = residual!(_H, u, cache)
+    H = cache.residual(u)
     J = ForwardDiff.jacobian(
-        (x) -> residual!(_H, x, cache),
+        cache.residual,
         u,  # x
         cache.cfg,
     )

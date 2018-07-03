@@ -105,9 +105,10 @@ BifurcationsBase.contkind(::FixedPointBifurcationProblem) =
     BifurcationsBase.FixedPointCont()
 
 
-struct FixedPointBifurcationCache{P, C} <: AbstractProblemCache{P}
+struct FixedPointBifurcationCache{P, C, F} <: AbstractProblemCache{P}
     prob::P
     cfg::C
+    residual::F
 end
 
 FixedPointBifurcationCache(prob::FixedPointBifurcationProblem) =
@@ -119,16 +120,16 @@ _FixedPointBifurcationCache(::Any, ::HasJac, prob) =
 function _FixedPointBifurcationCache(::MutableState, ::NoJac, prob)
     x = get_u0(prob)
     y = similar(x, length(x) - 1)
-    cfg = ForwardDiff.JacobianConfig((y, x) -> residual!(y, x, prob),
-                                     y, x)
-    return FixedPointBifurcationCache(prob, cfg)
+    residual = (y, x) -> _residual!(y, x, prob)
+    cfg = ForwardDiff.JacobianConfig(residual, y, x)
+    return FixedPointBifurcationCache(prob, cfg, residual)
 end
 
 function _FixedPointBifurcationCache(::ImmutableState, ::NoJac, prob)
     x = get_u0(prob)
-    cfg = ForwardDiff.JacobianConfig((x) -> residual!(nothing, x, prob),
-                                     x)
-    return FixedPointBifurcationCache(prob, cfg)
+    residual = (x) -> _residual!(nothing, x, prob)
+    cfg = ForwardDiff.JacobianConfig(residual, x)
+    return FixedPointBifurcationCache(prob, cfg, residual)
 end
 
 TimeKind(::Type{<: FixedPointBifurcationCache{P}}) where P = TimeKind(P)
@@ -154,9 +155,9 @@ function _get_u0(prob::FixedPointBifurcationProblem, ::SVector)
 end
 
 residual!(H, u, cache::FixedPointBifurcationCache) =
-    _residual!(H, u, cache.prob,
-               statekind(cache.prob),
-               cache.prob.u0)
+    _residual!(H, u, cache.prob)
+
+_residual!(H, u, prob) = _residual!(H, u, prob, statekind(prob), prob.u0)
 
 residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache) =
     _residual_jacobian!(H, J, u, cache,
@@ -194,7 +195,7 @@ function _residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache,
                              ::MutableState, ::NoJac)
     ForwardDiff.jacobian!(
         J,
-        (y, x) -> residual!(y, x, cache),
+        cache.residual,
         H,  # y
         u,  # x
         cache.cfg,
@@ -239,9 +240,9 @@ function _residual_jacobian!(_H, _, u, cache::FixedPointBifurcationCache,
                              ::ImmutableState, ::NoJac)
     # TODO: Can I compute H and J in one go?  Or is it already
     # maximally efficient?
-    H = residual!(_H, u, cache)
+    H = cache.residual(u)
     J = ForwardDiff.jacobian(
-        (x) -> residual!(_H, x, cache),
+        cache.residual,
         u,  # x
         cache.cfg,
     )
