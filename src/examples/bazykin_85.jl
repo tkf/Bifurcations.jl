@@ -16,7 +16,7 @@ using ...Bifurcations: BifurcationProblem
 end
 
 
-function f(x, p, t)
+function f(x::SVector, p, t)
     @unpack α, ϵ, γ, δ = p
     return SVector(
              x[1] - x[1] * x[2] / (1 + α * x[1]) - ϵ * x[1]^2,

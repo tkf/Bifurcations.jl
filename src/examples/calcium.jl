@@ -23,7 +23,7 @@ end
 # http://www2.gsu.edu/~matrhc/Tutorial.html
 # https://github.com/robclewley/pydstool/blob/master/examples/Tutorial_Calcium.py
 # http://docs.juliadiffeq.org/latest/analysis/bifurcation.html
-function f(u, p::CalciumParam, t)
+function f(u::SVector, p::CalciumParam, t)
     @unpack vl, vca, i, gl, gca, c, v1, v2 = p
     v = u[1]
     w = u[2]

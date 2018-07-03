@@ -10,7 +10,7 @@ using Setfield: @lens
 
 using ...Bifurcations: BifurcationProblem
 
-f(u, p, t) = p * u - u^2
+f(u::Real, p, t) = p * u - u^2
 
 u0 = 0.0
 tspan = (0.0, 1.0)

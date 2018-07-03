@@ -17,7 +17,7 @@ import Setfield
 using ...Bifurcations: BifurcationProblem
 
 
-f(u, p, t) = SVector(
+f(u::SVector, p, t) = SVector(
     p[2] * u[1] * (1 - u[1]) - u[1] * u[2] - p[1] * (1 - exp(- p[3] * u[1])),
     - u[2] + p[4] * u[1] * u[2],
 )
