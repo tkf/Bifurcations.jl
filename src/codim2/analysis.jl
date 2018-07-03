@@ -79,10 +79,12 @@ left_eigvec(tkind, J) = right_eigvec(tkind, J')  # TODO: optimize
 
 function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
     cache = as(wrapper, ContinuationCache)
+    x0 = ds_state(cache)
     J = ds_jacobian(cache)
     q = right_eigvec(tkind, J)
     p = left_eigvec(tkind, J)
-    x0 = ds_state(cache)
+    q = cast_container(typeof(x0), q)
+    p = cast_container(typeof(x0), p)
     second_derivative = ForwardDiff.hessian(
         t -> p ⋅ ds_f((@. t[1] * q + x0), cache),
         SVector(zero(x0)),
