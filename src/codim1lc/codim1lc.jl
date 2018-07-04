@@ -1,6 +1,5 @@
-module Codim2
-
-using ..ArrayUtils: cast_container
+module Codim1LimitCycle  # TODO: merge it to Codim1?  Should I?  Maybe
+                         # just rename Codim1 to Codim1FixedPoint?
 
 using ..Continuations: AbstractContinuationProblem, AbstractProblemCache
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
@@ -14,28 +13,12 @@ import ..BifurcationsBase: TimeKind
 using ..BifurcationsBase: statekind, MutableState, ImmutableState
 import ..BifurcationsBase: StateKind
 
-# ContinuationKind trait:
-using ..BifurcationsBase: contkind, SaddleNodeCont, HopfCont
-using ..BifurcationsBase: ContinuationKind
-
 import ..BifurcationsBase: BifurcationProblem
 
 using Setfield: Lens
-using StaticArrays: SVector
 
-# TODO: Maybe rename (to be compatible with codim1lc):
-#   problem.jl -> factories.jl
-#   diffeq.jl  -> problem.jl
-
-include("utils.jl")
-include("augmented_systems.jl")
 include("problem.jl")
-include("diffeq.jl")
 include("solver.jl")
-include("analysis.jl")
-include("switch.jl")
-include("api.jl")
-include("display.jl")
-include("diagnosis.jl")
+include("factories.jl")
 
 end  # module

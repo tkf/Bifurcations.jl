@@ -29,6 +29,9 @@ include("fixedpoint.jl")
 include("api.jl")
 include("diffeq.jl")
 
+include("codim1lc/codim1lc.jl")
+using .Codim1LimitCycle: LimitCycleProblem
+
 include("codim2/codim2.jl")
 
 include("examples/examples.jl")
