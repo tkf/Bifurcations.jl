@@ -82,7 +82,7 @@ end
 
 
 function tangent(L, Q)
-    tJ = Q[:, end]
+    tJ = Q[end, :]
     if det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
         tJ *= -1
     end
@@ -117,7 +117,7 @@ function corrector_step!(H::HType,
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = lq!(Q, A)
     y = (@view L[1:end-1, 1:end-1]) \ H
-    dv = (@view Q[:, 1:end-1]) * y
+    dv = (@view Q[1:end-1, :])' * y
     w = v - dv
     return (w :: vType,
             dv,

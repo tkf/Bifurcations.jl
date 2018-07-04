@@ -1,6 +1,6 @@
 using Parameters: @with_kw
 
-calc_direction(_u, J, _L, Q) = det(vcat(J, (@view Q[:, end])'))
+calc_direction(_u, J, _L, Q) = det(vcat(J, (@view Q[end:end, :])))
 # Q[:, end] --- tangent w/o det-fixing
 
 find_simple_bifurcation!(cache, opts, sbint) =

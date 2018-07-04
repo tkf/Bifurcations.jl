@@ -16,7 +16,7 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
 
     #=
     if abs(L[end-1, end-1]) < atol
-        tJ2 = Q[:, end-1]
+        tJ2 = Q[end-1, :]
         cotJ = (@view Q[1:end-1, 1:end-1]) \ y
         return tJ2, cotJ
     end
@@ -29,7 +29,7 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
         R2 = UpperTriangular(SMatrix{size(R2)...}(R2))
     end
     y, cotJ = _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
-    tJ2 = (@view Q[:, 1:end-1]) * y
+    tJ2 = (@view Q[1:end-1, :])' * y
 
     if y isa SVector  # TODO: don't
         return SVector(tJ2...), cotJ
