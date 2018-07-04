@@ -1,5 +1,4 @@
 using Parameters: @with_kw
-using StaticArrays: SMatrix, SVector
 
 # TODO: Cleanup!  The code is the very ugly at the moment because I
 # tried to support out-of-place and in-place algorithm in the same

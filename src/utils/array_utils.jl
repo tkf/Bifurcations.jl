@@ -1,4 +1,17 @@
+module ArrayUtils
+
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
+
+container_array_of(::SVector{S}) where {S} = SVector{S}
+container_array_of(::SMatrix{S1, S2}) where {S1, S2} = SMatrix{S1, S2}
+container_array_of(::Array{T, N}) where {T, N} = Array{<:Any, N}
+
+_eigvals(A) = eigvals(A)
+_eigvals(A::SMatrix) = eigvals(Array(A))
+# Workaround: Only hermitian matrices are diagonalizable by *StaticArrays*.
+
+_eig(A) = eig(A)
+_eig(A::SMatrix) = eig(Array(A))
 
 _similar(x::AbstractArray, dims...) = similar(x, dims)
 _similar(x::StaticArray, dims...) = _zeros(x, dims...)
@@ -70,3 +83,5 @@ _A_ldiv_B!(::Type{<:StaticArray}, A, B) = A \ B
 _A_ldiv_B!(::Type{<:Vector}, A::SubArray, B) =  A \ B # TODO: make it in-place
 _A_ldiv_B!(::Type{<:AbstractArray}, Y, A, B) = A_ldiv_B!(Y, A, B)
 _A_ldiv_B!(::Type{<:StaticArray}, _, A, B) = A \ B
+
+end  # module

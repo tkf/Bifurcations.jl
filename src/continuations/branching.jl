@@ -1,5 +1,4 @@
 using ForwardDiff
-using StaticArrays: SMatrix, SArray
 using Setfield: @set
 
 

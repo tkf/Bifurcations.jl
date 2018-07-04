@@ -1,7 +1,11 @@
 module Continuations
 using Compat
+using StaticArrays: StaticArray, SMatrix, SVector, SArray
 import DiffEqBase: solve, solve!, init, step!
-include("utils.jl")
+
+using ..ArrayUtils: _similar, _zeros, isalmostzero, zero_if_nan, lq!,
+    _normalize!
+
 include("interface.jl")
 include("euler_newton.jl")
 include("solution.jl")
