@@ -1,5 +1,7 @@
 module Codim2
 
+using ..ArrayUtils: cast_container
+
 using ..Continuations: AbstractContinuationProblem, AbstractProblemCache
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain

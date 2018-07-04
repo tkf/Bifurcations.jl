@@ -1,10 +1,31 @@
 module ArrayUtils
 
+using Compat.TypeUtils: typename
+
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
 
 container_array_of(::SVector{S}) where {S} = SVector{S}
 container_array_of(::SMatrix{S1, S2}) where {S1, S2} = SMatrix{S1, S2}
 container_array_of(::Array{T, N}) where {T, N} = Array{<:Any, N}
+
+cast_container(::Type{A}, v::A) where {A <: AbstractArray} = v
+
+function cast_container(::Type{A}, v) where {A <: AbstractArray}
+    constructor = typename(A).wrapper  # e.g., Array
+    return constructor(v)
+end
+
+cast_container(::Type{<:SubArray{T, N, P}}, v) where {T, N, P} =
+    cast_container(P, v)
+
+@generated function cast_container(::Type{<: SVector{S}},
+                                   v::AbstractArray{T},
+                                   ) where {S, T}
+    values = [:(v[$i]) for i in 1:S]
+    quote
+        SVector{$S, $T}($(values...))
+    end
+end
 
 _eigvals(A) = eigvals(A)
 _eigvals(A::SMatrix) = eigvals(Array(A))

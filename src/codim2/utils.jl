@@ -1,5 +1,3 @@
-using Compat.TypeUtils: typename
-
 """
     VarDims
 
@@ -78,25 +76,6 @@ end
 cat_outputs(H1, H2, H3) = vcat(H1, H2, H3)
 cat_outputs(H1::SVector, H2::SVector, H3::Number) :: SVector =
     vcat(H1, H2, SVector(H3))
-
-cast_container(::Type{A}, v::A) where {A <: AbstractArray} = v
-
-function cast_container(::Type{A}, v) where {A <: AbstractArray}
-    constructor = typename(A).wrapper  # e.g., Array
-    return constructor(v)
-end
-
-cast_container(::Type{<:SubArray{T, N, P}}, v) where {T, N, P} =
-    cast_container(P, v)
-
-@generated function cast_container(::Type{<: SVector{S}},
-                                   v::AbstractArray{T},
-                                   ) where {S, T}
-    values = [:(v[$i]) for i in 1:S]
-    quote
-        SVector{$S, $T}($(values...))
-    end
-end
 
 function _as_reals(S, T)
     values = [:($part(v[$i])) for i in 1:S for part in [:real, :imag]]
