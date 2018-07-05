@@ -31,5 +31,8 @@ make_prob(
                        kwargs...)
 
 prob = make_prob()
+ode = prob.p.de_prob
+param_axis = prob.p.param_axis
+t_domain = prob.t_domain
 
 end  # module

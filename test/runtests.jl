@@ -11,6 +11,7 @@ using Base.Test
         "test_bazykin_85.jl",
         "test_examples.jl",
         "test_vs_svector.jl",
+        "test_van_der_pol.jl",
         ]
     @time include(file)
 end
