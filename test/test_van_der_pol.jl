@@ -27,7 +27,7 @@ t1 = find_zero((t) -> sol(t)[1] - 1, (t0 + 3, t0 + 7))
 x0 = sol(t0)
 @assert all(isapprox.(x0, sol(t1); rtol=1e-2))
 
-num_mesh = 10
+num_mesh = 20
 degree = 3
 prob = LimitCycleProblem(
     ode, VanDerPol.param_axis, VanDerPol.t_domain,
@@ -40,7 +40,10 @@ prob = LimitCycleProblem(
 
 @test size(prob.xs0) == (2, num_mesh * degree)
 
-solver = init(prob)
+solver = init(
+    prob;
+    start_from_nearest_root = true,
+)
 solve!(solver)
 
 parameters, = let sol = as(solver.sol, ContinuationSolution)

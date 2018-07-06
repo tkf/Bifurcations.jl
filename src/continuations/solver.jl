@@ -114,12 +114,16 @@ function solve!(wrapper::AbstractContinuationSolver)
     cache = solver.cache
     H = residual!(cache.H, cache.u, cache.prob_cache)
     if ! isalmostzero(H, opts.rtol, opts.atol)
-        error("Initial point is not a root: norm(H) = ", norm(H))
-        # cache.u = nearest_root!(cache.u, opts.rtol, opts.atol)
+        if opts.start_from_nearest_root
+            cache.u = nearest_root!(cache, opts)
+        else
+            error("Initial point is not a root: norm(H) = ", norm(H))
+        end
     end
 
-    sweep!(wrapper)
-    sweep!(wrapper; direction = solver.opts.direction * -1)
+    u0 = copy(cache.u)
+    sweep!(wrapper; u0=u0)
+    sweep!(wrapper; u0=u0, direction = solver.opts.direction * -1)
 
     # TODO: Detect the case that the solution is isomorphic to the
     # circle.

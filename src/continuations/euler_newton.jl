@@ -78,6 +78,7 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     nominal_contraction::Float64 = 0.8
     nominal_distance::Float64 = 0.1
     nominal_angle_rad::Float64 = 2π * (10 / 360)
+    start_from_nearest_root::Bool = false
 end
 
 
@@ -218,4 +219,29 @@ function predictor_corrector_step!(cache::ContinuationCache,
         cache.simple_bifurcation = true
     end
     return v, h
+end
+
+
+function nearest_root!(cache::ContinuationCache,
+                       opts::ContinuationOptions,
+                       v = cache.u)
+    prob_cache = cache.prob_cache
+    H = cache.H
+    J = cache.J
+    Q = cache.Q
+    rtol = opts.rtol
+    atol = opts.atol
+
+    cache.corrector_success = false
+    for _ in 1:opts.max_corrector_steps
+        v, _, H = corrector_step!(H, J, Q, v, prob_cache)
+        if isalmostzero(H, rtol, atol)
+            @goto corrector_success
+        end
+    end
+    error("Failed in corrector loop.")  # TODO: redesign
+
+    @label corrector_success
+    cache.corrector_success = true
+    return v
 end

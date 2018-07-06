@@ -15,7 +15,7 @@ function LimitCycleProblem(point::AbstractSpecialPoint,
                            solver::Codim1Solver;
                            num_mesh::Int = error("num_mesh required"),
                            degree::Int = error("degree required"),
-                           amp = solver.opts.h0,  # TODO: estimate?
+                           amp = solver.opts.h0,
                            kwargs...)
     @assert point.point_type == Codim1.PointTypes.hopf
     @assert timekind(point) isa Continuous
@@ -39,6 +39,7 @@ function LimitCycleProblem(point::AbstractSpecialPoint,
     end
     @assert w0 > solver.opts.atol
 
+    # TODO: use predictor-corrector rather than guessing amplitude
     vs = real(v0) .* amp
     vc = imag(v0) .* amp
 
