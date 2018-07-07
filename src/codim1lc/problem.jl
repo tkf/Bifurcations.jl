@@ -28,6 +28,7 @@ struct LimitCycleProblem{
     xs0::XS
     l0::R  # period
     t0::R  # parameter  (TODO: rename parameter to something else)
+    period_bound::Tuple{R, R}
     t_domain::Tuple{R, R}
     phase_space::Tuple{X, X}
     time_offset::R
@@ -42,6 +43,7 @@ function LimitCycleProblem(;
         (@required xs0),
         (@required l0),
         (@required t0),
+        period_bound = (0.0, Inf),
         t_domain = (typemin(typeof(t0)), typemax(typeof(t0))),
         phase_space = (typemin(eltype(xs0)),
                        typemax(eltype(xs0))),
@@ -57,6 +59,7 @@ function LimitCycleProblem(;
         xs0,
         l0,
         t0,
+        period_bound,
         t_domain,
         phase_space,
         time_offset,
@@ -142,7 +145,8 @@ function isindomain(u, cache::LimitCycleCache)
     tmin, tmax = cache.prob.t_domain
     (tmin <= u[end] <= tmax) || return false
 
-    u[end - 1] > 0 || return false  # negative period
+    period_min, period_max = cache.prob.period_bound
+    (period_min <= u[end - 1] <= period_max) || return false
 
     xmin, xmax = cache.prob.phase_space
     n = dim_state(cache)
