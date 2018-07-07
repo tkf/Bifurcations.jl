@@ -1,4 +1,5 @@
-using ..ArrayUtils: _eigvals, _eig
+using ..ArrayUtils: _eigvals, _eig, canonicalize
+using ..FDiffUtils: vderiv2, deriv2, deriv3
 using ..Codim1: ds_eigvals
 import ..Codim1: testfn
 
@@ -91,6 +92,67 @@ function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
         # TODO: store config
     )[1, 1]
     return second_derivative / 2
+end
+
+function first_lyapunov_coefficient(wrapper)
+    cache = as(wrapper, ContinuationCache)
+    x0 = ds_state(cache)
+    A = ds_jacobian(cache)
+
+    # TODO: find a nicer way to compute left/right eigenvectors
+    rvals, rvecs = _eig(A)
+    _, ri = findmin(abs.(real.(rvals)))
+    ω₀ = imag(rvals[ri])
+    q = rvecs[:, ri]
+    if ω₀ < 0
+        ω₀ *= -1
+        q = conj(q)
+    end
+    lvals, lvecs = _eig(A')
+    _, li = findmin(abs.(lvals .+ im * ω₀))
+    p = lvecs[:, li]
+
+    q = cast_container(typeof(x0), q)
+    p = cast_container(typeof(x0), p)
+    q = canonicalize(q)     # s.t. q ⋅ q ≈ 1 and real(q) ⋅ imag(q) ≈ 0
+    p /= p ⋅ q              # s.t. p ⋅ q ≈ 1
+    qR = real(q)
+    qI = imag(q)
+    pR = real(p)
+    pI = imag(q)
+
+    a = vderiv2(t -> ds_f((@. t * qR + x0), cache))
+    b = vderiv2(t -> ds_f((@. t * qI + x0), cache))
+    c = 1/4 * vderiv2(t -> (ds_f((@. t * (qR + qI) + x0), cache) -
+                            ds_f((@. t * (qR - qI) + x0), cache)))
+    r = A \ (@. a + b)  # = A⁻¹ B(q,q̅)
+    s = (@. 2im * ω₀ - A) \ (@. a - b + 2im * c)  # = (2iω - A)⁻¹ B(q,q)
+    sR = real(s)
+    sI = imag(s)
+
+    σ₁ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + r) + x0), cache) -
+                            pR ⋅ ds_f((@. t * (qR - r) + x0), cache)))
+    σ₂ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + r) + x0), cache) -
+                            pI ⋅ ds_f((@. t * (qR - r) + x0), cache)))
+    Σ₀ = σ₁ + σ₂
+
+    δ₁ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + sR) + x0), cache) -
+                            pR ⋅ ds_f((@. t * (qR - sR) + x0), cache)))
+    δ₂ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + sI) + x0), cache) -
+                            pR ⋅ ds_f((@. t * (qR - sI) + x0), cache)))
+    δ₃ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + sI) + x0), cache) -
+                            pI ⋅ ds_f((@. t * (qR - sI) + x0), cache)))
+    δ₄ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + sR) + x0), cache) -
+                            pI ⋅ ds_f((@. t * (qR - sR) + x0), cache)))
+    Δ₀ = δ₁ + δ₂ + δ₃ - δ₄
+
+    γ₁ = deriv3(t -> pR ⋅ ds_f((@. t * qR + x0), cache))
+    γ₂ = deriv3(t -> pI ⋅ ds_f((@. t * qI + x0), cache))
+    γ₃ = deriv3(t -> (@. pR + pI) ⋅ ds_f((@. t * (qR + qI) + x0), cache))
+    γ₄ = deriv3(t -> (@. pR - pI) ⋅ ds_f((@. t * (qR - qI) + x0), cache))
+    Γ₀ = (2/3) * (γ₁ + γ₂) + (1/6) * (γ₃ + γ₄)  # = Re[<p, C(q,q,q̅)>]
+
+    return (Γ₀ - 2Σ₀ + Δ₀) / 2ω₀
 end
 
 # I need to access the cache for this:
