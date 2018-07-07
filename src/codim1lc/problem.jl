@@ -5,6 +5,7 @@ using Setfield: set
 using Jacobi: lagrange, zgj, wgj
 using ..PolyUtils: dlagrange
 
+using ..CompatUtils: @required
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     isindomain
 using ..BifurcationsBase: MutableState, TimeKind
@@ -38,17 +39,17 @@ struct LimitCycleProblem{
 end
 
 function LimitCycleProblem(;
-        xs0 = error("xs0 required"),
-        l0 = error("l0 required"),
-        t0 = error("t0 required"),
+        (@required xs0),
+        (@required l0),
+        (@required t0),
         t_domain = (typemin(typeof(t0)), typemax(typeof(t0))),
         phase_space = (typemin(eltype(xs0)),
                        typemax(eltype(xs0))),
         time_offset = 0.0,
-        de_prob = error("de_prob required"),
-        param_axis = error("param_axis required"),
-        num_mesh = error("num_mesh required"),
-        degree = error("degree required"),
+        (@required de_prob),
+        (@required param_axis),
+        (@required num_mesh),
+        (@required degree),
         )
     return LimitCycleProblem(
         MutableState(),
