@@ -9,7 +9,7 @@ using Bifurcations: examples
 using Bifurcations.Examples: Calcium
 using Bifurcations.Examples.Calcium: CalciumParam
 using Bifurcations.Examples.Bazykin85: Bazykin85Param
-using Bifurcations.Examples.VanDerPol: VanDerPolParam
+using Bifurcations.Examples.DuffingVanDerPol: DuffingVanDerPolParam
 
 struct Example{P}
     prob::P
@@ -17,7 +17,7 @@ end
 
 make_codim2(::Real, point, solver1) = nothing
 make_codim2(::Tuple, point, solver1) = nothing  # PredatorPrey
-make_codim2(::VanDerPolParam, point, solver1) = nothing
+make_codim2(::DuffingVanDerPolParam, point, solver1) = nothing
 
 make_codim2(::CalciumParam, point, solver1) =
     BifurcationProblem(

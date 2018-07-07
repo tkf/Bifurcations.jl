@@ -2,17 +2,17 @@ module TestVanDerPol
 include("preamble.jl")
 
 using Bifurcations: LimitCycleProblem
-using Bifurcations.Examples: VanDerPol
+using Bifurcations.Examples: DuffingVanDerPol
 using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 
 # Create a limit cycle solution.
 using OrdinaryDiffEq: Tsit5
 using DiffEqBase: remake
-param = VanDerPol.VanDerPolParam(
+param = DuffingVanDerPol.DuffingVanDerPolParam(
     d = 0.1,
 )
 ode = remake(
-    VanDerPol.ode,
+    DuffingVanDerPol.ode,
     u0 = [1.0, 1.8],
     p = param,
     tspan = (0.0, 100),
@@ -30,7 +30,7 @@ x0 = sol(t0)
 num_mesh = 20
 degree = 3
 prob = LimitCycleProblem(
-    ode, VanDerPol.param_axis, VanDerPol.t_domain,
+    ode, DuffingVanDerPol.param_axis, DuffingVanDerPol.t_domain,
     num_mesh, degree;
     x0 = x0,
     l0 = t1 - t0,

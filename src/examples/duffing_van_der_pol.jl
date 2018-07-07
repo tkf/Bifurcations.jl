@@ -1,4 +1,4 @@
-module VanDerPol
+module DuffingVanDerPol
 
 using DiffEqBase: ODEProblem
 using Parameters: @with_kw, @unpack
@@ -6,21 +6,21 @@ using Setfield: @lens
 
 using ...Bifurcations: BifurcationProblem
 
-@with_kw struct VanDerPolParam{D, A, Ω}
-    d::D = 1.0  # 5.0
-    a::A = 0.0  # 5.0
-    ω::Ω = 2.466
+@with_kw struct DuffingVanDerPolParam{A, B, D}
+    a::A = 1.0
+    b::B = 0.0
+    d::D = 1.0
 end
 
 function f(du, u, p, t)
-    @unpack d, a, ω = p
+    @unpack a, b, d = p
     du[1] = u[2]
-    du[2] = -u[1] - d * (u[1]^2 - 1) * u[2] + a * cos(ω * t)
+    du[2] = - a * u[1] - b * u[1]^3 - d * (u[1]^2 - 1) * u[2]
     nothing
 end
 
 make_prob(
-        p = VanDerPolParam();
+        p = DuffingVanDerPolParam();
         u0 = [0.0, 0.0],
         tspan = (0.0, 2π),
         ode = ODEProblem(f, u0, tspan, p),
