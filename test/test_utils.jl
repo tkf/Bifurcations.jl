@@ -4,7 +4,7 @@ using Compat
 
 using StaticArrays: SVector, SMatrix
 
-using Bifurcations.ArrayUtils: container_array_of, lq!
+using Bifurcations.ArrayUtils: container_array_of, lq!, nan_
 using Bifurcations.Codim2: cast_container, as_reals, _ds_eigvec
 
 @testset "container_array_of" begin
@@ -42,6 +42,46 @@ end
         @test L0 ≈ L1
         @test Q0 ≈ Q1
     end
+end
+
+nanmean(args...) = nan_(mean, args...)
+ceil_to_int(x) = ceil(Int, x)
+
+@testset "nan_(mean)" begin
+    @testset "$v (-> finite)" for v in [
+            10:30,
+            collect(-3:-1) .+ 0.0,
+            ]
+        @test nanmean(v) == mean(v)
+        @testset "$f" for f in [
+                exp,
+                sin,
+                ceil_to_int,
+                ]
+            @test nanmean(f, v) == mean(f, v)
+        end
+    end
+    @testset "$v (-> NaN)" for v in [
+            Float64[],
+            Int[],
+            ]
+        @test isnan(nanmean(v))
+        # Note: `nanmean(f, v)` throws but that's OK; `mean(f, v)` does so too
+    end
+    for (x, y) in [
+            ([1, NaN, 2, 3], 1:3),
+            ([1, NaN, 2, 3], collect(1:3) .+ 0.0),
+            ]
+        @test nanmean(x) == mean(y)
+    end
+
+    A = [
+        1   2 3   NaN
+        NaN 2 NaN 6
+        7   8 9 10
+    ]
+    @test nanmean(A, 1) == [4  4  6  8]
+    @test nanmean(A, 2) == [2 4 8.5]'
 end
 
 @testset "as_reals" begin

@@ -110,6 +110,7 @@ Example: `nan_(mean, v)` computes the average of `v` ignoring all `NaN` values.
 * https://discourse.julialang.org/t/nanmean-options/4994/2
 * https://discourse.julialang.org/t/nanmean-options/4994/6
 """
+nan_(aggregator, v::AbstractArray) = aggregator(filter(!isnan, v))
 nan_(aggregator, v) = aggregator(Iterators.filter(!isnan, v))
 nan_(aggregator, f::Function, v) = nan_(x -> aggregator(f, x), v)
 nan_(aggregator, v, region) = mapslices(v -> nan_(aggregator, v), v, region)
