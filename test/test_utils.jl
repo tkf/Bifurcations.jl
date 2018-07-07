@@ -4,7 +4,7 @@ using Compat
 
 using StaticArrays: SVector, SMatrix
 
-using Bifurcations.ArrayUtils: container_array_of, lq!, nan_
+using Bifurcations.ArrayUtils: container_array_of, lq!, canonicalize, nan_
 using Bifurcations.Codim2: cast_container, as_reals, _ds_eigvec
 
 @testset "container_array_of" begin
@@ -41,6 +41,19 @@ end
 
         @test L0 ≈ L1
         @test Q0 ≈ Q1
+    end
+end
+
+@testset "canonicalize" begin
+    x_list = Any[
+        [1.0, 2],
+        [1.0 + 2im, 3 + 4im],
+    ]
+    for x in [x1 for x0 in x_list for x1 in [x0, SVector(x0...)]]
+        y = canonicalize(x)
+        @test typeof(y) === typeof(x)
+        @test norm(y) ≈ 1
+        @test abs(real(y) ⋅ imag(y)) < 1e-7
     end
 end
 

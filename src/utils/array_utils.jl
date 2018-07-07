@@ -84,6 +84,22 @@ end
 
 _normalize!(x::SVector) = x ./ norm(x)
 
+canonicalize(x::AbstractVector{<: Real}) = normalize(x)
+
+"""
+    canonicalize(x::AbstractVector) -> y
+
+Normalize `x` then rotate the complex phase so that `real(y)` and
+`imag(y)` are orthogonal.  It is equivalent to `normalize(x)` if `x`
+is a real vector.
+"""
+function canonicalize(x::AbstractVector{<: Complex})
+    x = normalize(x)
+    num = x ⋅ conj(x)
+    r = num / conj(num)
+    return r^(1/4) .* x
+end
+
 # TODO: use \ instead of A_ldiv_B!
 _A_ldiv_B!(A, B::T) where T = _A_ldiv_B!(T, A, B)
 _A_ldiv_B!(Y, A, B::T) where T = _A_ldiv_B!(T, Y, A, B)
