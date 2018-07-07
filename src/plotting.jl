@@ -441,19 +441,21 @@ function plot!(plt,
                bif_style = STYLE,
                kwargs...)
     for point in maybe_get_points(plottable, include_points, resolve_points)
-        Main.Plots.plot!(plt, point, args...;
-                         vars = vars,
-                         bif_style = bif_style)
+        RecipesBase.plot!(
+            plt, point, args...;
+            vars = vars,
+            bif_style = bif_style)
     end
-    Main.Plots.plot!(plt, plottable, args...;
-                     include_points = false,
-                     vars = vars,
-                     bif_style = bif_style,
-                     kwargs...)
+    RecipesBase.plot!(
+        plt, plottable, args...;
+        include_points = false,
+        vars = vars,
+        bif_style = bif_style,
+        kwargs...)
     return plt
 end
 
-plot!(args...; kwargs...) = Main.Plots.plot!(args...; kwargs...)
+plot!(args...; kwargs...) = RecipesBase.plot!(args...; kwargs...)
 
 
 """
@@ -467,9 +469,9 @@ function plot(plottable::Union{BifurcationSweep,
                                BifurcationSolver},
               args...;
               kwargs...)
-    plt = Main.Plots.plot()
+    plt = RecipesBase.plot()
     plot!(plt, plottable, args...; kwargs...)
     return plt
 end
 
-plot(args...; kwargs...) = Main.Plots.plot(args...; kwargs...)
+plot(args...; kwargs...) = RecipesBase.plot(args...; kwargs...)
