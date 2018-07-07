@@ -2,7 +2,7 @@ module TestHopfToLC
 include("preamble_plots.jl")
 
 using Bifurcations
-using Bifurcations: Codim1, special_points, LimitCycleProblem
+using Bifurcations: Codim1, special_points, LimitCycleProblem, limitcycles
 using Bifurcations.Examples: PredatorPrey
 
 solver0 = init(PredatorPrey.prob)
@@ -22,6 +22,12 @@ solver1 = init(
     start_from_nearest_root = true,
 )
 solve!(solver1)
+
+periods = [lc.period for lc in limitcycles(solver1)]
+@test length(periods) > 0
+@test all(!isnan, periods)
+@test maximum(periods) >= period_max  # it is stopped due to out-of-domain
+@test minimum(periods) > 0
 
 plt_multi_panel = plot(
     plot(solver1, (:x=>:parameter, :y=>1, :color=>:period)),
