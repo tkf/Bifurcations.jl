@@ -1,19 +1,55 @@
+using Parameters: @with_kw, @unpack
 using RecipesBase
+using Setfield: @set
+
+using .CompatUtils: @required
+using .ArrayUtils: nan_
 
 using .Continuations: as, ContinuationSweep, ContinuationSolution,
     ContinuationSolver, sweeps_as_vectors
 using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
-    BifurcationSolver, special_points
+    BifurcationSolver, special_points, measure
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
 using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver
+using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
+    CWStateMeasurement, limitcycles
 
 const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
 const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
 const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
 const Codim1Ctx = Union{Codim1Sweep, Codim1Solution, Codim1Solver}
 const Codim2Ctx = Union{Codim2Sweep, Codim2Solution, Codim2Solver}
+const Codim1LCCtx = Union{Codim1LCSweep, Codim1LCSolution, Codim1LCSolver}
+
+@with_kw struct StateSpacePlotter{TC, TM}
+    ctx::TC
+    mapping::TM
+end
+
+StateSpacePlotter(ctx) =
+    StateSpacePlotter(ctx, (:x => 1, :y => 2))
+StateSpacePlotter(ctx::Codim1LCCtx) =
+    StateSpacePlotter(ctx, (:x => 1, :y => 2, :color => :period))
+
+plot_state_space(args...; kwargs...) =
+    RecipesBase.plot(StateSpacePlotter(args...); kwargs...)
+
+plot_state_space!(args...; kwargs...) =
+    RecipesBase.plot!(StateSpacePlotter(args...); kwargs...)
+
+plottables(ctx, key) = plottables(measure(ctx, key))
+plottables(ctx, keys::Tuple) = plottables.((ctx,), keys)
+plottables(::Any, ::Nothing) = nothing
+# plottables(ctx, keys) = [plottables(c, keys) for c in curves(ctx)]
+
+# post-processing:
+plottables(x::Number) = x
+plottables(xs::AbstractArray) = xs
+plottables(xs::Vector{<: Tuple}) = hcat(collect.(xs)...)'
+
+get_keys(ctx, mapping) = _get_keys(ctx; mapping...)
 
 dim_domain(ctx) = length(domain_prototype(ctx))
 domain_prototype(solver::AbstractSolver) = domain_prototype(solver.sol)
@@ -56,6 +92,18 @@ function default_vars(ctx::Codim2Ctx)
     assert_non_empty(ctx)
     D = dim_domain(ctx)
     return (D - 1, D)
+end
+default_vars(ctx::Codim1LCCtx) = (:x => :p1, :y => 1)
+
+function _merge_to_mapping(ctx, mapping, vars)   # TODO: remove
+    # Get rid of `vars` in all plotting functions.
+    if vars !== nothing
+        @assert mapping === nothing
+        return vars
+    elseif mapping === nothing
+        return default_vars(ctx)
+    end
+    return mapping
 end
 
 const STYLE = Dict(
@@ -102,6 +150,37 @@ const STYLE = Dict(
         ),
     ),
 )
+
+struct PlottableData{T, K}
+    data::T
+    keys::K
+end
+
+@recipe function plot(
+        pltbl::PlottableData,
+        )
+    color_key = pltbl.keys[3]
+    if color_key !== nothing
+        clims = nan_(extrema, (
+            zs
+            for data in pltbl.data
+            for zs in plottables(data, color_key)
+        ))
+        clims --> clims
+        colorbar_title --> string(color_key)
+    end
+    for data in pltbl.data
+        xs, ys, zs = plottables(data, pltbl.keys)
+        @series begin
+            label --> ""
+            if zs !== nothing
+                line_z := zs
+                marker_z := zs
+            end
+            (xs, ys)
+        end
+    end
+end
 
 @recipe function plot(
         wrapper::AbstractSweep;
@@ -217,6 +296,68 @@ end
     (xs, ys)
 end
 
+_get_keys(
+    ::Codim1LCCtx;
+    (@required x),
+    (@required y),
+    color = nothing,
+    # (@required color),  # TODO: use it
+) = (x, y, color)
+
+process_key(::Codim1LCCtx, key::Any; _...) = key
+process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
+    if cw_agg !== nothing
+        CWStateMeasurement(key, cw_agg)
+    else
+        key
+    end
+
+@recipe function plot(
+        sweep::Codim1LCSweep,
+        mapping = nothing;
+        # mapping = (:x => :p1, :y => 1, :color => :stability);  # TODO: use it
+        vars = nothing,
+        cw_agg = extrema,  # coordinate-wise aggregator
+        resolve_points = false,
+        include_points = false,
+        bif_style = STYLE)
+
+    mapping = _merge_to_mapping(sweep, mapping, vars)
+
+    warn_include_points(include_points)
+    # TODO: support special points; note that I have to get rid of
+    # `vars` first.
+    #=
+    for point in maybe_get_points(sweep, include_points, resolve_points)
+        @series begin
+            (point, mapping)
+        end
+    end
+    =#
+
+    keys = process_key.((sweep,), get_keys(sweep, mapping);
+                        cw_agg = cw_agg)
+
+    curve_list = [sweep]  # TODO: chunk by stability
+    # curve_list = curves(sweep, :stability)
+
+    PlottableData(curve_list, keys)
+end
+
+@recipe function plot(
+        ssp::StateSpacePlotter{<: Codim1LCCtx},
+        vars = nothing,
+        bif_style = STYLE)
+    @unpack ctx, mapping = ssp
+    mapping = _merge_to_mapping(ctx, mapping, vars)
+
+    # TODO: support special "points"
+
+    keys = get_keys(ctx, mapping)
+
+    PlottableData(limitcycles(ctx), keys)
+end
+
 @recipe function plot(
         sweep::Codim2Sweep;
         resolve_points = false,
@@ -233,16 +374,20 @@ end
     as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
 end
 
-@recipe function plot(sol::BifurcationSolution)
+@recipe function plot(
+        sol::BifurcationSolution,
+        arguments__...)  # TODO: use `mapping`
     for sweep in sol.sweeps
         @series begin
-            sweep
+            # `args` instead of `arguments__` does not work
+            (sweep, arguments__...)
         end
     end
 end
 
 @recipe function plot(
-        solver::BifurcationSolver;
+        solver::BifurcationSolver,
+        arguments__...;  # TODO: use `mapping`
         resolve_points = solver isa Codim1Solver,
         include_points = true)
     warn_include_points(include_points)
@@ -256,10 +401,28 @@ end
     for sweep in solver.sol.sweeps
         @series begin
             include_points := false  # already included
-            sweep
+            (sweep, arguments__...)
         end
     end
 end
+
+#=
+@recipe function plot(
+        ssp::StateSpacePlotter{<: BifurcationSolution},
+        )
+    for sweep in ssp.ctx.sweeps
+        @series begin
+            @set ssp.ctx = sweep
+        end
+    end
+end
+
+@recipe function plot(
+        ssp::StateSpacePlotter{<: BifurcationSolver},
+        )
+    @set ssp.ctx = ssp.ctx.sol
+end
+=#
 
 """
     plot!(...)
@@ -270,18 +433,19 @@ A thin wrapper of `Plots.plot!` with some workarounds for
 function plot!(plt,
                plottable::Union{BifurcationSweep,
                                 BifurcationSolution,
-                                BifurcationSolver};
+                                BifurcationSolver},
+               args...;
                resolve_points = plottable isa Codim1Solver,
                include_points = true,
-               vars = default_vars(plottable),
+               vars = length(args) > 0 ? nothing : default_vars(plottable),
                bif_style = STYLE,
                kwargs...)
     for point in maybe_get_points(plottable, include_points, resolve_points)
-        Main.Plots.plot!(plt, point;
+        Main.Plots.plot!(plt, point, args...;
                          vars = vars,
                          bif_style = bif_style)
     end
-    Main.Plots.plot!(plt, plottable;
+    Main.Plots.plot!(plt, plottable, args...;
                      include_points = false,
                      vars = vars,
                      bif_style = bif_style,
@@ -300,10 +464,11 @@ A thin wrapper of `Plots.plot` with some workarounds for
 """
 function plot(plottable::Union{BifurcationSweep,
                                BifurcationSolution,
-                               BifurcationSolver};
+                               BifurcationSolver},
+              args...;
               kwargs...)
     plt = Main.Plots.plot()
-    plot!(plt, plottable; kwargs...)
+    plot!(plt, plottable, args...; kwargs...)
     return plt
 end
 

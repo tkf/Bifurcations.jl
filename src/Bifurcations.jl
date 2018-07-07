@@ -5,6 +5,7 @@ export init, solve, solve!, step!
 using DiffEqBase: init, solve, solve!, step!
 # see: continuations/solver.jl
 
+using Compat
 include("utils/utils.jl")
 
 include("continuations/continuations.jl")
@@ -39,5 +40,6 @@ include("examples/examples.jl")
 # using Requires
 # @require RecipesBase include("plotting.jl")
 include("plotting.jl")
+export plot_state_space, plot_state_space!
 
 end # module

@@ -24,6 +24,7 @@ function regions(f, xs::AbstractVector)
     return ranges
 end
 
+# TODO: Merge curves_by_stability to curves(...; by=:stability)
 function curves_by_stability(sweep::Codim1Sweep, vars)
     ss = stabilities(sweep)
     ranges = regions(ss)

@@ -12,6 +12,7 @@ using Base.Test
         "test_examples.jl",
         "test_vs_svector.jl",
         "test_van_der_pol.jl",
+        "test_hopf_to_lc.jl",
         ]
     @time include(file)
 end

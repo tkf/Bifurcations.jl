@@ -34,10 +34,11 @@ BifurcationsBase.point_type_type(::Codim1LCProblem) = PointType
 
 BifurcationsBase.regular_point(::Type{PointType}) = PointTypes.none
 
-BifurcationsBase.eigvals_prototype(prob::Codim1LCProblem,
-                                   cache::ContinuationCache) =
-    cache.u[1:end - 1] .+ 1im
-# TODO: improve it for SVector
+function BifurcationsBase.eigvals_prototype(prob::Codim1LCProblem,
+                                            cache::ContinuationCache)
+    n = length(prob.de_prob.u0)
+    return similar(cache.u[1:1] .+ 1im, n)
+end
 
 
 mutable struct Codim1LCCache{P, C <: ContinuationCache{P},
