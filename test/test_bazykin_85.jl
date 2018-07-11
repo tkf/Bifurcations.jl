@@ -101,6 +101,9 @@ using Bifurcations.Examples: Bazykin85
         hopf_prob = BifurcationProblem(point, sn_solver1)
         hopf_solver2 = init(hopf_prob)
         @test_nothrow solve!(hopf_solver2)
+
+        bpoints = special_points(hopf_solver2, Codim2.PointTypes.bautin)
+        @test length(bpoints) == 1
     end
 end
 
