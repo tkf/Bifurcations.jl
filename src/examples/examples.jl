@@ -2,6 +2,7 @@ module Examples
 
 include("pitchfork.jl")
 include("transcritical.jl")
+include("bautin.jl")
 include("calcium.jl")
 include("predator_prey.jl")
 include("bazykin_85.jl")
@@ -12,6 +13,7 @@ using Compat
 example_modules() = [
     Pitchfork,
     Transcritical,
+    Bautin,
     Calcium,
     PredatorPrey,
     Bazykin85,

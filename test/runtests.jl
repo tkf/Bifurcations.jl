@@ -9,6 +9,7 @@ using Base.Test
         "test_calcium.jl",
         "test_predator_prey.jl",
         "test_bazykin_85.jl",
+        "test_bautin.jl",
         "test_examples.jl",
         "test_vs_svector.jl",
         "test_duffing_van_der_pol.jl",
