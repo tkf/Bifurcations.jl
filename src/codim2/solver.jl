@@ -25,7 +25,7 @@ These points are supported:
 
 - [Cusp bifurcation]
 - [Bogdanov-Takens bifurcation]
-- ([Bautin Bifurcation] not yet)
+- [Bautin Bifurcation]
 - [Fold-Hopf Bifurcation]
 - [Hopf-Hopf Bifurcation]
 
@@ -92,6 +92,12 @@ mutable struct Codim2Cache{P, C <: ContinuationCache{P},
     """
     quadratic_coefficient::Float64
     prev_quadratic_coefficient::Float64
+
+    """
+    The first Lyapunov coefficient ``l_1(0)``.
+    """
+    lyapunov_coefficient::Float64
+    prev_lyapunov_coefficient::Float64
 end
 # TODO: Maybe rename Codim2Cache to SNContCache for something.
 # Or put bifurcation type-specific cache in a sub-cache?
@@ -105,6 +111,7 @@ function Codim2Cache(super::C,
     return Codim2Cache{P, C, JType, eType}(super, J,
                                            eigvals, copy(eigvals),
                                            point_type,
+                                           NaN, NaN,
                                            NaN, NaN)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
@@ -154,6 +161,7 @@ function analyze!(cache::Codim2Cache, opts)
     cache.prev_eigvals = cache.eigvals
     cache.eigvals = ds_eigvals(timekind(cache), J)
     set_quadratic_coefficient!(cnt, cache)
+    set_lyapunov_coefficient!(cnt, cache)
     cache.point_type = guess_point_type(cnt, timekind(cache), cache, opts)
     set_augsys_cache!(cache)
 end
@@ -220,4 +228,11 @@ function set_quadratic_coefficient!(::SaddleNodeCont, cache::Codim2Cache)
     cache.prev_quadratic_coefficient = cache.quadratic_coefficient
     cache.quadratic_coefficient =
         sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
+end
+
+set_lyapunov_coefficient!(::SaddleNodeCont, ::Codim2Cache) = nothing
+
+function set_lyapunov_coefficient!(::HopfCont, cache::Codim2Cache)
+    cache.prev_lyapunov_coefficient = cache.lyapunov_coefficient
+    cache.lyapunov_coefficient = first_lyapunov_coefficient(cache)
 end

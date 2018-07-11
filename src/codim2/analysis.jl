@@ -40,6 +40,10 @@ function guess_point_type(::HopfCont, ::Continuous, cache, opts)
         return PointTypes.bogdanov_takens
     end
 
+    if cache.prev_lyapunov_coefficient * cache.lyapunov_coefficient < 0
+        return PointTypes.bautin
+    end
+
     if length(cache.eigvals) >= 3
         # TODO: directly compute determinant and avoid computing
         # eigenvalues all the time
