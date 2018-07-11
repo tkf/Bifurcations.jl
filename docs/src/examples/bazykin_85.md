@@ -11,8 +11,8 @@ solve!(solver)
 Plot codimension-one bifurcations:
 
 ```@example bazykin85
+using Bifurcations: plot, plot!  # workaround
 using Plots
-using Bifurcations: plot  # workaround
 
 plt1 = plot(solver.sol)
 savefig(plt1, "bazykin85-1.png"); nothing # hide
