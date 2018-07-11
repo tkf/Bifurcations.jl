@@ -93,9 +93,13 @@ Normalize `x` then rotate the complex phase so that `real(y)` and
 `imag(y)` are orthogonal.  It is equivalent to `normalize(x)` if `x`
 is a real vector.
 """
-function canonicalize(x::AbstractVector{<: Complex})
+function canonicalize(x::AbstractVector{<: Complex};
+                      atol = eps(real(eltype(x))))
     x = normalize(x)
     num = x ⋅ conj(x)
+    if abs(num) < atol
+        return x
+    end
     r = num / conj(num)
     return r^(1/4) .* x
 end

@@ -48,12 +48,19 @@ end
     x_list = Any[
         [1.0, 2],
         [1.0 + 2im, 3 + 4im],
+        [1.0 + 0im, 0.0 + 1im],
     ]
     for x in [x1 for x0 in x_list for x1 in [x0, SVector(x0...)]]
         y = canonicalize(x)
         @test typeof(y) === typeof(x)
         @test norm(y) ≈ 1
         @test abs(real(y) ⋅ imag(y)) < 1e-7
+
+        # Test idempotence
+        z = canonicalize(y)
+        @test typeof(z) === typeof(x)
+        @test norm(z) ≈ 1
+        @test abs(real(z) ⋅ imag(z)) < 1e-7
     end
 end
 
