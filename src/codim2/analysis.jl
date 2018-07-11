@@ -82,8 +82,11 @@ end
 
 left_eigvec(tkind, J) = right_eigvec(tkind, J')  # TODO: optimize
 
-function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
-    cache = as(wrapper, ContinuationCache)
+sn_quadratic_coefficient(cache) =
+    sn_quadratic_coefficient(timekind(cache), cache)
+
+function sn_quadratic_coefficient(tkind, wrapper)
+    cache = as(wrapper, Cachish)
     x0 = ds_state(cache)
     J = ds_jacobian(cache)
     q = right_eigvec(tkind, J)
@@ -99,7 +102,7 @@ function sn_quadratic_coefficient(tkind, ::ImmutableState, wrapper)
 end
 
 function first_lyapunov_coefficient(wrapper)
-    cache = as(wrapper, ContinuationCache)
+    cache = as(wrapper, Cachish)
     x0 = ds_state(cache)
     A = ds_jacobian(cache)
 
@@ -159,26 +162,31 @@ function first_lyapunov_coefficient(wrapper)
     return (Γ₀ - 2Σ₀ + Δ₀) / 2ω₀
 end
 
-# I need to access the cache for this:
-#=
 function testfn(pvtype::Val{PointTypes.cusp},
                 tkind,
-                ckind::SaddleNodeCont,
-                u, J, L, Q)
+                ::SaddleNodeCont,
+                prob_cache, u, J, L, Q)
+    return sn_quadratic_coefficient(tkind, FakeCache(prob_cache, u, J))
 end
-=#
+
+function testfn(pvtype::Val{PointTypes.bautin},
+                ::Continuous,
+                ::HopfCont,
+                prob_cache, u, J, L, Q)
+    return first_lyapunov_coefficient(FakeCache(prob_cache, u, J))
+end
 
 function testfn(pvtype::Val{PointTypes.bogdanov_takens},
                 ::Continuous,
                 ::HopfCont,
-                u, J, L, Q)
+                prob_cache, u, J, L, Q)
     return u[end - 2]  # = w = angular velocity
 end
 
 function testfn(::Union{Val{PointTypes.bogdanov_takens},
                         Val{PointTypes.fold_hopf}},
                 ::Continuous, ckind::SaddleNodeCont,
-                u, J, L, Q)
+                prob_cache, u, J, L, Q)
     vals = sort_by_abs_real!(_eigvals(ds_jacobian(ckind, J)))
     return real(vals[2])
 end
@@ -186,6 +194,6 @@ end
 function testfn(::Union{Val{PointTypes.hopf_hopf},
                         Val{PointTypes.fold_hopf}},
                 ::Continuous, ckind::HopfCont,
-                u, J, L, Q)
+                prob_cache, u, J, L, Q)
     return det(ds_jacobian(ckind, J))
 end

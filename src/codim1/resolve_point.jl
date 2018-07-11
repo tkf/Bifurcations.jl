@@ -41,7 +41,8 @@ function resolve_point!(point::SpecialPointInterval,
                         opts::ContinuationOptions,
                         ) :: SpecialPoint
     @unpack point_type, point_index = point
-    f = testfn_for(point_type, timekind(cache), contkind(cache))
+    f = testfn_for(point_type, timekind(cache), contkind(cache),
+                   cache.prob_cache)
     direction = as(point.sweep.value, ContinuationSweep).direction
     u, tJ, L, Q, J =
         find_zero!(cache, opts, f, point.u0, point.u1, direction)
@@ -50,11 +51,12 @@ function resolve_point!(point::SpecialPointInterval,
                         WeakRef(point.sweep.value))
 end
 
-function testfn_for(point_type::Enum, tkind::TimeKind, ckind::ContinuationKind)
+function testfn_for(point_type::Enum, tkind::TimeKind, ckind::ContinuationKind,
+                    prob_cache)
     ptype = Val{point_type}()
     # For call signature of `f`, see:
     # [[../continuations/zero_point.jl::f(]]
-    return (u, J, L, Q) -> testfn(ptype, tkind, ckind, u, J, L, Q)
+    return (u, J, L, Q) -> testfn(ptype, tkind, ckind, prob_cache, u, J, L, Q)
 end
 
 const Instability = Union{
@@ -64,7 +66,7 @@ const Instability = Union{
 }
 
 testfn(::Instability, tkind::TimeKind, ::FixedPointCont,
-       u, J, L, Q) =
+       prob_cache, u, J, L, Q) =
     stability_index(tkind, ds_jacobian(J))
 
 stability_index(tkind::Discrete, J) =

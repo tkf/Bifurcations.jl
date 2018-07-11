@@ -104,6 +104,7 @@ using Bifurcations.Examples: Bazykin85
 
         bpoints = special_points(hopf_solver2, Codim2.PointTypes.bautin)
         @test length(bpoints) == 1
+        @test_nothrow resolved_points(hopf_solver2, Codim2.PointTypes.bautin)
     end
 end
 

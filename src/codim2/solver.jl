@@ -181,10 +181,18 @@ function BifurcationsBase.post_step!(solver::Codim2Solver)
     end
 end
 
+struct FakeCache{P, TU, TJ}
+    prob_cache::P
+    u::TU
+    J::TJ
+end
+
+const Cachish = Union{ContinuationCache, FakeCache}
+
 ds_jacobian(solver) = ds_jacobian(as(solver, ContinuationSolver).cache)
 ds_jacobian(cache::Codim2Cache) = ds_jacobian(as(cache, ContinuationCache))
 
-function ds_jacobian(cache::ContinuationCache)
+function ds_jacobian(cache::Cachish)
     prob = cache.prob_cache.prob  # TODO: interface
     return ds_jacobian(prob, cache.J)
 end
@@ -207,7 +215,7 @@ end
     end
 end
 
-function ds_state(cache::ContinuationCache)
+function ds_state(cache::Cachish)
     prob = cache.prob_cache.prob  # TODO: interface
     return ds_state(prob, cache.u)
 end
@@ -215,7 +223,7 @@ end
 # TODO: define ds_f!
 ds_f(x, prob, cache::Codim2Cache) = ds_f(x, as(cache, ContinuationCache))
 
-function ds_f(x, cache::ContinuationCache)
+function ds_f(x, cache::Cachish)
     prob = cache.prob_cache.prob  # TODO: interface
     f = prob.de_prob.f  # TODO: interface
     p = modified_param!(prob, cache.u)
@@ -226,8 +234,7 @@ set_quadratic_coefficient!(::HopfCont, ::Codim2Cache) = nothing
 
 function set_quadratic_coefficient!(::SaddleNodeCont, cache::Codim2Cache)
     cache.prev_quadratic_coefficient = cache.quadratic_coefficient
-    cache.quadratic_coefficient =
-        sn_quadratic_coefficient(timekind(cache), statekind(cache), cache)
+    cache.quadratic_coefficient = sn_quadratic_coefficient(cache)
 end
 
 set_lyapunov_coefficient!(::SaddleNodeCont, ::Codim2Cache) = nothing
