@@ -23,13 +23,18 @@ savefig(plt1, "bazykin85-1.png"); nothing # hide
 Let's follow the Hopf and Saddle-Node bifurcations:
 
 ```@example bazykin85
-using Bifurcations: special_points
+using Bifurcations: Codim1, special_points
 using Setfield: @lens
 
-point_list = sort!(special_points(solver), by=p->p.u0[end])
+sn_point, = sort!(
+    special_points(solver, Codim1.PointTypes.saddle_node),
+    by=p->p.u0[1])
+hopf_point, = special_points(solver, Codim1.PointTypes.hopf)
+
+point_list = [sn_point, hopf_point]
 
 codim2_solvers = []
-for point in point_list[2:3]
+for point in point_list
     @show point
 
     codim2_prob = BifurcationProblem(
@@ -48,9 +53,32 @@ for point in point_list[2:3]
 
     @show codim2_solver
 end
+
+sn_solver1, hopf_solver1 = codim2_solvers
+
+nothing # hide
 ```
 
-Merge two continuations and draw the bifurcation diagram:
+Switch to Hopf bifurcation via Bogdanov-Takens bifurcation:
+
+```@example bazykin85
+using Bifurcations: Codim2
+bt_point, = sort(
+    special_points(sn_solver1,
+                   Codim2.PointTypes.bogdanov_takens);
+    by = p -> p.u0[end - 1],  # α
+    rev = true)
+hopf_prob = BifurcationProblem(bt_point, sn_solver1)
+hopf_solver2 = init(hopf_prob)
+solve!(hopf_solver2)
+@show hopf_solver2
+
+push!(codim2_solvers, hopf_solver2)
+
+nothing # hide
+```
+
+Merge continuations and draw the bifurcation diagram:
 
 ```@example bazykin85
 plt2 = plot()
