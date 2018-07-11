@@ -7,22 +7,22 @@
         
         <meta name="author" content="tkf">
         
-        <link rel="shortcut icon" href="/img/favicon.ico">
-        <title>Bifurcations.jl</title>
-        <link href="/css/bootstrap-custom.min.css" rel="stylesheet">
-        <link href="/css/font-awesome-4.5.0.css" rel="stylesheet">
-        <link href="/css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="/css/highlight.css">
-        <link href="/assets/Documenter.css" rel="stylesheet">
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+        <title>Bazykin 85 - Bifurcations.jl</title>
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <link href="../../assets/Documenter.css" rel="stylesheet">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
             <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
         <![endif]-->
 
-        <script src="/js/jquery-1.10.2.min.js"></script>
-        <script src="/js/bootstrap-3.0.3.min.js"></script>
-        <script src="/js/highlight.pack.js"></script> 
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script> 
     </head>
 
     <body>
@@ -39,7 +39,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">Bifurcations.jl</a>
+            <a class="navbar-brand" href="../..">Bifurcations.jl</a>
         </div>
 
         <!-- Expanded navigation -->
@@ -47,28 +47,28 @@
                 <!-- Main navigation -->
                 <ul class="nav navbar-nav">
                     <li >
-                        <a href="/">Home</a>
+                        <a href="../..">Home</a>
                     </li>
                     <li >
-                        <a href="/api/">API</a>
+                        <a href="../../api/">API</a>
                     </li>
                     <li >
-                        <a href="/internals/">Internals</a>
+                        <a href="../../internals/">Internals</a>
                     </li>
-                    <li class="dropdown">
+                    <li class="dropdown active">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                             
 <li >
-    <a href="/examples/">Examples</a>
+    <a href="../">Examples</a>
 </li>
                             
 <li >
-    <a href="/examples/calcium/">Calcium</a>
+    <a href="../calcium/">Calcium</a>
 </li>
                             
-<li >
-    <a href="/examples/bazykin_85/">Bazykin 85</a>
+<li class="active">
+    <a href="./">Bazykin 85</a>
 </li>
                         </ul>
                     </li>
@@ -80,8 +80,18 @@
                         <i class="fa fa-search"></i> Search
                     </a>
                 </li>
+                    <li >
+                        <a rel="next" href="../calcium/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="prev" >
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
                     <li>
-                        <a href="https://github.com/tkf/Bifurcations.jl/"><i class="fa fa-github"></i> GitHub</a>
+                        <a href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/examples/bazykin_85.md"><i class="fa fa-github"></i> Edit on GitHub</a>
                     </li>
             </ul>
         </div>
@@ -89,27 +99,116 @@
 </div>
 
         <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#bazykins-predator-prey-system">Bazykin's predator-prey system</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
 
-    <div class="row-fluid">
-      <div id="main-content" class="span12">
-        <h1 id="404-page-not-found" style="text-align: center">404</h1>
-        <p style="text-align: center"><strong>Page not found</strong></p>
-      </div>
-    </div>
+<p><a id='Bazykin's-predator-prey-system-1'></a></p>
+<h1 id="bazykins-predator-prey-system">Bazykin's predator-prey system</h1>
+<pre><code class="julia">using Bifurcations
+using Bifurcations.Examples: Bazykin85
 
+solver = init(Bazykin85.prob)
+solve!(solver)
+</code></pre>
 
+<pre><code>ERROR: Base.LinAlg.SingularException(2)
+WARNING: Failed to find bifurcation point within:
+SimpleBifurcationInterval u0=sweeps[1].u[4] h=0.16 dir=1
+happened between:
+  u0 = [100.0, 0.0, 0.03]
+  u1 = [100.0, 0.0, -0.05]
+
+Codim1Solver &lt;Continuous&gt;
+# sweeps             : 3
+# points             : 49
+# simple bifurcations: 2
+# special points     : 4
+</code></pre>
+
+<p>Plot codimension-one bifurcations:</p>
+<pre><code class="julia">using Plots
+using Bifurcations: plot  # workaround
+
+plt1 = plot(solver.sol)
+</code></pre>
+
+<p><img alt="" src="../bazykin85-1.png" /></p>
+<p>Let's follow the Hopf and Saddle-Node bifurcations:</p>
+<pre><code class="julia">using Bifurcations: special_points
+using Setfield: @lens
+
+point_list = sort!(special_points(solver), by=p-&gt;p.u0[end])
+
+codim2_solvers = []
+for point in point_list[2:3]
+    @show point
+
+    codim2_prob = BifurcationProblem(
+        point,
+        solver,
+        (@lens _.δ),
+        (0.0, 10.0),
+    )
+    codim2_solver = init(
+        codim2_prob;
+        nominal_angle_rad = 0.01,
+        max_samples = 1000,
+    )
+    push!(codim2_solvers, codim2_solver)
+    solve!(codim2_solver)
+
+    @show codim2_solver
+end
+</code></pre>
+
+<pre><code>point = SpecialPointInterval &lt;Continuous hopf&gt;
+happened between:
+  u0 = [2.0252, 1.6964, 0.361185]
+  u1 = [1.27534, 1.13113, 0.114275]
+
+codim2_solver = Codim2Solver &lt;Continuous&gt;
+# sweeps             : 2
+# points             : 199
+# simple bifurcations: 0
+# special points     : 1
+
+point = SpecialPointInterval &lt;Continuous saddle_node&gt;
+happened between:
+  u0 = [52.1071, 11.5697, 0.444421]
+  u1 = [46.3929, 11.5438, 0.442615]
+
+codim2_solver = Codim2Solver &lt;Continuous&gt;
+# sweeps             : 2
+# points             : 2002
+# simple bifurcations: 0
+# special points     : 12
+</code></pre>
+
+<p>Merge two continuations and draw the bifurcation diagram:</p>
+<pre><code class="julia">plt2 = plot()
+for s in codim2_solvers
+    n = length(s.sol.sweeps[1].super.u[1])
+    plot!(plt2, s.sol, vars=(n - 1, n))
+end
+</code></pre>
+
+<p><img alt="" src="../bazykin85-2.png" /></p></div>
         </div>
 
         <footer class="col-md-12">
             <hr>
             <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
         </footer>
-        <script>var base_url = '';</script>
-        <script src="/js/base.js"></script>
+        <script>var base_url = '../..';</script>
+        <script src="../../js/base.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
-        <script src="/assets/mathjaxhelper.js"></script>
-        <script src="/search/require.js"></script>
-        <script src="/search/search.js"></script>
+        <script src="../../assets/mathjaxhelper.js"></script>
+        <script src="../../search/require.js"></script>
+        <script src="../../search/search.js"></script>
 
         <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
     <div class="modal-dialog">
