@@ -124,7 +124,7 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     u0, tJ, L, Q = try
         find_simple_bifurcation!(cache, opts, sbint)
     catch err
-        # Maybe there is the singularity (around which det(J; tJ)
+        # Maybe there is a singularity (around which det(J; tJ)
         # flips) within `sbint` and the root finder hits that?
         if err isa LinAlg.SingularException
             warn(err)
