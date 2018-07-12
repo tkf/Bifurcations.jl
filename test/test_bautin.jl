@@ -30,6 +30,8 @@ solve!(hopf_solver)
 codim2_points = resolved_points(hopf_solver)
 @test length(codim2_points) == 1
 @test codim2_points[1].point_type === Codim2.PointTypes.bautin
+β_bautin = codim2_points[1].u[end-1:end]
+@test all(@. abs(β_bautin) < 1e-6)
 
 plt = plot(hopf_solver)
 @test_nothrow nullshow(plt)
