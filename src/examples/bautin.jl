@@ -16,8 +16,12 @@ end
 function f(u::SVector, p, t)
     @unpack β₁, β₂, s = p
     x, y = u
+    #=
     ρ² = x^2 + y^2
     ρ⁴ = ρ²^2
+    =#
+    ρ² = x * x + y * y
+    ρ⁴ = ρ² * ρ²
     a = β₂ * ρ² + s * ρ⁴
     dx = β₁ * x -      y + a * x
     dy =      x + β₁ * y + a * y

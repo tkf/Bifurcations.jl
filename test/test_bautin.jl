@@ -28,8 +28,8 @@ solve!(hopf_solver)
 @test minimum(β₂s) < -2
 
 codim2_points = resolved_points(hopf_solver)
-@test_broken length(codim2_points) == 1
-@test_broken codim2_points[1].point_type === Codim2.PointTypes.bautin
+@test length(codim2_points) == 1
+@test codim2_points[1].point_type === Codim2.PointTypes.bautin
 
 plt = plot(hopf_solver)
 @test_nothrow nullshow(plt)
