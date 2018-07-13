@@ -3,6 +3,7 @@ module Examples
 include("pitchfork.jl")
 include("transcritical.jl")
 include("bautin.jl")
+include("cusp.jl")
 include("calcium.jl")
 include("predator_prey.jl")
 include("bazykin_85.jl")
@@ -14,6 +15,7 @@ example_modules() = [
     Pitchfork,
     Transcritical,
     Bautin,
+    Cusp,
     Calcium,
     PredatorPrey,
     Bazykin85,
