@@ -13,10 +13,6 @@ function guess_point_type(::Any, ::Discrete, cache, opts)
 end
 
 function guess_point_type(::SaddleNodeCont, ::Continuous, cache, opts)
-    if cache.prev_quadratic_coefficient * cache.quadratic_coefficient < 0
-        return PointTypes.cusp
-    end
-
     if length(cache.eigvals) >= 2
         ev0 = sort_by_abs_real!(copy(cache.eigvals))[2]
         ev1 = sort_by_abs_real!(copy(cache.prev_eigvals))[2]
@@ -27,6 +23,13 @@ function guess_point_type(::SaddleNodeCont, ::Continuous, cache, opts)
                 return PointTypes.fold_hopf
             end
         end
+    end
+
+    # TODO: Move check for the quadratic coefficient to the beginning
+    # (if possible).  I'm doing it here since otherwise
+    # Bogdanov-Takens won't be detected.
+    if cache.prev_quadratic_coefficient * cache.quadratic_coefficient < 0
+        return PointTypes.cusp
     end
 
     return PointTypes.none
@@ -63,34 +66,20 @@ function guess_point_type(::HopfCont, ::Continuous, cache, opts)
     return PointTypes.none
 end
 
-function right_eigvec(::Discrete, J)
-    vals, vecs = _eig(J)
-    val, idx = findmax(abs.(vals))
-    # @assert val ≈ 1
-    v0 = vecs[:, idx]
-    return v0 ./ norm(v0)
-end
-
-function right_eigvec(::Continuous, J)
-    vals, vecs = _eig(J)
-    val, idx = findmax(real.(vals))
-    # @assert val ≈ 0
-    v0 = vecs[:, idx]
-    return v0 ./ norm(v0)
-end
-# TOOD: use eigs (depending on size(J)?)
-
-left_eigvec(tkind, J) = right_eigvec(tkind, J')  # TODO: optimize
-
 sn_quadratic_coefficient(cache) =
     sn_quadratic_coefficient(timekind(cache), cache)
 
-function sn_quadratic_coefficient(tkind, wrapper)
+function sn_quadratic_coefficient(::Continuous, wrapper)
     cache = as(wrapper, Cachish)
     x0 = ds_state(cache)
     J = ds_jacobian(cache)
-    q = right_eigvec(tkind, J)
-    p = left_eigvec(tkind, J)
+
+    # TODO: improve left vector calculation
+    q = normalize(ds_eigvec(cache))  # right eigenvector
+    lvals, lvecs = _eig(J')
+    _, li = findmin(abs.(lvals))
+    p = normalize(lvecs[:, li])  # left eigenvector
+
     q = cast_container(typeof(x0), q)
     p = cast_container(typeof(x0), p)
     second_derivative = ForwardDiff.hessian(

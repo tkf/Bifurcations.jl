@@ -220,6 +220,11 @@ function ds_state(cache::Cachish)
     return ds_state(prob, cache.u)
 end
 
+function ds_eigvec(cache::Cachish)
+    prob = cache.prob_cache.prob  # TODO: interface
+    return ds_eigvec(prob, cache.u)
+end
+
 # TODO: define ds_f!
 ds_f(x, prob, cache::Codim2Cache) = ds_f(x, as(cache, ContinuationCache))
 

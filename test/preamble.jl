@@ -53,3 +53,22 @@ _generalize_f(f, A) = function(u::U, p, t) where {T, U <: AbstractArray{T}}
 end
 
 generalized_f(mod) = _generalize_f(mod.f, typeof(mod.u0))
+
+
+function uniquify_points(point_list; digits=3)
+    uniquified = []
+    seen = []
+    for point in point_list
+        y = round.(point.u, digits)
+        for x in seen
+            if x == y
+                @goto seen
+            end
+        end
+        push!(uniquified, point)
+        push!(seen, y)
+
+        @label seen
+    end
+    return uniquified
+end

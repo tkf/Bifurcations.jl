@@ -8,6 +8,23 @@ using Bifurcations: Codim1, Codim2, resolved_points
 using Bifurcations.BifurcationsBase: contkind, HopfCont
 using Bifurcations.Examples: Bazykin85
 
+# Bifurcation points calculated in some version of Bifurcations.jl
+KNOWN_POINTS = Dict(
+    # Bazykin85.Bazykin85Param => points
+    Bazykin85.Bazykin85Param(
+        ϵ = 0.01,
+    ) => [
+        (Codim2.PointTypes.cusp,
+         [32.5936, 20.4743, 0.956835, 0.290633, 0.901233, 0.00356842]),
+        (Codim2.PointTypes.bogdanov_takens,
+         [42.688, 21.6306, 0.993354, 0.1151, 0.860704, 0.00605879]),
+        (Codim2.PointTypes.bogdanov_takens,
+         [6.26577, 3.60155, 0.932668, 0.360736, 0.453624, 0.175128]),
+        (Codim2.PointTypes.cusp,
+         [25.8231, 2.44209, 0.999458, 0.0329046, 0.0887673, 2.80236]),
+    ],
+)
+
 @testset "smoke Bazykin85 codim-2 (ϵ=$ϵ)" for ϵ in [0.01, 0.001]
 
     ode = let
@@ -105,6 +122,23 @@ using Bifurcations.Examples: Bazykin85
         bpoints = special_points(hopf_solver2, Codim2.PointTypes.bautin)
         @test length(bpoints) == 1
         @test_nothrow resolved_points(hopf_solver2, Codim2.PointTypes.bautin)
+    end
+
+    if haskey(KNOWN_POINTS, ode.p)
+        desired_points = KNOWN_POINTS[ode.p]
+        @testset "known points" begin
+            # TODO: do this for all solvers (hopf_solver1 etc.)
+            uniquified = sort(
+                uniquify_points(resolved_points(sn_solver1)),
+                by = point -> point.u[end],
+            )
+            @test length(uniquified) == length(desired_points)
+            for (actual, desired) in zip(uniquified, desired_points)
+                type_desired, u_desired = desired
+                @test actual.u ≈ u_desired  rtol=1e-4
+                @test actual.point_type == type_desired
+            end
+        end
     end
 end
 
