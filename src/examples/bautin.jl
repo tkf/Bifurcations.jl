@@ -43,12 +43,18 @@ function f(z::Complex, p, t)
 end
 =#
 
+f(u::A, p, t) where {A <: AbstractVector} = A(f(SVector{2}(u), p, t))
+
+function f(du, u, p, t)
+    du .= f(SVector{2}(u), p, t)
+    nothing
+end
 
 make_prob(
         p = BautinParam();
         u0 = SVector(0.0, 0.0),
         tspan = (0.0, 30.0),
-        ode = ODEProblem(f, u0, tspan, p),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
         param_axis = (@lens _.β₁),
         t_domain = (-2.0, 2.0),
         kwargs...) =

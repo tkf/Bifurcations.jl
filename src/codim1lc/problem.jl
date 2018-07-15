@@ -141,6 +141,10 @@ get_u0(prob::LimitCycleProblem) = vcat(
     prob.t0,
 )
 
+u_idx_period(cache) = length(cache.prob.xs0) + 1
+u_idx_param(cache) = u_idx_period(cache) + 1
+H_idx_phase_condition(cache) = length(cache.prob.xs0) + 1
+
 function isindomain(u, cache::LimitCycleCache)
     tmin, tmax = cache.prob.t_domain
     (tmin <= u[end] <= tmax) || return false
@@ -260,9 +264,14 @@ end
 
 function residual!(H, u, cache::LimitCycleCache)
     prob = cache.prob
+    q = set(prob.param_axis, prob.de_prob.p, u[u_idx_param(cache)])
+    return residual_lc!(H, u, q, cache)
+end
 
-    q = set(prob.param_axis, prob.de_prob.p, u[end])
-    l = u[end- 1]
+function residual_lc!(H, u, q, cache::LimitCycleCache)
+    prob = cache.prob
+
+    l = u[u_idx_period(cache)]
     ws = make_workspace(cache, u)
     weight = cache.gauss_quadrature_weight
 
@@ -280,7 +289,7 @@ function residual!(H, u, cache::LimitCycleCache)
             phase_condition += weight[i] * (x[:, i] ⋅ dv[:, i])
         end
     end
-    H[end] = phase_condition
+    H[H_idx_phase_condition(cache)] = phase_condition
 
     return H
 end
