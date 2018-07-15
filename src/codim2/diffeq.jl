@@ -225,6 +225,10 @@ function _ds_eigval(T::Type{<: Complex}, u::AbstractArray)
     return u[eigval_index(d)] * im
 end
 
+state_cond_view(d::VarDims, H) = @view H[1:d.ds_dim]       # f(x)
+eigvec_cond_view(d::VarDims, H) = @view H[eigvec_range(d)] # Jv - 1
+eigvec_cons_view(d::VarDims, H) = @view H[last(eigvec_range(d)) + 1]
+
 J_mul_v!(Jv, fx, x, v::AbstractVector{<: Real}, q, f) =
     ForwardDiff.jacobian!(
         reshape(view(Jv, :), :, 1),
@@ -244,7 +248,10 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
                     ::MutableState)
     q = modified_param!(prob, u)
 
-    H1, H2, H3 = output_vars(H)
+    dim = dims_from_augsys(length(u), contkind(prob))
+    H1 = state_cond_view(dim, H)
+    H2 = eigvec_cond_view(dim, H)
+    H3 = eigvec_cons_view(dim, H)
     x = ds_state(prob, u)
     v = ds_eigvec(prob, u)
     iw = ds_eigval(prob, u)

@@ -65,14 +65,6 @@ dims_from_augsys(J::AbstractMatrix, ckind::ContinuationKind) =
 eq_dim(N) = 2N + 1
 var_dim(N) = 2N + 2
 
-function output_vars(H)
-    N = length(H) ÷ 2
-    H1 = @view H[1:N]
-    H2 = @view H[N+1:2N]
-    H3 = @view H[end]
-    return H1, H2, H3
-end
-
 cat_outputs(H1, H2, H3) = vcat(H1, H2, H3)
 cat_outputs(H1::SVector, H2::SVector, H3::Number) :: SVector =
     vcat(H1, H2, SVector(H3))
