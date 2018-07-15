@@ -225,6 +225,20 @@ function _ds_eigval(T::Type{<: Complex}, u::AbstractArray)
     return u[eigval_index(d)] * im
 end
 
+J_mul_v!(Jv, fx, x, v::AbstractVector{<: Real}, q, f) =
+    ForwardDiff.jacobian!(
+        reshape(view(Jv, :), :, 1),
+        (fx, d) -> f(fx, (@. x + d[1] * v), q, 0),
+        fx,
+        SVector(zero(eltype(x))),
+        # TODO: setup cache
+    )
+
+#=
+function J_mul_v!(Jv, fx, x, v::AbstractVector{<: Complex}, q, f)
+end
+=#
+
 function _residual!(H, u, prob::DiffEqCodim2Problem,
                     augsys_cache,
                     ::MutableState)
@@ -235,15 +249,8 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     v = ds_eigvec(prob, u)
     iw = ds_eigval(prob, u)
 
-    # TODO: don't allocate J
-    J = ForwardDiff.jacobian(
-        (dx, x) -> prob.de_prob.f(dx, x, q, 0),
-        H1,  # dx
-        x,
-        # TODO: setup cache
-    )
-
-    A_mul_B!(H2, J, v)
+    # TODO: don't allocate x + d * v
+    J_mul_v!(H2, H1, x, q, prob.de_prob.f)
     if iw != 0
         @. H2 -= iw * v
     end
