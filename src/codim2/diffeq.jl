@@ -254,34 +254,38 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     return H
 end
 
+J_mul_v(x, v::AbstractVector{<: Real}, q, f) =
+    ForwardDiff.jacobian(
+        (d) -> f((@. x + d[1] * v), q, 0),
+        SVector(zero(eltype(x))),
+        # TODO: setup cache
+    )[:]
+
+function J_mul_v(x, v::AbstractVector{<: Complex}, q, f)
+    vr = real(v)
+    vi = imag(v)
+    Jv = ForwardDiff.jacobian(
+        (d) -> f((@. x + d[1] * vr + d[2] * vi), q, 0),
+        SVector(zero(eltype(x)), zero(eltype(x))),
+        # TODO: setup cache
+    )
+    return @. Jv[:, 1] + im * Jv[:, 2]
+end
+
 function _residual!(::Any, u, prob::DiffEqCodim2Problem,
                     augsys_cache,
                     ::ImmutableState)
     q = modified_param!(prob, u)
 
-    # TODO: Can I compute H and J in one go?  Or is it already
-    # maximally efficient?
     x = ds_state(prob, u)
-    H1 = prob.de_prob.f(x, q, 0)
-    J = ForwardDiff.jacobian(
-        (x) -> prob.de_prob.f(x, q, 0),
-        x,
-        # TODO: setup cache
-    )
-
     v = ds_eigvec(prob, u)
     iw = ds_eigval(prob, u)
 
-    # Whe v is complex and _residual! is invoked via ForwardDiff,
-    # eltype(J * v) becomes Any.  `as_reals` relies on the eltype to
-    # do the right thing so I need to fix this.  Here is a hack to
-    # workaround it.
-    H2ʹ = fixeltype(promote_type(eltype.((v, J, iw))...),  # TODO: don't
-                    J * v .- iw .* v)
-    H2 = as_reals(H2ʹ)
-    #=
-    H2 = as_reals(J * v .- iw .* v)
-    =#
+    # TODO: Can I compute H and Jv in one go?  Or is it already
+    # maximally efficient?
+    H1 = prob.de_prob.f(x, q, 0)
+    Jv = J_mul_v(x, v, q, prob.de_prob.f)
+    H2 = as_reals(@. Jv - iw * v)
 
     H3 = eigvec_constraint(v, augsys_cache)
 
