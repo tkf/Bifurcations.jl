@@ -244,13 +244,12 @@ function J_mul_v!(Jv, fx, x, v::AbstractVector{<: Complex}, q, f)
     JvT = reshape(view(Jv, :), 2, :)'  # not a view in Julia 0.6
     ForwardDiff.jacobian!(
         JvT,
-        (d) -> f(fx, (@. x), q, 0),
         (fx, d) -> f(fx, (@. x + d[1] * vr + d[2] * vi), q, 0),
         fx,
         SVector(zero(eltype(x)), zero(eltype(x))),
         # TODO: setup cache
     )
-    Jv .= JvT'
+    Jv .= view(JvT', :)
 end
 # It's a bit tricky to handle complex vector case (see also
 # `H2[2:2:end]` below).  Maybe `reinterpret` -compatible memory layout
@@ -272,7 +271,10 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     # TODO: don't allocate x + d * v
     J_mul_v!(H2, H1, x, v, q, prob.de_prob.f)
     if iw != 0
-        @. H2[2:2:end] -= imag(iw) * v
+        # "H2" -= iw * v
+        w = imag(iw)
+        @. H2[1:2:end] += w * imag(v)
+        @. H2[2:2:end] -= w * real(v)
     end
     H3[:] = eigvec_constraint(v, augsys_cache)
 
