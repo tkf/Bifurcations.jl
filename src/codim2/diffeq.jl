@@ -71,7 +71,7 @@ end
 
 function _DiffEqCodim2BifurcationCache(::MutableState, prob, augsys_cache)
     x = copy(get_u0(prob))
-    y = copy(x)
+    y = similar(x, length(x) - 1)
     residual = (y, x) -> _residual!(y, x, prob, augsys_cache)
     cfg = ForwardDiff.JacobianConfig(residual, y, x)
     return DiffEqCodim2BifurcationCache(
@@ -227,7 +227,7 @@ end
 
 state_cond_view(d::VarDims, H) = @view H[1:d.ds_dim]       # f(x)
 eigvec_cond_view(d::VarDims, H) = @view H[eigvec_range(d)] # Jv - 1
-eigvec_cons_view(d::VarDims, H) = @view H[last(eigvec_range(d)) + 1]
+eigvec_cons_view(d::VarDims, H) = @view H[last(eigvec_range(d)) + 1:end]
 
 J_mul_v!(Jv, fx, x, v::AbstractVector{<: Real}, q, f) =
     ForwardDiff.jacobian!(
@@ -270,7 +270,7 @@ function _residual!(H, u, prob::DiffEqCodim2Problem,
     iw = ds_eigval(prob, u)
 
     # TODO: don't allocate x + d * v
-    J_mul_v!(H2, H1, x, q, prob.de_prob.f)
+    J_mul_v!(H2, H1, x, v, q, prob.de_prob.f)
     if iw != 0
         @. H2[2:2:end] -= imag(iw) * v
     end

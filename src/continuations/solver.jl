@@ -164,6 +164,17 @@ function residual(u::SVector, cache::AbstractProblemCache)
 end
 
 
+function residual_jacobian(u::AbstractArray, cache::AbstractProblemCache)
+    H = similar(@view u[1:end-1])
+    J = similar(H, (length(H), length(u)))
+    return residual_jacobian!(H, J, u, cache)
+end
+
+function residual_jacobian(u::SVector, cache::AbstractProblemCache)
+    return residual_jacobian!(nothing, nothing, u, cache)
+end
+
+
 function residual_jacobian!(cache::ContinuationCache, u::AbstractArray)
     @unpack H, J, prob_cache = cache
     H, J = residual_jacobian!(H, J, u, prob_cache)

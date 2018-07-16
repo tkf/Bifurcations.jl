@@ -1,10 +1,11 @@
 module TestJacobian
 include("preamble.jl")
 
+using DiffEqBase: ODEProblem
 using StaticArrays: SVector
 using SymEngine: diff, subs, symbols
 
-using Bifurcations.Continuations: residual!, residual_jacobian!, get_prob_cache
+using Bifurcations.Continuations: residual, residual_jacobian, get_prob_cache
 using Bifurcations.Codim2: DiffEqCodim2Problem, NormalizingAS
 using Bifurcations.Examples: PredatorPrey
 
@@ -27,36 +28,51 @@ He = vcat(fe,
           ve ⋅ ve - 1)
 dHdu = sjac(He, ue)
 
-prob = DiffEqCodim2Problem(
-    PredatorPrey.ode,
-    (@lens _[1]),
-    (@lens _[3]),
-    ([-Inf, -Inf], [Inf, Inf]);
-    augmented_system = NormalizingAS(),
-)
+
+make_prob(;
+        p = (0.0, 3, 5, 3),
+        u0 = SVector(0.0, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(PredatorPrey.f, u0, tspan, p),
+        kwargs...) =
+    DiffEqCodim2Problem(
+        ode,
+        (@lens _[1]),
+        (@lens _[3]),
+        ([-Inf, -Inf], [Inf, Inf]);
+        augmented_system = NormalizingAS(),
+        kwargs...)
 
 function test_predator_prey(
         xr, vr, p1, p3;
+        u0 = SVector(0.0, 0.0),
+        prob = make_prob(u0 = u0),
         prob_cache = get_prob_cache(prob))
 
-    H_ = nothing
-    J_ = nothing
-
-    prob = prob_cache.prob
     pr = collect(Float64, prob.de_prob.p)
     pr[1] = p1
     pr[3] = p3
-    ur = SVector(vcat(xr, vr, pr[1], pr[3])...) :: SVector{6, Float64}
+
+    ur = vcat(xr, vr, pr[1], pr[3])
+    if prob.de_prob.u0 isa SVector
+        ur = SVector(ur...)
+    else
+        utype = typeof(prob.de_prob.u0)
+        if !(ur isa utype)
+            ur = utype(ur)
+        end
+    end
+
     all_values = vcat(pr, xr, vr) :: Vector{Float64}
     evaluated = (e) -> Float64(subs(e, zip(all_symbols, all_values)...))
 
     H_desired = evaluated.(He)
     J_desired = evaluated.(dHdu)
 
-    H1_actual = residual!(H_, ur, prob_cache)
+    H1_actual = residual(ur, prob_cache)
     @test H1_actual ≈ H_desired
 
-    H2_actual, J_actual = residual_jacobian!(H_, J_, ur, prob_cache)
+    H2_actual, J_actual = residual_jacobian(ur, prob_cache)
     @test H2_actual ≈ H_desired
     @test J_actual ≈ J_desired
 end
@@ -66,15 +82,19 @@ rng = MersenneTwister(0)
     for args in [
             ([0, 0], [0, 1], 0.6, 5),
             ([0, 0], [-1, 0], 0.384806, 7.79613),
-            ]
-        test_predator_prey(args...)
+            ],
+        u0 in [SVector(0.0, 0.0), [0.0, 0.0]]
+
+        test_predator_prey(args...; u0=u0)
     end
-    for _ in 1:100
+    for _ in 1:100,
+        u0 in [SVector(0.0, 0.0), [0.0, 0.0]]
+
         p1 = randn(rng)
         p3 = randn(rng)
         xr = randn(rng, nx)
         vr = normalize(randn(rng, nx))
-        test_predator_prey(xr, vr, p1, p3)
+        test_predator_prey(xr, vr, p1, p3; u0=u0)
     end
 end
 
