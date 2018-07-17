@@ -45,6 +45,7 @@ flc_prob = FoldLimitCycleProblem(
     num_mesh = 20,
     degree = 3,
 )
+@test flc_prob.t_domain == ([-2.0, -2.0], [2.0, 2.0])
 flc_solver = init(
     flc_prob;
     start_from_nearest_root = true,
@@ -54,7 +55,7 @@ solve!(flc_solver)
 flc_β₁ = [u[end-1] for sweep in flc_solver.super.sol.sweeps for u in sweep.u]
 flc_β₂ = [u[end]   for sweep in flc_solver.super.sol.sweeps for u in sweep.u]
 @test_broken all(@. abs(4 * flc_β₁ + flc_β₂^2) < 1e-6)
-@test_broken maximum(flc_β₂) > 2
+@test maximum(flc_β₂) > 2
 @test minimum(flc_β₂) > -1e-6
 
 end  # module

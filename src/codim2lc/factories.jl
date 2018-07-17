@@ -57,6 +57,7 @@ function FoldLimitCycleProblem(point::AbstractSpecialPoint,
         t0 = t0,
         param_axis1 = param_axis1,
         param_axis2 = param_axis2,
+        t_domain = solver.prob.t_domain,
     )
 end
 
