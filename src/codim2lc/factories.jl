@@ -35,7 +35,7 @@ function FoldLimitCycleProblem(point::AbstractSpecialPoint,
         Codim1.PointTypes.hopf,
         -1,  # dummy index
         vcat(x0, t0[1]),
-        point.J[1:N, 1:N+1],
+        resolved.J[1:N, 1:N+1],
         WeakRef(),  # dummy
     )
     lc_prob = LimitCycleProblem(
