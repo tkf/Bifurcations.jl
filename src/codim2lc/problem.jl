@@ -7,6 +7,7 @@ using ..CompatUtils: @required
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     isindomain
 
+using ..Codim1LimitCycle
 using ..Codim1LimitCycle: LimitCycleProblem, LimitCycleCache, residual_lc!
 
 abstract type
@@ -115,7 +116,11 @@ get_u0(prob::FoldLimitCycleProblem) = vcat(
 )
 # modified_param! requires prob.t0 to be at the end
 
-isindomain(u, cache::FoldLimitCycleCache) = isindomain(u, cache.super)
+Codim1LimitCycle.u_idx_param(cache::FoldLimitCycleCache) =
+    2(length(cache.prob.xs0) + 1) + (1:2)
+
+isindomain(u, cache::FoldLimitCycleCache) =
+    Codim1LimitCycle.isindomain_lc(u, cache)
 
 # ------------------------------------------------------------------- residual!
 

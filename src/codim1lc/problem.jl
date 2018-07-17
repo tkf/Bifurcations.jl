@@ -142,15 +142,18 @@ get_u0(prob::LimitCycleProblem) = vcat(
 )
 
 u_idx_period(cache) = length(cache.prob.xs0) + 1
-u_idx_param(cache) = u_idx_period(cache) + 1
+u_idx_param(cache::LimitCycleCache) = u_idx_period(cache) + 1
 H_idx_phase_condition(cache) = length(cache.prob.xs0) + 1
 
-function isindomain(u, cache::LimitCycleCache)
-    tmin, tmax = cache.prob.t_domain
-    (tmin <= u[end] <= tmax) || return false
+isindomain(u, cache::LimitCycleCache) = isindomain_lc(u, cache)
+
+function isindomain_lc(u, wrapper)
+    cache = as(wrapper, LimitCycleCache)
+    tmin, tmax = wrapper.prob.t_domain
+    all(tmin .<= u[u_idx_param(wrapper)] .<= tmax) || return false
 
     period_min, period_max = cache.prob.period_bound
-    (period_min <= u[end - 1] <= period_max) || return false
+    (period_min <= u[u_idx_period(wrapper)] <= period_max) || return false
 
     xmin, xmax = cache.prob.phase_space
     n = dim_state(cache)
