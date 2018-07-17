@@ -49,6 +49,7 @@ flc_prob = FoldLimitCycleProblem(
 flc_solver = init(
     flc_prob;
     start_from_nearest_root = true,
+    max_branches = 0,  # TODO: stop manually doing this
 )
 solve!(flc_solver)
 
