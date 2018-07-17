@@ -78,6 +78,33 @@ push!(codim2_solvers, hopf_solver2)
 nothing # hide
 ```
 
+Switch to the fold bifurcation of limit cycle via Bautin bifurcation:
+
+```@example bazykin85
+using Bifurcations: Codim2
+using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
+bautin_point_list = special_points(hopf_solver2, Codim2.PointTypes.bautin)
+@assert length(bautin_point_list) == 1
+bautin_point, = bautin_point_list
+flc_prob = FoldLimitCycleProblem(
+    bautin_point,
+    hopf_solver2;
+    num_mesh = 20,
+    degree = 3,
+)
+flc_solver = init(
+    flc_prob;
+    start_from_nearest_root = true,
+    max_branches = 0,
+)
+solve!(flc_solver)
+@show flc_solver
+
+push!(codim2_solvers, flc_solver)
+
+nothing # hide
+```
+
 Merge continuations and draw the bifurcation diagram:
 
 ```@example bazykin85
