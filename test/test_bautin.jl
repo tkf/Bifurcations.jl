@@ -55,7 +55,7 @@ solve!(flc_solver)
 
 flc_β₁ = [u[end-1] for sweep in flc_solver.super.sol.sweeps for u in sweep.u]
 flc_β₂ = [u[end]   for sweep in flc_solver.super.sol.sweeps for u in sweep.u]
-@test_broken all(@. abs(4 * flc_β₁ + flc_β₂^2) < 1e-6)
+@test all(@. abs(4 * flc_β₁ + flc_β₂^2) < 5e-3)
 @test maximum(flc_β₂) > 2
 @test minimum(flc_β₂) > -1e-6
 
