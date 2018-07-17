@@ -27,20 +27,14 @@ KNOWN_POINTS = Dict(
 
 @testset "smoke Bazykin85 codim-2 (ϵ=$ϵ)" for ϵ in [0.01, 0.001]
 
-    ode = let
-        p = Bazykin85.Bazykin85Param(
+    prob = Bazykin85.make_prob(
+        Bazykin85.Bazykin85Param(
             ϵ = ϵ,
-        )
-        u0 = SVector(1 / p.ϵ, 0.0)
-        ODEProblem(Bazykin85.f, u0, Bazykin85.tspan, p)
-    end
-    prob = BifurcationProblem(
-        ode,
-        Bazykin85.param_axis,
-        (0.01, 1.5);
+        ),
         phase_space = (SVector(0.0, 0.0),  # u_min
                        SVector(Inf, Inf)), # u_max
     )
+    ode = prob.p.de_prob
 
     codim1_solver = init(prob)
     solve!(codim1_solver)

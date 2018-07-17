@@ -24,15 +24,23 @@ function f(x::SVector, p, t)
     )
 end
 
-tspan = (0.0, 30.0)
-p = Bazykin85Param()
-# u0 = SVector(0.0, 0.0)
-u0 = SVector(1 / p.ϵ, 0.0)
-ode = ODEProblem(f, u0, tspan, p)
 
-param_axis = @lens _.α
-prob = BifurcationProblem(ode, param_axis, (0.01, 1.5),
-                          phase_space = (SVector(-0.1, -0.1),  # u_min
-                                         SVector(Inf, Inf)))   # u_max
+make_prob(
+        p = Bazykin85Param();
+        u0 = SVector(1 / p.ϵ, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem(f, u0, tspan, p),
+        param_axis = (@lens _.α),
+        t_domain = (0.01, 1.5),
+        kwargs...) =
+    BifurcationProblem(ode, param_axis, t_domain;
+                       phase_space = (SVector(-0.1, -0.1),  # u_min
+                                      SVector(Inf, Inf)),   # u_max
+                       kwargs...)
+
+prob = make_prob()
+ode = prob.p.de_prob
+param_axis = prob.p.param_axis
+t_domain = prob.t_domain
 
 end  # module
