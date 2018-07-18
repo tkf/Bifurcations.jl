@@ -186,7 +186,12 @@ function predictor_corrector_step!(cache::ContinuationCache,
             @goto adaptation_success
         end
     end
-    error("Failed to adapt steplength h.")  # TODO: redesign
+    # TODO: redesign
+    error("""Failed to adapt steplength h.
+        h = $h
+        h < h_min = $(h < opts.h_min)
+        max_adaptations = $(opts.max_adaptations)
+        """)
     # step adaptation failed
     return
 
