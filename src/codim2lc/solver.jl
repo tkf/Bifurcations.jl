@@ -103,8 +103,8 @@ function analyze!(cache::Codim2LCCache, opts)
     cache.eigvals = eigvals
     =#
 
-    # This works since the "layout" of cache.super.u stores dynamical
-    # system state.  Maybe better to not rely on the layout
-    # implicitly:
+    # This works since the "layout" of the head of cache.super.u is
+    # identical to `LimitCycleCache` case.  Maybe better to not rely
+    # on the layout implicitly:
     set_reference!(cache)
 end
