@@ -82,6 +82,8 @@ mutable struct Codim2Cache{P, C <: ContinuationCache{P},
                            } <: BifurcationCache{P}
     super::C
     J::JType
+    det::Float64
+    prev_det::Float64
     eigvals::eType
     prev_eigvals::eType
     point_type::PointType
@@ -109,6 +111,7 @@ function Codim2Cache(super::C,
                      ) where {P, C <: ContinuationCache{P},
                               JType, eType}
     return Codim2Cache{P, C, JType, eType}(super, J,
+                                           NaN, NaN,
                                            eigvals, copy(eigvals),
                                            point_type,
                                            NaN, NaN,
@@ -158,6 +161,8 @@ end
 function analyze!(cache::Codim2Cache, opts)
     cnt = contkind(cache)
     cache.J = J = ds_jacobian(cache)
+    cache.prev_det = cache.det
+    cache.det = det(J)
     cache.prev_eigvals = cache.eigvals
     cache.eigvals = ds_eigvals(timekind(cache), J)
     set_quadratic_coefficient!(cnt, cache)

@@ -48,11 +48,7 @@ function guess_point_type(::HopfCont, ::Continuous, cache, opts)
     end
 
     if length(cache.eigvals) >= 3
-        # TODO: directly compute determinant and avoid computing
-        # eigenvalues all the time
-        d0 = prod(cache.prev_eigvals)
-        d1 = prod(cache.eigvals)
-        if d0 * d1 <= 0
+        if cache.prev_det * cache.det <= 0
             ev0 = sort_by_abs_real!(copy(cache.eigvals))[3]
             ev1 = sort_by_abs_real!(copy(cache.prev_eigvals))[3]
             if mean(imag.((ev0, ev1))) <= opts.atol
