@@ -12,6 +12,10 @@ system and the augmented system (continuation problem).
 where ``n`` is `ds_dim`, the number of variables is `dim(dom(H))`, and
 the number of equations is `dim(codom(H))`.
 
+# Fields
+- `ds_dim::Int`: Dimension of the dynamical system.
+- `eigvec_dim::Int`: Number of reals required to represent a eigenvector.
+- `eigvec_eltype::Type`
 """
 struct VarDims
     ds_dim::Int
@@ -19,6 +23,11 @@ struct VarDims
     eigvec_eltype::Type
 end
 
+"""
+    augsys_dim(d::VarDims) :: Int
+
+Number of variables `dim(dom(H))` of the augmented system.
+"""
 augsys_dim(d::VarDims) =
     d.ds_dim + d.eigvec_dim + 2 + (d.eigvec_eltype <: Complex)
 eigvec_range(d::VarDims) = d.ds_dim + (1:d.eigvec_dim)
@@ -85,25 +94,3 @@ as_reals(v::Vector{<: Complex{T}}) where T = reinterpret(T, v)
 
 as_reals(s::Real) = SVector(s)
 as_reals(s::Complex) = SVector(real(s), imag(s))
-
-fixeltype(::Type{T}, v::AbstractArray{T}) where {T} = v
-
-@generated function fixeltype(::Type{E}, v::SVector{S, Any}) where {E, S}
-    values = [:(v[$i]) for i in 1:S]
-    quote
-        SVector{$S, $E}($(values...))
-    end
-end
-
-#=
-@generated function fixeltype(::Type{E}, M::SMatrix) where {E}
-    s = Size(M)
-    S1 = s[1]
-    S2 = s[2]
-    L = S1 * S2
-    values = [:(M[$i]) for i in 1:L]
-    quote
-        SMatrix{$S1, $S2, $E}($(values...))
-    end
-end
-=#

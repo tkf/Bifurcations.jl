@@ -1,5 +1,9 @@
 module Examples
 
+# Utilities
+include("reparametrization.jl")
+
+# Dynamical systems
 include("pitchfork.jl")
 include("transcritical.jl")
 include("bautin.jl")
@@ -27,3 +31,4 @@ examples() = [nameof(ex) => ex for ex in example_modules()]
 end  # module
 
 using .Examples: examples
+using .Examples.Reparametrization: reparametrize
