@@ -3,6 +3,7 @@ module ArrayUtils
 using Compat.TypeUtils: typename
 
 using ForwardDiff: Dual
+using LinearAlgebra
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
 
 container_array_of(::SVector{S}) where {S} = SVector{S}
@@ -82,9 +83,9 @@ zero_if_nan(x) = isnan(x) ? zero(x) : x
 end
 
 function _lq!(Q, A)
-    F = lqfact!(A)
-    A_mul_B!(F[:Q], eye!(Q))  # L = Matrix(F[:L])[...]; but lesser allocation
-    return (LowerTriangular(F[:L]), Q)
+    F = lq!(A)
+    lmul!(F.Q, eye!(Q))  # Q = Matrix(F[:Q])[...]; but lesser allocation
+    return (LowerTriangular(F.L), Q)
 end
 
 function _lq!(_, A::SMatrix)

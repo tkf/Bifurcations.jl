@@ -1,4 +1,5 @@
 using ForwardDiff
+using LinearAlgebra: mul!
 using Parameters: @with_kw, @unpack
 using Setfield: set
 using StaticArrays: SVector, SMatrix, Size
