@@ -7,6 +7,7 @@ using Setfield: @lens
 import Setfield
 
 using ...Bifurcations: BifurcationProblem
+using ...Codim2: DiffEqCodim2Problem
 
 @with_kw struct Bazykin85Param{A, E, G, D}
     α::A = 0.1
@@ -24,12 +25,17 @@ function f(x::SVector, p, t)
     )
 end
 
+function f(du, u, p, t)
+    du .= f(SVector{2}(u), p, t)
+    nothing
+end
+
 
 make_prob(
         p = Bazykin85Param();
         u0 = SVector(1 / p.ϵ, 0.0),
         tspan = (0.0, 30.0),
-        ode = ODEProblem(f, u0, tspan, p),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
         param_axis = (@lens _.α),
         t_domain = (0.01, 1.5),
         kwargs...) =
@@ -40,7 +46,25 @@ make_prob(
 
 prob = make_prob()
 ode = prob.p.de_prob
+u0 = ode.u0
 param_axis = prob.p.param_axis
 t_domain = prob.t_domain
+
+function make_codim2_prob(
+        p = Bazykin85Param();
+        u0 = SVector(1 / p.ϵ, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
+        param_axis1 = (@lens _.α),
+        param_axis2 = (@lens _.δ),
+        t_domain = ([0.01, 0.0], [1.5, 10.0]),
+        kwargs...)
+    return DiffEqCodim2Problem(
+        ode,
+        param_axis1,
+        param_axis2,
+        t_domain;
+        kwargs...)
+end
 
 end  # module

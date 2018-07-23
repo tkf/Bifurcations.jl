@@ -7,6 +7,7 @@ using Setfield: @lens
 import Setfield
 
 using ...Bifurcations: BifurcationProblem
+using ...Codim2: DiffEqCodim2Problem
 
 @with_kw struct CalciumParam{
         vlType, vcaType, iType, glType, gcaType, cType, v1Type, v2Type}
@@ -32,12 +33,17 @@ function f(u::SVector, p::CalciumParam, t)
     return SVector(dv, dw)
 end
 
+function f(du, u, p, t)
+    du .= f(SVector{2}(u), p, t)
+    nothing
+end
+
 
 make_prob(
         p = CalciumParam();
         u0 = SVector(-170.0, -170.0),
         tspan = (0.0, 30.0),
-        ode = ODEProblem(f, u0, tspan, p),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
         param_axis = (@lens _.i),
         t_domain = (-300.0, 100.0),
         kwargs...) =
@@ -48,5 +54,23 @@ prob = make_prob()
 ode = prob.p.de_prob
 u0 = ode.u0
 param_axis = prob.p.param_axis
+
+
+function make_codim2_prob(
+        p = CalciumParam();
+        u0 = SVector(-170.0, -170.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
+        param_axis1 = (@lens _.i),
+        param_axis2 = (@lens _.gca),
+        t_domain = ([-300.0, 0.0], [100.0, 8.0]),
+        kwargs...)
+    return DiffEqCodim2Problem(
+        ode,
+        param_axis1,
+        param_axis2,
+        t_domain;
+        kwargs...)
+end
 
 end  # module

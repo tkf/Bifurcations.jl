@@ -6,6 +6,7 @@ using StaticArrays: SVector
 using Setfield: @lens
 
 using ...Bifurcations: BifurcationProblem
+using ...Codim2: DiffEqCodim2Problem
 
 @with_kw struct BautinParam{B1, B2, S}
     β₁::B1 = -1.0
@@ -65,5 +66,22 @@ prob = make_prob()
 ode = prob.p.de_prob
 u0 = ode.u0
 param_axis = prob.p.param_axis
+
+function make_codim2_prob(
+        p = ode.p;
+        u0 = SVector(0.0, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
+        param_axis1 = (@lens _.β₁),
+        param_axis2 = (@lens _.β₂),
+        t_domain = ([-2.0, -2.0], [2.0, 2.0]),
+        kwargs...)
+    return DiffEqCodim2Problem(
+        ode,
+        param_axis1,
+        param_axis2,
+        t_domain;
+        kwargs...)
+end
 
 end  # module
