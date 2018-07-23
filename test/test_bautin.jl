@@ -19,7 +19,7 @@ hopf_prob = BifurcationProblem(
     solver1,
     (@lens _.β₂),
     (-2.0, 2.0),
-    # augmented_system = NormalizingAS(),  # TODO: make it work for Bautin.prob
+    augmented_system = NormalizingAS(),
 )
 hopf_solver = init(
     hopf_prob;

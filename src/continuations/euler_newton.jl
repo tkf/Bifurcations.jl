@@ -157,10 +157,20 @@ function predictor_corrector_step!(cache::ContinuationCache,
         v = u .+ direction * h .* tJ
 
         # corrector
-        v, dv, H, L, Q, _ = corrector_step!(H, J, Q, v, prob_cache)
+        v, dv, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
         n1 = norm(dv)
         tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
+
+        if all(abs.(H) .< min(2 * eps(eltype(H)), atol))
+            # The first correction is too close to the zero point.
+            # Then the fractions for step adaptation would not be
+            # possible to reliably calculated so let's skip them.
+            # Also, to get out of this "tricky" region faster, let's
+            # increase `h` slightly.
+            h = h * 2  # TODO: don't hard code
+            @goto corrector_skipped
+        end
 
         v, dv, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
         n2 = norm(dv)
