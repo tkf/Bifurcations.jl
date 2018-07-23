@@ -78,6 +78,7 @@ end
 
 as_reals(v::AbstractVector{<: Real}) = v
 as_reals(v::Vector{<: Complex{T}}) where T = reinterpret(T, v)
+as_reals(v::AbstractMatrix) = v'[:]
 
 # manually doing this since reinterpret does not work with SVector:
 @generated as_reals(v::SVector{S, Complex{T}}) where {S, T} =

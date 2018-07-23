@@ -1,5 +1,6 @@
 using ForwardDiff
 using Setfield: Lens, set, get
+using StaticArrays: @SMatrix, SMatrix, SVector
 
 using ...Bifurcations: maybe_subtract!
 
@@ -155,14 +156,33 @@ end
 
 # ------------------------------------------------------------------- residual!
 
-eigvec_constraint(v::AbstractArray{T}, ::NormalizingASCache) where {T <: Real} =
+eigvec_constraint(v::AbstractVector{T}, ::NormalizingASCache) where {T <: Real} =
     SVector{1, T}(v ⋅ v - 1)
 
-eigvec_constraint(v::AbstractArray{<: Complex{T}}, ::NormalizingASCache) where {T} =
+eigvec_constraint(v::AbstractVector{<: Complex{T}}, ::NormalizingASCache) where {T} =
     SVector{2, T}(real(v ⋅ v) - 1, real(v) ⋅ imag(v))
 
-eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
+eigvec_constraint(v::AbstractMatrix{T}, ::NormalizingASCache) where {T} =
+    SVector{2, T}(
+        v[:] ⋅ v[:] - 1,
+        v[:, 1] ⋅ v[:, 2],
+    )
+
+eigvec_constraint(v::AbstractVector, augsys_cache::BackReferencingASCache) =
     as_reals(augsys_cache.v ⋅ v - 1)
+
+function eigvec_constraint(v::AbstractMatrix{T},
+                           augsys_cache::BackReferencingASCache,
+                           ) where {T}
+    vr = @view v[:, 1]
+    vi = @view v[:, 2]
+    v0r = real(augsys_cache.v)
+    v0i = imag(augsys_cache.v)
+    return SVector{2, T}(
+        v0r ⋅ vr + v0i ⋅ vi - 1,
+        v0r ⋅ vi - v0i ⋅ vr,
+    )
+end
 
 ds_state(prob::DiffEqCodim2Problem, u::AbstractArray) =
     _ds_state(eltype(prob.v0), u)
@@ -177,6 +197,24 @@ end
     values = [:(u[$i]) for i in 1:d.ds_dim]
     quote
         SVector{$(length(values)), $T}($(values...))
+    end
+end
+
+ds_eigvecmat(prob::DiffEqCodim2Problem, u::AbstractArray) =
+    _ds_eigvecmat(eltype(prob.v0), u)
+
+_ds_eigvecmat(E::Type{<: Real}, u) = _ds_eigvec(E, u)
+function _ds_eigvecmat(E::Type{<: Complex}, u)
+    d = dims_from_augsys(length(u), E)
+    return reshape((@view u[eigvec_range(d)]), (2, :))'  # TODO: optimize
+end
+
+@generated function _ds_eigvecmat(::Type{E}, u::SVector{S}) where {E <: Complex, S}
+    d = dims_from_augsys(S, E)
+    indices = eigvec_range(d)
+    values = [:(u[$i]) for i in indices]
+    quote
+        SMatrix{2, $(length(values) ÷ 2)}($(values...))'
     end
 end
 
@@ -228,6 +266,20 @@ _ds_eigval(::Type{<: Real}, ::AbstractArray) = 0
 function _ds_eigval(T::Type{<: Complex}, u::AbstractArray)
     d = dims_from_augsys(length(u), T)
     return u[eigval_index(d)] * im
+end
+
+ds_eigvalmat(prob::DiffEqCodim2Problem, u::AbstractArray) =
+    _ds_eigvalmat(eltype(prob.v0), u::AbstractArray)
+
+_ds_eigvalmat(::Type{<: Real}, ::AbstractArray) = 0
+
+function _ds_eigvalmat(E::Type{<: Complex}, u::AbstractArray{T}) where {T}
+    d = dims_from_augsys(length(u), E)
+    w = u[eigval_index(d)]
+    return @SMatrix T[
+         0 w
+        -w 0
+    ]
 end
 
 state_cond_view(d::VarDims, H) = @view H[1:d.ds_dim]       # f(x)
@@ -306,20 +358,31 @@ function J_mul_v(x, v::AbstractVector{<: Complex}, q, f)
     return @. Jv[:, 1] + im * Jv[:, 2]
 end
 
+function J_mul_v(x, v::AbstractMatrix, q, f)
+    vr = v[:, 1]
+    vi = v[:, 2]
+    Jv = ForwardDiff.jacobian(
+        (d) -> f((@. x + d[1] * vr + d[2] * vi), q, 0),
+        SVector(zero(eltype(x)), zero(eltype(x))),
+        # TODO: setup cache
+    )
+    return Jv
+end
+
 function _residual!(::Any, u, prob::DiffEqCodim2Problem,
                     augsys_cache,
                     ::ImmutableState)
     q = modified_param!(prob, u)
 
     x = ds_state(prob, u)
-    v = ds_eigvec(prob, u)
-    iw = ds_eigval(prob, u)
+    v = ds_eigvecmat(prob, u)
+    iw = ds_eigvalmat(prob, u)
 
     # TODO: Can I compute H and Jv in one go?  Or is it already
     # maximally efficient?
     H1 = prob.de_prob.f(x, q, 0)
     Jv = J_mul_v(x, v, q, prob.de_prob.f)
-    H2 = as_reals(@. Jv - iw * v)
+    H2 = as_reals(Jv .- v * iw)
 
     H3 = eigvec_constraint(v, augsys_cache)
 
