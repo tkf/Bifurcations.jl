@@ -6,6 +6,7 @@ using StaticArrays: SVector
 
 using Bifurcations: Codim1, Codim2, resolved_points
 using Bifurcations.BifurcationsBase: contkind, HopfCont
+using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
 using Bifurcations.Examples: Bazykin85
 
 # Bifurcation points calculated in some version of Bifurcations.jl
@@ -25,7 +26,9 @@ KNOWN_POINTS = Dict(
     ],
 )
 
-@testset "smoke Bazykin85 codim-2 (ϵ=$ϵ)" for ϵ in [0.01, 0.001]
+@testset "smoke Bazykin85 codim-2 (ϵ=$ϵ, $(nameof(ASType)))" for
+        ϵ in [0.01, 0.001],
+        ASType in [NormalizingAS, BackReferencingAS]
 
     prob = Bazykin85.make_prob(
         Bazykin85.Bazykin85Param(
@@ -58,6 +61,7 @@ KNOWN_POINTS = Dict(
             codim1_solver,
             (@lens _.δ),
             (0.0, 10.0),
+            augmented_system = ASType(),
         )
         codim2_solver = init(
             codim2_prob;
@@ -96,7 +100,10 @@ KNOWN_POINTS = Dict(
                            Codim2.PointTypes.bogdanov_takens);
             by = p -> p.u0[end - 1],  # α
             rev = true))
-        sn_prob = BifurcationProblem(point, hopf_solver1)
+        sn_prob = BifurcationProblem(
+            point, hopf_solver1;
+            augmented_system = ASType(),
+        )
         sn_solver2 = init(sn_prob)
         @test_nothrow solve!(sn_solver2)
     end
@@ -109,7 +116,10 @@ KNOWN_POINTS = Dict(
                            Codim2.PointTypes.bogdanov_takens);
             by = p -> p.u0[end - 1],  # α
             rev = true))
-        hopf_prob = BifurcationProblem(point, sn_solver1)
+        hopf_prob = BifurcationProblem(
+            point, sn_solver1;
+            augmented_system = ASType(),
+        )
         hopf_solver2 = init(hopf_prob)
         @test_nothrow solve!(hopf_solver2)
 
@@ -129,7 +139,14 @@ KNOWN_POINTS = Dict(
             @test length(uniquified) == length(desired_points)
             for (actual, desired) in zip(uniquified, desired_points)
                 type_desired, u_desired = desired
-                @test actual.u ≈ u_desired  rtol=1e-4
+                if ASType == NormalizingAS
+                    @test actual.u ≈ u_desired  rtol=1e-4
+                else
+                    # Compare DS state and parameters; ignore the eigenvector
+                    # TODO: don't hard-code offsets:
+                    @test actual.u[1:2] ≈ u_desired[1:2]  rtol=1e-4
+                    @test actual.u[end-1:end] ≈ u_desired[end-1:end]  rtol=1e-4
+                end
                 @test actual.point_type == type_desired
             end
         end

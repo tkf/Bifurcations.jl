@@ -84,7 +84,7 @@ function next_eig(::HopfCont, ::Val{PointTypes.bogdanov_takens},
 
     if eltype(vals) <: Complex
         _, i0 = findmin(abs.(real.(vals)))
-        return _normalize!(vecs[:, i0]), imag(vals[i0])
+        return canonicalize(vecs[:, i0]), imag(vals[i0])
     end
 
     i1, i2 = sortperm(vals, by=abs)
@@ -95,7 +95,7 @@ function next_eig(::HopfCont, ::Val{PointTypes.bogdanov_takens},
     else
         v_img = v2
     end
-    v_next = _normalize!(@. v_prev + v_img * im)
+    v_next = canonicalize(@. v_prev + v_img * im)
     return v_next, zero(real(eltype(v_prev)))
 end
 
