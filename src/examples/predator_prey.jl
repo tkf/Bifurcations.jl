@@ -15,7 +15,7 @@ using Setfield: @lens
 import Setfield
 
 using ...Bifurcations: BifurcationProblem
-using ...Codim2: cast_container
+using ...Codim2: cast_container, DiffEqCodim2Problem
 
 f1(u, p) =
     p[2] * u[1] * (1 - u[1]) - u[1] * u[2] - p[1] * (1 - exp(- p[3] * u[1]))
@@ -54,5 +54,22 @@ ode = prob.p.de_prob
 p = ode.p
 u0 = ode.u0
 param_axis = prob.p.param_axis
+
+function make_codim2_prob(
+        p = ode.p;
+        u0 = SVector(0.0, 0.0),
+        tspan = (0.0, 30.0),
+        ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
+        param_axis1 = (@lens _[1]),
+        param_axis2 = (@lens _[3]),
+        t_domain = ([-Inf, -Inf], [Inf, Inf]),
+        kwargs...)
+    return DiffEqCodim2Problem(
+        ode,
+        param_axis1,
+        param_axis2,
+        t_domain;
+        kwargs...)
+end
 
 end  # module

@@ -6,6 +6,7 @@ using Base.Test
         "test_normal_form.jl",
         "test_smoke.jl",
         "test_jacobian.jl",
+        "test_residual_jacobian.jl",
         "test_calcium.jl",
         "test_predator_prey.jl",
         "test_bazykin_85.jl",
