@@ -1,9 +1,12 @@
 module TestPredatorPrey
 include("preamble_plots.jl")
 
+using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
 using Bifurcations.Examples: PredatorPrey
 
-@testset "smoke PredatorPrey codim-2" begin
+@testset "smoke PredatorPrey codim-2 ($(nameof(ASType)))" for
+        ASType in [NormalizingAS, BackReferencingAS]
+
     codim1_solver = init(PredatorPrey.prob)
     solve!(codim1_solver)
 
@@ -13,6 +16,7 @@ using Bifurcations.Examples: PredatorPrey
             codim1_solver,
             (@lens _[3]),
             (0.0, 10.0),
+            augmented_system = ASType(),
         )
         # TODO: Implement detection of Bogdanov-Takens bifurcation and
         # stop manually setting max_branches=0.

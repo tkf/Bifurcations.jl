@@ -1,5 +1,6 @@
 using DiffEqBase: remake, AbstractODEProblem
 using ...Bifurcations: FixedPointBifurcationProblem, DiffEqWrapper
+using ..ArrayUtils: canonicalize
 using ..Codim1
 using ..Codim1: Codim1Solver, AbstractSpecialPoint, resolve_point
 
@@ -50,7 +51,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         # @assert val ≈ 0
     end
     v0 = cast_container(xtype, vecs[:, idx])
-    v0 = v0 ./ norm(v0)
+    v0 = canonicalize(v0)
     w0 = imag(vals[idx])
     if eltype(v0) <: Complex && w0 < 0
         w0 = -w0

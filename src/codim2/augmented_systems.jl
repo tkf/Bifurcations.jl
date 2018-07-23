@@ -40,6 +40,7 @@ end
 
 
 function preferred_augsys(point)
+    # TODO: Default to NormalizingAS for Hopf as well?
     if point.point_type == Codim1.PointTypes.saddle_node
         return NormalizingAS()
     end

@@ -2,6 +2,7 @@ module TestBautin
 include("preamble_plots.jl")
 
 using Bifurcations: Codim1, Codim2, resolved_points
+using Bifurcations.Codim2: NormalizingAS
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Examples: Bautin
 
@@ -18,6 +19,7 @@ hopf_prob = BifurcationProblem(
     solver1,
     (@lens _.β₂),
     (-2.0, 2.0),
+    # augmented_system = NormalizingAS(),  # TODO: make it work for Bautin.prob
 )
 hopf_solver = init(
     hopf_prob;

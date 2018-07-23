@@ -155,7 +155,12 @@ end
 
 # ------------------------------------------------------------------- residual!
 
-eigvec_constraint(v, ::NormalizingASCache) = as_reals(v ⋅ v - 1)
+eigvec_constraint(v::AbstractArray{T}, ::NormalizingASCache) where {T <: Real} =
+    SVector{1, T}(v ⋅ v - 1)
+
+eigvec_constraint(v::AbstractArray{<: Complex{T}}, ::NormalizingASCache) where {T} =
+    SVector{2, T}(real(v ⋅ v) - 1, real(v) ⋅ imag(v))
+
 eigvec_constraint(v, augsys_cache::BackReferencingASCache) =
     as_reals(augsys_cache.v ⋅ v - 1)
 
