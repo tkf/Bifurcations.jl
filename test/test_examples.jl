@@ -4,6 +4,7 @@ include("preamble.jl")
 using DiffEqBase: remake
 
 using Bifurcations: Codim1, resolved_points
+using Bifurcations.Codim2: BackReferencingAS, NormalizingAS
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
 using Bifurcations.Examples: Calcium
@@ -20,7 +21,6 @@ end
 make_codim2(::Real, point, solver1) = []
 make_codim2(::Tuple, point, solver1) = []  # PredatorPrey
 make_codim2(::DuffingVanDerPolParam, point, solver1) = []
-make_codim2(::BautinParam, point, solver1) = []  # TODO: define something
 make_codim2(::CuspParam, point, solver1) = []  # TODO: define something
 
 make_codim2(::CalciumParam, point, solver1) = [
@@ -43,6 +43,25 @@ function make_codim2(::Bazykin85Param, point, solver1)
         (@lens _.δ),
         (0.0, 10.0),
     )]
+end
+
+function make_codim2(::BautinParam, point, solver1)
+    args = (
+        point,
+        solver1,
+        (@lens _.β₂),
+        (-2.0, 2.0),
+    )
+    return [
+        BifurcationProblem(
+            args...;
+            augmented_system = BackReferencingAS(),
+        ),
+        BifurcationProblem(
+            args...;
+            augmented_system = NormalizingAS(),
+        ),
+    ]
 end
 
 EXAMPLES = [
