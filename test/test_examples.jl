@@ -17,31 +17,32 @@ struct Example{P}
     prob::P
 end
 
-make_codim2(::Real, point, solver1) = nothing
-make_codim2(::Tuple, point, solver1) = nothing  # PredatorPrey
-make_codim2(::DuffingVanDerPolParam, point, solver1) = nothing
-make_codim2(::BautinParam, point, solver1) = nothing  # TODO: define something
-make_codim2(::CuspParam, point, solver1) = nothing  # TODO: define something
+make_codim2(::Real, point, solver1) = []
+make_codim2(::Tuple, point, solver1) = []  # PredatorPrey
+make_codim2(::DuffingVanDerPolParam, point, solver1) = []
+make_codim2(::BautinParam, point, solver1) = []  # TODO: define something
+make_codim2(::CuspParam, point, solver1) = []  # TODO: define something
 
-make_codim2(::CalciumParam, point, solver1) =
+make_codim2(::CalciumParam, point, solver1) = [
     BifurcationProblem(
         point,
         solver1,
         (@lens _.gca),
         (0.0, 8.0),
     )
+]
 
 function make_codim2(::Bazykin85Param, point, solver1)
     if (point.point_type == Codim1.PointTypes.saddle_node ||
         isapprox(point.u[2], 0; atol=1e-3))
-        return nothing
+        return []
     end
-    return BifurcationProblem(
+    return [BifurcationProblem(
         point,
         solver1,
         (@lens _.δ),
         (0.0, 10.0),
-    )
+    )]
 end
 
 EXAMPLES = [
@@ -61,11 +62,10 @@ EXAMPLES = [
     print_errors(errors)
     @test isempty(errors)
 
-    for point in resolved_points(solver1)
-        prob2 = make_codim2(prob1.p.de_prob.p, point, solver1)
-        if prob2 === nothing
-            continue
-        end
+    @testset "$i-th $(point.point_type); $j-th problem" for
+            (i, point) in enumerate(resolved_points(solver1)),
+            (j, prob2) in enumerate(
+                make_codim2(prob1.p.de_prob.p, point, solver1))
         solver2 = init(prob2)
         solve!(solver2)
         errors = find_errors(solver2)
