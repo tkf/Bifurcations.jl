@@ -6,7 +6,7 @@ using Bifurcations.Codim2: NormalizingAS
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Examples: Bautin
 
-prob = Bautin.make_prob(u0 = Vector(Bautin.u0))
+prob = Bautin.make_prob()
 solver1 = init(prob)
 solve!(solver1)
 
