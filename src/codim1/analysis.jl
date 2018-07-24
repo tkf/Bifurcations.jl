@@ -31,11 +31,12 @@ function ds_eigvals(::Continuous, J)
 end
 
 function guess_point_type(::Continuous, cache, eigvals, opts)
+    # TODO: don't use eigenvalue
     old = real(cache.eigvals[1])
     new = real(eigvals[1])
     if old * new < 0
-        e1 = mean((cache.eigvals[1], eigvals[1]))
-        if imag(e1) > opts.atol
+        eim = mean(abs.(imag.((cache.eigvals[1], eigvals[1]))))
+        if eim > opts.atol
             return PointTypes.hopf
         else
             return PointTypes.saddle_node
