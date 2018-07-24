@@ -123,13 +123,16 @@ function solve!(wrapper::AbstractContinuationSolver)
 
     u0 = copy(cache.u)
     sweep!(wrapper; u0=u0)
-    sweep!(wrapper; u0=u0, direction = solver.opts.direction * -1)
+    if opts.bidirectional_first_sweep
+        sweep!(wrapper; u0=u0, direction = solver.opts.direction * -1)
+    end
 
     # TODO: Detect the case that the solution is isomorphic to the
     # circle.
 
-    bifurcations = vcat(solver.sol.sweeps[end-1].simple_bifurcation,
-                        solver.sol.sweeps[end].simple_bifurcation)
+    bifurcations = vcat(
+        (s.simple_bifurcation for s in reverse(solver.sol.sweeps))...
+    )
     for _ in 1:opts.max_branches
         if isempty(bifurcations)
             break
