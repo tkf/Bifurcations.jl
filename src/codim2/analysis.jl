@@ -111,31 +111,31 @@ function first_lyapunov_coefficient(wrapper)
     qR = real(q)
     qI = imag(q)
     pR = real(p)
-    pI = imag(q)
+    pI = imag(p)
 
     a = vderiv2(t -> ds_f((@. t * qR + x0), cache))
     b = vderiv2(t -> ds_f((@. t * qI + x0), cache))
     c = 1/4 * vderiv2(t -> (ds_f((@. t * (qR + qI) + x0), cache) -
                             ds_f((@. t * (qR - qI) + x0), cache)))
     r = A \ (@. a + b)  # = A⁻¹ B(q,q̅)
-    s = (@. 2im * ω₀ - A) \ (@. a - b + 2im * c)  # = (2iω - A)⁻¹ B(q,q)
+    s = (2im * ω₀ * I - A) \ (@. a - b + 2im * c)  # = (2iω - A)⁻¹ B(q,q)
     sR = real(s)
     sI = imag(s)
 
     σ₁ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + r) + x0), cache) -
                             pR ⋅ ds_f((@. t * (qR - r) + x0), cache)))
-    σ₂ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + r) + x0), cache) -
-                            pI ⋅ ds_f((@. t * (qR - r) + x0), cache)))
+    σ₂ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qI + r) + x0), cache) -
+                            pI ⋅ ds_f((@. t * (qI - r) + x0), cache)))
     Σ₀ = σ₁ + σ₂
 
     δ₁ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + sR) + x0), cache) -
                             pR ⋅ ds_f((@. t * (qR - sR) + x0), cache)))
-    δ₂ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qR + sI) + x0), cache) -
-                            pR ⋅ ds_f((@. t * (qR - sI) + x0), cache)))
+    δ₂ = 1/4 * deriv2(t -> (pR ⋅ ds_f((@. t * (qI + sI) + x0), cache) -
+                            pR ⋅ ds_f((@. t * (qI - sI) + x0), cache)))
     δ₃ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + sI) + x0), cache) -
                             pI ⋅ ds_f((@. t * (qR - sI) + x0), cache)))
-    δ₄ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qR + sR) + x0), cache) -
-                            pI ⋅ ds_f((@. t * (qR - sR) + x0), cache)))
+    δ₄ = 1/4 * deriv2(t -> (pI ⋅ ds_f((@. t * (qI + sR) + x0), cache) -
+                            pI ⋅ ds_f((@. t * (qI - sR) + x0), cache)))
     Δ₀ = δ₁ + δ₂ + δ₃ - δ₄
 
     γ₁ = deriv3(t -> pR ⋅ ds_f((@. t * qR + x0), cache))

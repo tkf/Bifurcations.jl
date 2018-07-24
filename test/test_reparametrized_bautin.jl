@@ -11,9 +11,8 @@ using Bifurcations.Examples.Reparametrization: orig_p
 
 @testset for opts in [
         [],
-        # TODO: Make those work:
-        # [:extra => SVector(-1.0)],
-        # [:extra => SVector(-1.0), :shift => 0.1, :seed => 1],
+        [:extra => SVector(-1.0)],
+        [:extra => SVector(-1.0), :shift => 0.1, :seed => 1],
         ]
 
     prob = reparametrize(
