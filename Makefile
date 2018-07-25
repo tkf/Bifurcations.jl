@@ -1,6 +1,9 @@
 JULIA_BIN = julia
 JULIA = time $(JULIA_BIN) --color=yes
 
+OMP_NUM_THREADS = 2
+export OMP_NUM_THREADS
+
 # See [[./.travis.yml::GKS_WSTYPE]]
 GKS_WSTYPE ?= png
 export GKS_WSTYPE
