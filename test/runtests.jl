@@ -4,7 +4,9 @@ using Compat: @warn, stdout
 
 RUNINFO = []
 
-@testset "$file" for file in [
+TEST_GROUPS = Dict{String, Vector{String}}(
+    # ENV["CI_GROUP"] => test files
+    "0" => [
         "test_utils.jl",
         "test_normal_form.jl",
         "test_smoke.jl",
@@ -14,13 +16,19 @@ RUNINFO = []
         "test_predator_prey.jl",
         "test_bazykin_85.jl",
         "test_bautin.jl",
-        "test_reparametrization.jl",
-        "test_reparametrized_bautin.jl",
         "test_examples.jl",
         "test_vs_svector.jl",
         "test_duffing_van_der_pol.jl",
         "test_hopf_to_lc.jl",
-        ]
+    ],
+    "1" => [
+        "test_reparametrization.jl",
+        "test_reparametrized_bautin.jl",
+    ],
+)
+TEST_GROUPS["all"] = vcat(last.(sort(collect(TEST_GROUPS), by=first))...)
+
+@testset "$file" for file in TEST_GROUPS[get(ENV, "CI_GROUP", "all")]
     _, time, bytes, gctime, memallocs =  @timed @time include(file)
     push!(RUNINFO, Dict(
         :file => file,

@@ -8,6 +8,8 @@ makedocs()
 # https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables
 if get(ENV, "TRAVIS", "") != "true"
     # Don't do anything outside Travis CI
+elseif get(ENV, "CI_GROUP", "1") != "0"
+    info("Skipping deploy since CI_GROUP != 0.")
 elseif startswith(get(ENV, "TRAVIS_BRANCH", ""), "pre/")
     # For branches pre/*, deploy them into gh-pages.pre.
     branch = ENV["TRAVIS_BRANCH"]

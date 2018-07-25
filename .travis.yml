@@ -12,6 +12,9 @@ env:
     # * https://gr-framework.org/about.html#file-formats
     # * https://github.com/jheinen/gr/blob/v0.31.1/lib/gks/util.c#L67
     - GKS_WSTYPE: png
+  matrix:
+    - CI_GROUP=0
+    - CI_GROUP=1
 notifications:
   email: false
 git:
