@@ -4,6 +4,7 @@ include("preamble.jl")
 using DiffEqBase: remake
 
 using Bifurcations: Codim1, resolved_points
+using Bifurcations.Codim1: resolve_point
 using Bifurcations.Codim2: BackReferencingAS, NormalizingAS
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
@@ -21,7 +22,6 @@ end
 
 make_codim2(::Real, point, solver1) = []
 make_codim2(::Tuple, point, solver1) = []  # PredatorPrey
-make_codim2(::BazykinKhibnik81Param, point, solver1) = []
 make_codim2(::DuffingVanDerPolParam, point, solver1) = []
 make_codim2(::CuspParam, point, solver1) = []  # TODO: define something
 
@@ -44,6 +44,22 @@ function make_codim2(::Bazykin85Param, point, solver1)
         solver1,
         (@lens _.δ),
         (0.0, 10.0),
+    )]
+end
+
+function make_codim2(::BazykinKhibnik81Param, point, solver1)
+    if point.point_type !== Codim1.PointTypes.hopf
+        return []
+    end
+    resolved = resolve_point(point, solver1)
+    if any(@. resolved.u[1:2] < 1e-3)
+        return []
+    end
+    return [BifurcationProblem(
+        resolved,
+        solver1,
+        (@lens _.n),
+        (-1e-3, 2.0),
     )]
 end
 
