@@ -61,7 +61,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
     flc_prob = FoldLimitCycleProblem(
         codim2_points[1],
         hopf_solver;
-        num_mesh = 10,
+        num_mesh = 20,
         degree = 3,
     )
     @show flc_prob.super.num_mesh
@@ -110,7 +110,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
     @show maximum(@. abs(4 * flc_β₁ + flc_β₂^2))
     @test all(@. abs(4 * flc_β₁ + flc_β₂^2) < 5e-2)
     @test maximum(flc_β₂) > 2
-    @test minimum(flc_β₂) > -1e-2
+    @test minimum(flc_β₂) > -1e-3
 end
 
 end  # module
