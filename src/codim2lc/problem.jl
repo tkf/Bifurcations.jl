@@ -168,13 +168,66 @@ end
 
 # ---------------------------------------------------------- residual_jacobian!
 
+# J = [
+#     ∂₁F                              0       ∂₂F
+#     (∂ᵪ(∂ᵧF(χ + γ η, α)))(χ = ξ)    ∂₁F    ∂₂((∂₁F)η)
+#     0                                 2η      0
+# ]
+
 function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
-    # TODO: implement residual_jacobian! manually
+    prob = cache.prob
+    q = modified_param!(prob, u)
+
+    n_lc = length(prob.xs0) + 1
+    ξ = view(u, 1:n_lc)                  # [xs; period]
+    η = view(u, (1:n_lc) + n_lc)         # ∂ξ
+    H_lc = view(H, 1:n_lc)               # F(ξ, α)
+    H_ev = view(H, (1:n_lc) + n_lc)      # ∂₁ F(ξ, α) η
+
+    fill!(J, zero(eltype(J)))
+
+    @views H[end] = η ⋅ η - 1  # H_ec = <η,η> - 1
+    @views J[end, n_lc + (1:n_lc)] .= 2 .* η
+
+    ∂₁F = view(J, 1:n_lc, 1:n_lc)  # = ∂₁F(ξ, α)
     ForwardDiff.jacobian!(
-        J,
-        (y, x) -> residual!(y, x, cache),
-        H,  # y
-        u,  # x
+        ∂₁F,
+        (H_lc, ξ) -> residual_lc!(H_lc, ξ, q, cache.super),
+        H_lc,
+        ξ,
+        # TODO: setup cache
+    )
+    @views J[n_lc + (1:n_lc), n_lc + (1:n_lc)] .= ∂₁F
+
+    ForwardDiff.jacobian!(
+        view(J, n_lc + (1:n_lc), 1:n_lc),  # (∂ᵪ(∂ᵧF(χ + γ η, α)))(χ = ξ)
+        (y, x) -> ForwardDiff.jacobian!(
+            reshape(view(y, :), :, 1),
+            (H_lc, d) -> residual_lc!(H_lc, (@. x + d[1] * η), q, cache.super),
+            fill!(similar(y), zero(eltype(y))),  # TODO: pre-allocate
+            SVector(zero(eltype(η))),
+        ),
+        H_ev,  # y = ∂₁ F(ξ, α) η
+        ξ,     # x
+    )
+
+    # Compute ∂₂F and ∂₂((∂₁F)η) in one go:
+    ForwardDiff.jacobian!(
+        (@view J[1:2n_lc, end-1:end]),  # [∂₂F; ∂₂((∂₁F)η)]
+        (H_, α) -> begin
+            p = modified_param!(prob, α)
+            ForwardDiff.jacobian!(
+                reshape(view(H_, (1:n_lc) + n_lc), :, 1),  # H_ev
+                (H_lc, d) -> residual_lc!(H_lc, (@. ξ + d[1] * η),
+                                          p, cache.super),
+                view(H_, 1:n_lc),  # H_lc
+                SVector(zero(eltype(η))),
+            )
+        end,
+        view(H, 1:2n_lc),  # = H_ = [H_lc; H_ev]
+        u[end-1:end],      # = α = parameters
+        # TODO: setup cache
     )
     return (H, J)
 end
+# TODO: Some computations (e.g., H_lc) are done multiple times.  Don't.
