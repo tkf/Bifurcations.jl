@@ -10,6 +10,7 @@ using Bifurcations: examples
 using Bifurcations.Examples: Calcium
 using Bifurcations.Examples.Calcium: CalciumParam
 using Bifurcations.Examples.Bazykin85: Bazykin85Param
+using Bifurcations.Examples.BazykinKhibnik81: BazykinKhibnik81Param
 using Bifurcations.Examples.DuffingVanDerPol: DuffingVanDerPolParam
 using Bifurcations.Examples.Bautin: BautinParam
 using Bifurcations.Examples.Cusp: CuspParam
@@ -20,6 +21,7 @@ end
 
 make_codim2(::Real, point, solver1) = []
 make_codim2(::Tuple, point, solver1) = []  # PredatorPrey
+make_codim2(::BazykinKhibnik81Param, point, solver1) = []
 make_codim2(::DuffingVanDerPolParam, point, solver1) = []
 make_codim2(::CuspParam, point, solver1) = []  # TODO: define something
 

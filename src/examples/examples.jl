@@ -11,6 +11,7 @@ include("cusp.jl")
 include("calcium.jl")
 include("predator_prey.jl")
 include("bazykin_85.jl")
+include("bazykin_khibnik_81.jl")
 include("duffing_van_der_pol.jl")
 
 using Compat
@@ -23,6 +24,7 @@ example_modules() = [
     Calcium,
     PredatorPrey,
     Bazykin85,
+    BazykinKhibnik81,
     DuffingVanDerPol,
 ]
 
