@@ -1,4 +1,4 @@
-using Parameters: @unpack
+using Parameters: @unpack, @with_kw
 
 """
     as(self, ::Type{T}) :: T
@@ -108,6 +108,18 @@ function sweep!(solver::AbstractContinuationSolver; kwargs...)
     step!(solver, setup.max_steps)
 end
 
+@with_kw struct NonRootException <: Exception
+    msg::String = "Not a root"
+    H::AbstractVector
+    u::AbstractVector
+end
+
+function Base.showerror(io::IO, e::NonRootException)
+    println(io, e.msg, ": norm(H) = ", norm(e.H))
+    println(io, "H = ", e.H)
+    println(io, "u = ", e.u)
+end
+
 function solve!(wrapper::AbstractContinuationSolver)
     solver = as(wrapper, ContinuationSolver)
     opts = solver.opts
@@ -117,7 +129,7 @@ function solve!(wrapper::AbstractContinuationSolver)
         if opts.start_from_nearest_root
             cache.u = nearest_root!(cache, opts)
         else
-            error("Initial point is not a root: norm(H) = ", norm(H))
+            throw(NonRootException("Initial point is not a root", H, cache.u))
         end
     end
 
