@@ -2,11 +2,14 @@ module TestReparametrizedBautin
 include("preamble.jl")
 
 using Compat: @info
+using ForwardDiff
 using Setfield: compose
 using StaticArrays: SVector, SMatrix
 
 using Bifurcations: Codim1, Codim2, resolved_points, reparametrize
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
+using Bifurcations.Continuations: get_prob_cache, get_u0,
+    residual!, residual_jacobian
 using Bifurcations.Examples: Bautin
 using Bifurcations.Examples.Reparametrization: orig_p
 
@@ -55,7 +58,6 @@ using Bifurcations.Examples.Reparametrization: orig_p
     β_bautin = codim2_points[1].u[end-1:end]
     @test all(@. abs(β_bautin) < 1e-6)
 
-    @info "Continuation of fold bifurcation of a limit cycle..."
     flc_prob = FoldLimitCycleProblem(
         codim2_points[1],
         hopf_solver;
@@ -65,6 +67,36 @@ using Bifurcations.Examples.Reparametrization: orig_p
     @show flc_prob.super.num_mesh
     @show flc_prob.super.degree
     @test flc_prob.t_domain == ([-2.0, -2.0], [2.0, 2.0])
+
+    @info "Checking Jacobian..."
+    @testset "Manual Jacobian vs ForwardDiff" begin
+        prob_cache = get_prob_cache(flc_prob)
+        u0 = get_u0(flc_prob)
+        rng = MersenneTwister(0)
+        for _ in 1:5
+            # Trying to avoid state values whose abs is larger than 1;
+            # fitting polynomial to random numbers is not nice thing
+            # to try here...
+            u_lc = 0.01 .* tanh.(randn(rng, eltype(u0), length(u0)))
+            d = length(flc_prob.xs0)
+            u_lc[d + 1] = abs(u_lc[d + 1])  # period > 0
+            H_actual, J_actual = residual_jacobian(u_lc, prob_cache)
+
+            H_desired = similar(@view u_lc[1:end-1])
+            J_desired = similar(H_desired, (length(H_desired), length(u_lc)))
+            ForwardDiff.jacobian!(
+                J_desired,
+                (y, x) -> residual!(y, x, prob_cache),
+                H_desired,
+                u_lc,
+            )
+
+            @test J_actual ≈ J_desired
+            @test H_actual ≈ H_desired
+        end
+    end
+
+    @info "Continuation of fold bifurcation of a limit cycle..."
     flc_solver = init(
         flc_prob;
         start_from_nearest_root = true,
