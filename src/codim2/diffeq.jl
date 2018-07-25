@@ -40,6 +40,13 @@ function DiffEqCodim2Problem(
                      get(param_axis2, de_prob.p)),
         augmented_system = BackReferencingAS(),
         )
+    if param_axis1 == param_axis2
+        error("""
+        Same parameter is specified for `param_axis1` and `param_axis2`:
+        param_axis1 = param_axis2 = $(param_axis1)
+        """)
+    end
+
     t_domain = (SVector{2, eltype(t0)}(t_domain[1]),
                 SVector{2, eltype(t0)}(t_domain[2]))
     return DiffEqCodim2Problem(
