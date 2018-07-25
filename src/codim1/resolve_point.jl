@@ -77,6 +77,25 @@ function testfn_for(point_type::Enum, tkind::TimeKind, ckind::ContinuationKind,
     return (u, J, L, Q) -> testfn(ptype, tkind, ckind, prob_cache, u, J, L, Q)
 end
 
+testfn(::Val{PointTypes.saddle_node}, ::Continuous, ::FixedPointCont,
+       prob_cache, u, J, L, Q) =
+    det(ds_jacobian(J))
+
+function testfn(::Val{PointTypes.hopf}, ::Continuous, ::FixedPointCont,
+                prob_cache, u, J, L, Q)
+    vals = _eigvals(ds_jacobian(J))
+    _, i = findmin(abs.(real.(vals)))
+    return real(vals[i])
+end
+
+testfn(::Val{PointTypes.saddle_node}, ::Discrete, ::FixedPointCont,
+       prob_cache, u, J, L, Q) =
+    det(ds_jacobian(J) - I)
+
+testfn(::Val{PointTypes.period_doubling}, ::Discrete, ::FixedPointCont,
+       prob_cache, u, J, L, Q) =
+    det(ds_jacobian(J) + I)
+
 const Instability = Union{
     Val{PointTypes.saddle_node},
     Val{PointTypes.period_doubling},
