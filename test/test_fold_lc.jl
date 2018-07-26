@@ -26,14 +26,17 @@ solver_lc = init(
     max_branches = 0,
     nominal_angle_rad = 0.01,
 )
-solve!(solver_lc)
+@info "Solving LimitCycleProblem..."
+@time solve!(solver_lc)
 
+@info "Testing LimitCycleProblem solution..."
 @test_broken length(solver_lc.sweeps[1].super.simple_bifurcation) == 0
 
-flc_points = resolved_points(solver_lc)
+@time flc_points = resolved_points(solver_lc)
 @test_broken length(flc_points) == 1
 @test flc_points[1].point_type === Codim1LimitCycle.PointTypes.saddle_node
 
+@info "Preparing FoldLimitCycleProblem..."
 prob_flc = BifurcationProblem(
     flc_points[1],
     solver_lc,
@@ -47,6 +50,9 @@ solver_flc = init(
     max_branches = 0,
     nominal_angle_rad = 0.01,
 )
-solve!(solver_flc)
+@info "Solving FoldLimitCycleProblem..."
+@time solve!(solver_flc)
+
+@info "Done!"
 
 end  # module
