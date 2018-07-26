@@ -34,10 +34,19 @@ flc_points = resolved_points(solver_lc)
 @test_broken length(flc_points) == 1
 @test flc_points[1].point_type === Codim1LimitCycle.PointTypes.saddle_node
 
-#=
-prob_flc = FoldLimitCycleProblem(
-    flc_points[1], solver_lc;
+prob_flc = BifurcationProblem(
+    flc_points[1],
+    solver_lc,
+    (@lens _.β₂),
+    (-2.0, 2.0);
 )
-=#
+solver_flc = init(
+    prob_flc;
+    start_from_nearest_root = true,
+    bidirectional_first_sweep = false,
+    max_branches = 0,
+    nominal_angle_rad = 0.01,
+)
+solve!(solver_flc)
 
 end  # module

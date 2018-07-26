@@ -6,6 +6,7 @@ using ..Codim1
 using ..Codim1: resolve_point
 using ..Codim2
 using ..Codim2: Codim2Solver, DiffEqCodim2Problem
+using ..Codim1LimitCycle: Codim1LCSolver
 
 # See also:
 # * [[../codim2/problem.jl::function BifurcationProblem]]
@@ -61,22 +62,20 @@ function FoldLimitCycleProblem(point::AbstractSpecialPoint,
     )
 end
 
-# I need to implement fold bifurcation detection first.
-#=
 function BifurcationProblem(point::AbstractSpecialPoint,
                             solver::Codim1LCSolver,
                             param_axis2::Lens,
                             t2_domain::Tuple;
-                            )
+                            kwargs...)
 
     cd1_prob = solver.prob :: LimitCycleProblem
     de_prob = cd1_prob.de_prob :: AbstractODEProblem
 
-    xs0 = reshape(point.u[end:end-2], size(prob.xs0))
+    xs0 = reshape(point.u[1:end-2], size(cd1_prob.xs0))
 
     # Initialize perturbation direction
-    vs0 = similar(xs0)
-    error("TODO: implement initial perturbation direction vs0")
+    vs0 = xs0 .- mean(xs0, 2)
+    normalize!(view(vs0, :))
 
     l0 = point.u[end - 1]
     t0 = SVector(point.u[end], get(param_axis2, de_prob.p))
@@ -87,16 +86,14 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     param_axis1 = cd1_prob.param_axis
 
     return FoldLimitCycleProblem(
-        cd1_prob.statekind,
-        cd1_prob.timekind,
-        cd1_prob,
-        xs0,
-        vs0,
-        l0,
-        t0,
-        t_domain,
-        param_axis1,
-        param_axis2,
-    )
+        cd1_prob;
+        xs0 = xs0,
+        l0 = l0,
+        vs0 = vs0,
+        dl0 = 0.0,  # ???
+        t0 = t0,
+        param_axis1 = param_axis1,
+        param_axis2 = param_axis2,
+        t_domain = t_domain,
+        kwargs...)
 end
-=#
