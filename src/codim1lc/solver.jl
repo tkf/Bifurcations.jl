@@ -14,10 +14,13 @@ using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
     eigvals_prototype, allocate_sweep!, check_sweep_length, record!
 import ..BifurcationsBase: analyze!, re_analyze!
 
+import ..Codim1: testfn
+
 module PointTypes
 @enum(
     PointType,
     none,
+    saddle_node,
 )
 end  # module
 using .PointTypes: PointType
@@ -45,6 +48,7 @@ mutable struct Codim1LCCache{P, C <: ContinuationCache{P},
                              JType, eType,
                              } <: BifurcationCache{P}
     super::C
+    prev_det::Float64
     J::JType
     eigvals::eType
     point_type::PointType
@@ -56,7 +60,10 @@ function Codim1LCCache(super::C,
                        point_type = PointTypes.none,
                        ) where {P, C <: ContinuationCache{P},
                                 JType, eType}
-    return Codim1LCCache{P, C, JType, eType}(super, J, eigvals, point_type)
+    return Codim1LCCache{P, C, JType, eType}(
+        super,
+        NaN, J, eigvals,
+        point_type)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
 
@@ -82,6 +89,9 @@ const Codim1LCSolver{
         } =
     BifurcationSolver{R, P, C, S}
 
+# TODO: trait
+BifurcationsBase.contkind(::Codim1LCProblem) = LimitCycleCont()
+
 function re_analyze!(solver::Codim1LCSolver, u::AbstractVector)
     residual_jacobian!(as(solver.cache, ContinuationCache), u)
     analyze!(solver.cache, solver.opts)
@@ -94,6 +104,14 @@ function re_analyze!(solver::Codim1LCSolver, u::AbstractVector)
 end
 
 function analyze!(cache::Codim1LCCache, opts)
+    cache.point_type = PointTypes.none
+
+    curr_det = det(@view as(cache, ContinuationCache).J[:, 1:end-1])
+    if curr_det * cache.prev_det < 0
+        cache.point_type = PointTypes.saddle_node
+    end
+    cache.prev_det = curr_det
+
     #=
     cache.J = J = ds_jacobian(cache)
     eigvals = ds_eigvals(timekind(cache), J)
@@ -102,6 +120,10 @@ function analyze!(cache::Codim1LCCache, opts)
     =#
     set_reference!(cache)
 end
+
+testfn(::Val{PointTypes.saddle_node}, ::Continuous, ::LimitCycleCont,
+       prob_cache, u, J, L, Q) =
+    det(@view J[:, 1:end-1])
 
 function set_reference!(wrapper)
     cache = as(wrapper, ContinuationCache)

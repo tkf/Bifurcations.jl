@@ -7,6 +7,9 @@ struct FixedPointCont <: ContinuationKind end
 struct SaddleNodeCont <: ContinuationKind end
 struct HopfCont <: ContinuationKind end
 
+# Codim1LimitCycle
+struct LimitCycleCont <: ContinuationKind end
+
 
 #=
 contkind(::T) where T = ContinuationKind(T)

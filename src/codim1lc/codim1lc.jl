@@ -13,6 +13,9 @@ import ..BifurcationsBase: TimeKind
 using ..BifurcationsBase: statekind, MutableState, ImmutableState
 import ..BifurcationsBase: StateKind
 
+# ContinuationKind trait:
+using ..BifurcationsBase: contkind, LimitCycleCont
+
 import ..BifurcationsBase: BifurcationProblem
 
 using Setfield: Lens

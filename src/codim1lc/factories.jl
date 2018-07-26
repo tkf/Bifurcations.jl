@@ -25,6 +25,8 @@ function LimitCycleProblem(point::AbstractSpecialPoint,
         solver.opts;
         de_prob = de_prob,
         param_axis = de_wrapper.param_axis,
+        t_domain = cd1_prob.t_domain,
+        phase_space = cd1_prob.phase_space,
         kwargs...)
 end
 
