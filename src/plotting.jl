@@ -436,7 +436,7 @@ function plot!(plt,
                                 BifurcationSolver},
                args...;
                resolve_points = plottable isa Codim1Solver,
-               include_points = true,
+               include_points = !(plottable isa Codim1LCSolver),  # TODO: don't
                vars = length(args) > 0 ? nothing : default_vars(plottable),
                bif_style = STYLE,
                kwargs...)
