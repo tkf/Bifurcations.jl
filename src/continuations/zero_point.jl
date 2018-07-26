@@ -60,7 +60,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         # corrector
         for _ in 1:opts.max_corrector_steps
             w, _, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
-            if isalmostzero(H, rtol, atol)
+            if isalmostzero(H, atol)
                 cache.corrector_success = true
                 @goto corrector_success
             end

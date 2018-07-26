@@ -125,7 +125,7 @@ function solve!(wrapper::AbstractContinuationSolver)
     opts = solver.opts
     cache = solver.cache
     H = residual!(cache.H, cache.u, cache.prob_cache)
-    if ! isalmostzero(H, opts.rtol, opts.atol)
+    if ! isalmostzero(H, opts.atol)
         if opts.start_from_nearest_root
             cache.u = nearest_root!(cache, opts)
         else

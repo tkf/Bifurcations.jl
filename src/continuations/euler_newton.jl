@@ -190,7 +190,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
         h = h / f
         if h < opts.h_min
             break
-        elseif isalmostzero(H, rtol, atol)
+        elseif isalmostzero(H, atol)
             @goto corrector_skipped
         elseif f0 <= 2
             cache.adaptation_success = true
@@ -209,7 +209,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
     @label adaptation_success
     # corrector (again)
     for _ in 3:opts.max_corrector_steps
-        if isalmostzero(H, rtol, atol)
+        if isalmostzero(H, atol)
             cache.corrector_success = true
             @goto corrector_success
         end
@@ -251,7 +251,7 @@ function nearest_root!(cache::ContinuationCache,
     cache.corrector_success = false
     for _ in 1:opts.max_corrector_steps
         v, _, H = corrector_step!(H, J, Q, v, prob_cache)
-        if isalmostzero(H, rtol, atol)
+        if isalmostzero(H, atol)
             @goto corrector_success
         end
     end

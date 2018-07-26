@@ -68,10 +68,8 @@ end
 end
 =#
 
-function isalmostzero(x, rtol, atol)
-    n = norm(x)
-    return n <= atol + rtol * n
-end
+isalmostzero(xs::AbstractArray, atol) = all(x -> isalmostzero(x, atol), xs)
+isalmostzero(x, atol) = abs(x) < atol
 
 zero_if_nan(x) = isnan(x) ? zero(x) : x
 

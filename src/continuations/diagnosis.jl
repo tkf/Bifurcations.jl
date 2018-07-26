@@ -29,7 +29,7 @@ function find_errors(sweep::ContinuationSweep,
     errors = []
     for (i, u) in enumerate(sweep.u)
         H = residual!(H, u, cache)
-        if ! isalmostzero(H, opts.rtol, opts.atol)
+        if ! isalmostzero(H, opts.atol)
             push!(errors, NotAlmostZeroException(
                 "H(sweeps[$sweep_index].u[$i]) not almost zero",
                 H,
