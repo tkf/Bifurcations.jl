@@ -20,6 +20,7 @@ prob_lc = LimitCycleProblem(
 solver1 = init(
     prob_lc;
     start_from_nearest_root = true,
+    verbose = true,
 )
 @info "Solving LimitCycleProblem..."
 @time solve!(solver1)
