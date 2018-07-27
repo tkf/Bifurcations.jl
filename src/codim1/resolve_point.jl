@@ -3,26 +3,44 @@ using ..Continuations: find_zero!
 using ..BifurcationsBase: AbstractSpecialPoint, special_points,
     contkind, FixedPointCont, ContinuationKind
 
-function resolved_points(solver::BifurcationSolver, args...)
-    points = []
-    for interval in special_points(solver, args...)
-        try
-            push!(points, resolve_point(interval, solver))
+function default_resolve_exception_handler(err, interval, warn_exceptions)
+    if any(isa.(Ref(err), warn_exceptions))
+        warn(err)
+        warn("""
+            Failed to find bifurcation point within:
+            $(interval)
+            """)
+        return true
+    end
+    return false
+end
+
+default_resolve_exception_handler(warn_exceptions::Tuple) =
+    (args...) -> default_resolve_exception_handler(args..., warn_exceptions)
+
+function resolving_points(
+        solver::BifurcationSolver, args...;
+        warn_exceptions = (LinAlg.SingularException,),
+        exception_handler = default_resolve_exception_handler(warn_exceptions),
+        )
+    local point
+    return (
+        point for interval in special_points(solver, args...)
+        if try
+            point = resolve_point(interval, solver)
+            true
         catch err
             # [[../continuations/branching.jl::SingularException]]
-            if err isa LinAlg.SingularException
-                warn(err)
-                warn("""
-                    Failed to find bifurcation point within:
-                    $(interval)
-                    """)
-                continue
+            if ! exception_handler(err, interval)
+                rethrow()
             end
-            rethrow()
+            false
         end
-    end
-    return points
+    )
 end
+
+resolved_points(solver::BifurcationSolver, args...; kwargs...) =
+    collect(resolving_points(solver, args...; kwargs...))
 
 function resolve_point(point::AbstractSpecialPoint, solver::BifurcationSolver)
     super = as(solver, ContinuationSolver)
