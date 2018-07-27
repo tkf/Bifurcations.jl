@@ -77,7 +77,7 @@ function f(y::TY, rp::Reparametrizer, t) where {TY <: SVector}
 
     # (g'(y))⁻¹ = (g⁻¹(x))' = (tanh(M⁻¹ (x - shift)))' = tanh' M⁻¹
     dy = (1 .- y .* y) .* (rp.invM * dx)
-    dy = SVector(promote(dy...)...)  # TODO: don't
+    dy = SVector(dy...)  # TODO: don't
     @assert ! badeltype(dy)
     return dy
     # return dy :: TY
