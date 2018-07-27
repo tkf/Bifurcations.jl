@@ -27,6 +27,26 @@ u1 = $(e.u1)
 f = $(e.f)
 """)
 
+@with_kw struct ZeroNotFoundError <: Exception
+    msg = "Zero not found"
+    u::AbstractVector
+    f::Real
+    h::Real
+end
+
+function Base.showerror(io::IO, e::ZeroNotFoundError)
+    println(io, e.msg)
+    println(io, "h = ", e.h)
+    println(io, "f = ", e.f)
+    println(io, "u =")
+    show(IOContext(io,
+                   :displaysize => displaysize(io),
+                   :limit => true),
+         MIME("text/plain"),
+         e.u')
+    println(io)
+end
+
 function find_zero!(cache, opts, f, u0, u1, direction)
     prob_cache = cache.prob_cache
     H = cache.H
@@ -66,7 +86,7 @@ function find_zero!(cache, opts, f, u0, u1, direction)
             end
             v = w
         end
-        error("corrector failed")
+        throw(ZeroNotFoundError(msg="Corrector failed", u=v, f=fu, h=h))
 
         @label corrector_success
         tJv = tangent(L, Q)
@@ -87,5 +107,5 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         end
         tJ = tJv
     end
-    error("zero not found")
+    throw(ZeroNotFoundError(u=u, f=fu, h=h))
 end
