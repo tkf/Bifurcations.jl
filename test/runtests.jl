@@ -22,9 +22,11 @@ TEST_GROUPS = Dict{String, Vector{String}}(
         "test_hopf_to_lc.jl",
     ],
     "1" => [
-        "test_fold_lc.jl",
         "test_reparametrization.jl",
         "test_reparametrized_bautin.jl",
+    ],
+    "2" => [
+        "test_fold_lc.jl",
     ],
 )
 TEST_GROUPS["all"] = vcat(last.(sort(collect(TEST_GROUPS), by=first))...)
