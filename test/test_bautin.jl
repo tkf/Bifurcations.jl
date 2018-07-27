@@ -40,7 +40,8 @@ plt = plot(hopf_solver)
 @test_nothrow nullshow(plt)
 
 flc_prob = FoldLimitCycleProblem(
-    codim2_points[1],
+    # codim2_points[1],  # SpecialPointInterval is required ATM
+    special_points(hopf_solver, Codim2.PointTypes.bautin)[1],
     hopf_solver;
     num_mesh = 20,
     degree = 3,

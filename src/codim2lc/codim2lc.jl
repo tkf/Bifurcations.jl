@@ -1,6 +1,8 @@
 module Codim2LimitCycle  # TODO: merge it to Codim2?  Should I?  Maybe
                          # just rename Codim2 to Codim2FixedPoint?
 
+using Compat: @info, @warn
+
 using ..Continuations: AbstractContinuationProblem, AbstractProblemCache
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
