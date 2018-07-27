@@ -40,6 +40,11 @@ solve(prob::AbstractContinuationProblem; kwargs...) =
 function step!(solver::ContinuationSolver)
     predictor_corrector_step!(solver.cache, solver.opts)
 
+    if solver.opts.verbose
+        print(stdout, '.')
+        flush(stdout)
+    end
+
     # Errors are now thrown in predictor_corrector_step!.  I need to
     # reconsider the error handling...
     if ! solver.cache.adaptation_success
@@ -106,6 +111,9 @@ function sweep!(solver::AbstractContinuationSolver; kwargs...)
     setup = SweepSetup(solver; kwargs...)
     new_sweep!(solver, setup)
     step!(solver, setup.max_steps)
+    if as(solver, ContinuationSolver).opts.verbose
+        println(stdout)
+    end
 end
 
 @with_kw struct NonRootException <: Exception

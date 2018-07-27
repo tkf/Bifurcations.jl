@@ -49,6 +49,7 @@ solver_flc = init(
     bidirectional_first_sweep = false,
     max_branches = 0,
     nominal_angle_rad = 0.01,
+    verbose = true,
 )
 @info "Solving FoldLimitCycleProblem..."
 @time solve!(solver_flc)

@@ -80,6 +80,7 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     nominal_angle_rad::Float64 = 2π * (10 / 360)
     start_from_nearest_root::Bool = false
     bidirectional_first_sweep::Bool = true
+    verbose::Bool = false
 end
 
 
