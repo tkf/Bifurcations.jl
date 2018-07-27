@@ -309,7 +309,7 @@ function residual_lc!(H, u, q, cache::LimitCycleCache)
     ws = make_workspace(cache, u)
     weight = cache.gauss_quadrature_weight
 
-    phase_condition = zero(eltype(u))
+    phase_condition = zero(eltype(H))
     for j in 1:num_mesh(cache)
         x, dx = collocation!(ws, u, j)
         dv = reference_diff!(cache, j)
