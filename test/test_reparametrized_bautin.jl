@@ -112,6 +112,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
         flc_prob;
         start_from_nearest_root = true,
         max_branches = 0,  # TODO: stop manually doing this
+        verbose = true,
     )
     @time solve!(flc_solver)
 
