@@ -7,6 +7,7 @@ using Setfield: compose
 using StaticArrays: SVector, SMatrix
 
 using Bifurcations: Codim1, Codim2, resolved_points, reparametrize
+using Bifurcations.Codim2: first_lyapunov_coefficient
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Continuations: get_prob_cache, get_u0,
     residual!, residual_jacobian
@@ -50,6 +51,16 @@ using Bifurcations.Examples.Reparametrization: orig_p
     @test all(@. abs(hopf_β₁) < 1e-6)
     @test maximum(hopf_β₂) > 2
     @test minimum(hopf_β₂) < -2
+
+    l1s = [
+        first_lyapunov_coefficient(hopf_solver.cache.super.prob_cache, u)
+        for sweep in hopf_solver.super.sol.sweeps for u in sweep.u
+    ]
+    if !all(@. (l1s > 0) == (hopf_β₂ > 0))
+        println("[hopf_β₂ l1s]' =")
+        display([hopf_β₂ l1s]')
+    end
+    @test all(@. (l1s > 0) == (hopf_β₂ > 0))
 
     @info "Resolving Bautin point..."
     codim2_points = resolved_points(hopf_solver)

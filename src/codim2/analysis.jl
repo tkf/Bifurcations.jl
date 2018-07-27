@@ -1,5 +1,6 @@
 using ..ArrayUtils: _eigvals, _eig, canonicalize
 using ..FDiffUtils: vderiv2, deriv2, deriv3
+using ..Continuations: residual_jacobian
 using ..Codim1: ds_eigvals
 import ..Codim1: testfn
 
@@ -86,8 +87,10 @@ function sn_quadratic_coefficient(::Continuous, wrapper)
     return second_derivative / 2
 end
 
-function first_lyapunov_coefficient(wrapper)
-    cache = as(wrapper, Cachish)
+first_lyapunov_coefficient(wrapper) =
+    first_lyapunov_coefficient(as(wrapper, Cachish))
+
+function first_lyapunov_coefficient(cache::Cachish)
     x0 = ds_state(cache)
     A = ds_jacobian(cache)
 
@@ -107,7 +110,7 @@ function first_lyapunov_coefficient(wrapper)
     q = cast_container(typeof(x0), q)
     p = cast_container(typeof(x0), p)
     q = canonicalize(q)     # s.t. q ⋅ q ≈ 1 and real(q) ⋅ imag(q) ≈ 0
-    p /= p ⋅ q              # s.t. p ⋅ q ≈ 1
+    p = p ./ conj(p ⋅ q)        # s.t. p ⋅ q ≈ 1
     qR = real(q)
     qI = imag(q)
     pR = real(p)
@@ -147,6 +150,13 @@ function first_lyapunov_coefficient(wrapper)
     return (Γ₀ - 2Σ₀ + Δ₀) / 2ω₀
 end
 
+first_lyapunov_coefficient(prob_cache, u, J) =
+    first_lyapunov_coefficient(FakeCache(prob_cache, u, J))
+
+first_lyapunov_coefficient(prob_cache, u) =
+    first_lyapunov_coefficient(prob_cache, u,
+                               residual_jacobian(u, prob_cache)[2])
+
 function testfn(pvtype::Val{PointTypes.cusp},
                 tkind,
                 ::SaddleNodeCont,
@@ -158,7 +168,7 @@ function testfn(pvtype::Val{PointTypes.bautin},
                 ::Continuous,
                 ::HopfCont,
                 prob_cache, u, J, L, Q)
-    return first_lyapunov_coefficient(FakeCache(prob_cache, u, J))
+    return first_lyapunov_coefficient(prob_cache, u, J)
 end
 
 function testfn(pvtype::Val{PointTypes.bogdanov_takens},
