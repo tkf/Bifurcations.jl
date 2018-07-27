@@ -43,6 +43,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
     )
     hopf_solver = init(
         hopf_prob;
+        verbose = true,
     )
     @time solve!(hopf_solver)
 
@@ -63,7 +64,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
     @test all(@. (l1s > 0) == (hopf_β₂ > 0))
 
     @info "Resolving Bautin point..."
-    codim2_points = resolved_points(hopf_solver)
+    @time codim2_points = resolved_points(hopf_solver)
     @test length(codim2_points) == 1
     @test codim2_points[1].point_type === Codim2.PointTypes.bautin
     β_bautin = codim2_points[1].u[end-1:end]
