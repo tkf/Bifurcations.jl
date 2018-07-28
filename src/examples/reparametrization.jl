@@ -59,8 +59,8 @@ Setfield.constructor_of(::Type{<: Reparametrizer{DIM_ALL, DIM_ORIG, DIM_EXTRA}})
     end
 end
 
-forward(x, rp::Reparametrizer) = tanh.(rp.invM * (@. x - rp.shift))
-backward(y, rp::Reparametrizer) = (rp.M * atanh.(y) .+ rp.shift)
+forward(x, rp::Reparametrizer) = sinh.(rp.invM * (@. x - rp.shift))
+backward(y, rp::Reparametrizer) = (rp.M * asinh.(y) .+ rp.shift)
 
 function f(y::TY, rp::Reparametrizer, t) where {TY <: SVector}
     # Original ODE:          dx/dt = f₀(x)
@@ -75,8 +75,8 @@ function f(y::TY, rp::Reparametrizer, t) where {TY <: SVector}
     # @assert ! badeltype(dx1)
     dx = vcat(dx0, dx1) :: SVector
 
-    # (g'(y))⁻¹ = (g⁻¹(x))' = (tanh(M⁻¹ (x - shift)))' = tanh' M⁻¹
-    dy = (1 .- y .* y) .* (rp.invM * dx)
+    # (g'(y))⁻¹ = (g⁻¹(x))' = (sinh(M⁻¹ (x - shift)))' = sinh' M⁻¹
+    dy = (@. √ (1 + y^2)) .* (rp.invM * dx)
     dy = SVector(promote(dy...)...)  # TODO: don't
     @assert ! badeltype(dy)
     return dy
