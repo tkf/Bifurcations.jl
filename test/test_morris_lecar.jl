@@ -22,8 +22,8 @@ solver1 = init(
 all_specials = special_points(solver1)
 all_hopf = special_points(solver1, Codim1.PointTypes.hopf)
 all_sn = special_points(solver1, Codim1.PointTypes.saddle_node)
-@test_broken length(all_specials) == 3
-@test_broken length(all_sn) == 2
+@test length(all_specials) == 3
+@test length(all_sn) == 2
 @test length(all_hopf) == 1
 
 hopf_point, = all_hopf

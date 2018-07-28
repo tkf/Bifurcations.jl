@@ -55,6 +55,7 @@ mutable struct Codim1Cache{P, C <: ContinuationCache{P},
                            } <: BifurcationCache{P}
     super::C
     J::JType
+    prev_det::Float64
     eigvals::eType
     point_type::PointType
 end
@@ -65,7 +66,8 @@ function Codim1Cache(super::C,
                      point_type = PointTypes.none,
                      ) where {P, C <: ContinuationCache{P},
                               JType, eType}
-    return Codim1Cache{P, C, JType, eType}(super, J, eigvals, point_type)
+    return Codim1Cache{P, C, JType, eType}(
+        super, J, NaN, eigvals, point_type)
 end
 # TODO: Remove this constructor after removing the type parameter `P`.
 
@@ -102,7 +104,8 @@ end
 function analyze!(cache::Codim1Cache, opts)
     cache.J = J = ds_jacobian(cache)
     eigvals = ds_eigvals(timekind(cache), J)
-    cache.point_type = guess_point_type(timekind(cache), cache, eigvals, opts)
+    cache.point_type = guess_point_type(timekind(cache), cache,
+                                        J, eigvals, opts)
     cache.eigvals = eigvals
 end
 
