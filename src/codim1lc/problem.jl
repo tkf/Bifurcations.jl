@@ -31,6 +31,7 @@ struct LimitCycleProblem{
     period_bound::Tuple{R, R}
     t_domain::Tuple{R, R}
     phase_space::Tuple{X, X}
+    diameter_bound::Tuple{R, R}
     time_offset::R
     de_prob::P
     param_axis::L
@@ -47,6 +48,7 @@ function LimitCycleProblem(;
         t_domain = (typemin(typeof(t0)), typemax(typeof(t0))),
         phase_space = (typemin(eltype(xs0)),
                        typemax(eltype(xs0))),
+        diameter_bound = (1e-5, Inf),
         time_offset = 0.0,
         (@required de_prob),
         (@required param_axis),
@@ -62,6 +64,7 @@ function LimitCycleProblem(;
         period_bound,
         t_domain,
         phase_space,
+        diameter_bound,
         time_offset,
         de_prob,
         param_axis,
@@ -161,7 +164,35 @@ function isindomain_lc(u, wrapper)
         x = @view u[n * (i - 1) + 1:n * i]
         all(xmin .<= x .<= xmax) || return false
     end
+
+    xs = reshape((@view u[1:length(cache.prob.xs0)]), size(cache.prob.xs0))
+    in_diameter_bound(xs, cache.prob.diameter_bound) || return false
+
     return true
+end
+
+function in_diameter_bound(xs::AbstractMatrix, diameter_bound)
+    diameter_min, diameter_max = diameter_bound
+    if diameter_max == typemax(diameter_max) && diameter_min == 0.0
+        return true
+    elseif diameter_max == typemax(diameter_max)
+        return any(d -> d >= diameter_min, iter_diameter_candidates(xs))
+    elseif diameter_min == 0.0
+        return all(d -> d <= diameter_max, iter_diameter_candidates(xs))
+    else
+        d = maximum(iter_diameter_candidates(xs))
+        return (diameter_min <= d <= diameter_max)
+    end
+end
+
+iter_diameter_candidates(xs::AbstractMatrix) =
+    (norm(@views xs[:, i] .- xs[:, j])
+     for i in 1:size(xs, 2)
+     for j in i + 1:size(xs, 2))
+
+function diameter(u::AbstractVector, prob::LimitCycleProblem)
+    xs = reshape((@view u[1:length(prob.xs0)]), size(prob.xs0))
+    return maximum(iter_diameter_candidates(xs))
 end
 
 # ------------------------------------------------------------------- workspace
