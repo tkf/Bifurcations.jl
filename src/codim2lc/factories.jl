@@ -6,7 +6,7 @@ using ..Continuations: init, solve!, residual_jacobian, ContinuationSolver,
     ZeroNotFoundError, FindZeroInputError
 using ..BifurcationsBase: AbstractSpecialPoint, SpecialPoint, special_points
 using ..Codim1
-using ..Codim1: resolving_points
+using ..Codim1: resolving_points, resolve_point
 using ..Codim2
 using ..Codim2: Codim2Solver, DiffEqCodim2Problem, first_lyapunov_coefficient
 using ..Codim1LimitCycle: Codim1LCSolver, diameter
@@ -18,6 +18,7 @@ using ..Codim1LimitCycle: Codim1LCSolver, diameter
 function FoldLimitCycleProblem(
         point::AbstractSpecialPoint,
         solver::Codim2Solver;
+        via = :linear,
         lc_solver_opts = [],
         kwargs...)
     @assert point.point_type == Codim2.PointTypes.bautin
@@ -26,9 +27,16 @@ function FoldLimitCycleProblem(
     solver.prob :: DiffEqCodim2Problem
     de_prob = solver.prob.de_prob :: AbstractODEProblem
 
-    lc_prob = bautin_to_subcritical_lc(point, solver; kwargs...)
-    # TODO: Stop solving sub-problems in the constructor:
-    u_init = nearest_fold_lc(lc_prob; lc_solver_opts...)
+    if via == :fold_lc
+        # TODO: Stop solving sub-problems in the constructor:
+        lc_prob = bautin_to_subcritical_lc(point, solver; kwargs...)
+        u_init = nearest_fold_lc(lc_prob; lc_solver_opts...)
+    elseif via == :linear
+        lc_prob = lc_at_bautin(point, solver; kwargs...)
+        u_init = get_u0(lc_prob)
+    else
+        error("Unsupported option: via = $via (∉ {:fold_lc, :linear})")
+    end
 
     prob_cache = get_prob_cache(lc_prob)
     _H, J_init = residual_jacobian(u_init, prob_cache)
@@ -231,6 +239,48 @@ function bautin_to_subcritical_lc(
         WeakRef(),  # dummy
     )
     param = set(solver.prob.param_axis2, de_prob.p, u_sc[end])
+
+    return LimitCycleProblem(
+        hopf_point,
+        solver.opts;
+        de_prob = remake(de_prob; p = param),
+        param_axis = solver.prob.param_axis1,
+        t_domain = (solver.prob.t_domain[1][1],
+                    solver.prob.t_domain[2][1]),
+        # phase_space = solver.prob.phase_space,
+        kwargs...)
+end
+
+
+function lc_at_bautin(
+        point::AbstractSpecialPoint,
+        solver::Codim2Solver;
+        kwargs...)
+
+    @assert point.point_type == Codim2.PointTypes.bautin
+    @assert timekind(point) isa Continuous
+
+    solver.prob :: DiffEqCodim2Problem
+    de_prob = solver.prob.de_prob :: AbstractODEProblem
+
+    resolved = resolve_point(point, solver)
+
+    # [[../codim2/switch.jl::Manually cast]]
+    xtype = typeof(de_prob.u0)
+
+    N = length(de_prob.u0)
+    x0 = xtype(resolved.u[1:N])
+    t0 = resolved.u[end-1]
+
+    hopf_point = SpecialPoint(
+        timekind(point),
+        Codim1.PointTypes.hopf,
+        -1,  # dummy index
+        vcat(x0, t0[1]),
+        resolved.J[1:N, 1:N+1],
+        WeakRef(),  # dummy
+    )
+    param = set(solver.prob.param_axis2, de_prob.p, resolved.u[end])
 
     return LimitCycleProblem(
         hopf_point,
