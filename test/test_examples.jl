@@ -20,6 +20,7 @@ struct Example{P}
     prob::P
 end
 
+make_codim2(::Any, ::Any, ::Any) = []
 make_codim2(::Real, point, solver1) = []
 make_codim2(::Tuple, point, solver1) = []  # PredatorPrey
 make_codim2(::DuffingVanDerPolParam, point, solver1) = []
