@@ -128,7 +128,7 @@ function Base.showerror(io::IO, e::NonRootException)
     println(io, "u = ", e.u)
 end
 
-function solve!(wrapper::AbstractContinuationSolver)
+function pre_solve!(wrapper::AbstractContinuationSolver)
     solver = as(wrapper, ContinuationSolver)
     opts = solver.opts
     cache = solver.cache
@@ -140,6 +140,14 @@ function solve!(wrapper::AbstractContinuationSolver)
             throw(NonRootException("Initial point is not a root", H, cache.u))
         end
     end
+    return wrapper
+end
+
+function solve!(wrapper::AbstractContinuationSolver)
+    pre_solve!(wrapper)
+    solver = as(wrapper, ContinuationSolver)
+    opts = solver.opts
+    cache = solver.cache
 
     u0 = copy(cache.u)
     sweep!(wrapper; u0=u0)
