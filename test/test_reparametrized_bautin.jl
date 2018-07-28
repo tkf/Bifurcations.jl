@@ -76,6 +76,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
         hopf_solver;
         num_mesh = 20,
         degree = 3,
+        lc_solver_opts = [:verbose => true],
     )
     @show flc_prob.super.num_mesh
     @show flc_prob.super.degree
