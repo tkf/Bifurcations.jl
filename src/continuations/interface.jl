@@ -95,5 +95,10 @@ function get_prob_cache end
 """
 function get_u0 end
 
+"""
+    after_correction!(prob_cache, u)
+"""
+function after_correction!(::AbstractProblemCache, ::Any)
+end
 
 abstract type AbstractContinuationCache{PC <: AbstractProblemCache} end

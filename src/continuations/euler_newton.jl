@@ -230,6 +230,8 @@ function predictor_corrector_step!(cache::ContinuationCache,
     cache.J = J
     cache.h = h
 
+    after_correction!(cache.prob_cache, v)
+
     tJv = tangent(L, Q)
     if tJ ⋅ tJv < 0
         cache.direction *= -1
