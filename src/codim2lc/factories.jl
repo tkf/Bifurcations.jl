@@ -26,71 +26,15 @@ function FoldLimitCycleProblem(
     solver.prob :: DiffEqCodim2Problem
     de_prob = solver.prob.de_prob :: AbstractODEProblem
 
-    # TODO: Stop solving sub-problems in the constructor:
     lc_prob = bautin_to_subcritical_lc(point, solver; kwargs...)
-    lc_solver = init(
-        lc_prob;
-        start_from_nearest_root = true,
-        max_branches = 0,
-        nominal_angle_rad = 2π * (1 / 360),  # TODO: should it be the default?
-        lc_solver_opts...
-    )
-    solve!(lc_solver)
+    # TODO: Stop solving sub-problems in the constructor:
+    u_init = nearest_fold_lc(lc_prob; lc_solver_opts...)
 
-    PT = Codim1LimitCycle.PointTypes.saddle_node
-    point_candidates = special_points(lc_solver, PT)
-    if isempty(point_candidates)
-        error("Cannot find fold bifurcation of the limit cycle.")
-    end
-    sw1_points = special_points(lc_solver.sol.sweeps[1], PT)
-    sw2_points = special_points(lc_solver.sol.sweeps[2], PT)
-    sweep_index = -1
-    if length(sw2_points) == 0
-        @assert length(sw1_points) > 0
-        flc_point, = sw1_points
-        sweep_index = 1
-    elseif length(sw1_points) == 0
-        @assert length(sw2_points) > 0
-        flc_point, = sw2_points
-        sweep_index = 2
-    else
-        # Choose increasing sweep
-        cont_sweeps = as(lc_solver, ContinuationSolver).sol.sweeps
-        at_most = (n, u) -> u[1:max(length(u), n)]
-        ds1 = [diameter(u, lc_prob) for u in at_most(10, cont_sweeps[1].u)]
-        ds2 = [diameter(u, lc_prob) for u in at_most(10, cont_sweeps[2].u)]
-        mean_dd1 = mean(diff(ds1))
-        mean_dd2 = mean(diff(ds2))
-        if mean_dd1 < 0 && mean_dd2 < 0
-            @warn "Both sweeps have decreasing diameters."
-        end
-        if mean_dd1 > mean_dd2
-            flc_point, = sw1_points
-            sweep_index = 1
-        else
-            flc_point, = sw2_points
-            sweep_index = 2
-        end
-    end
-
-    # TODO?: resolve flc_point
-    u_flc = (flc_point.u0 .+ flc_point.u1) ./ 2
-    prob_cache = as(lc_solver.cache, ContinuationCache).prob_cache
-    _H, J_flc = residual_jacobian(u_flc, prob_cache)
-
-    if length(point_candidates) > 1
-        param2 = get(solver.prob.param_axis2, lc_solver.prob.de_prob.p)
-        @warn """
-        $(length(point_candidates)) fold bifurcations are found.
-        Using the first point found in sweep $sweep_index:
-            $(solver.prob.param_axis1) : $(u_flc[end])
-            $(solver.prob.param_axis2) : $(param2) (fixed)
-            diameter : $(diameter(u_flc, lc_prob))
-        """
-    end
+    prob_cache = get_prob_cache(lc_prob)
+    _H, J_init = residual_jacobian(u_init, prob_cache)
 
     n = length(lc_prob.xs0) + 1  # +1 to include period
-    vals, vecs = eig(@view J_flc[1:n, 1:n])
+    vals, vecs = eig(@view J_init[1:n, 1:n])
     _, idx0 = findmin(abs.(vals))  # closest to zero
     opts = as(solver, ContinuationSolver).opts
     if any(x -> abs(imag(x)) > opts.atol, @view vecs[:, idx0])
@@ -98,12 +42,12 @@ function FoldLimitCycleProblem(
     end
     v0 = normalize(real(@view vecs[:, idx0]))
 
-    xs0 = reshape(u_flc[1:length(lc_prob.xs0)], size(lc_prob.xs0))
-    l0 = u_flc[length(lc_prob.xs0) + 1]
+    xs0 = reshape(u_init[1:length(lc_prob.xs0)], size(lc_prob.xs0))
+    l0 = u_init[length(lc_prob.xs0) + 1]
     vs0 = reshape(v0[1:end-1], size(lc_prob.xs0))
     dl0 = v0[end]
-    t0 = SVector(u_flc[end],
-                 get(solver.prob.param_axis2, lc_solver.prob.de_prob.p))
+    t0 = SVector(u_init[end],
+                 get(solver.prob.param_axis2, lc_prob.de_prob.p))
 
     return FoldLimitCycleProblem(
         lc_prob;
@@ -152,6 +96,68 @@ function BifurcationProblem(point::AbstractSpecialPoint,
         param_axis2 = param_axis2,
         t_domain = t_domain,
         kwargs...)
+end
+
+
+function nearest_fold_lc(lc_prob; lc_solver_opts...)
+    lc_solver = init(
+        lc_prob;
+        start_from_nearest_root = true,
+        max_branches = 0,
+        nominal_angle_rad = 2π * (1 / 360),  # TODO: should it be the default?
+        lc_solver_opts...
+    )
+    solve!(lc_solver)
+
+    PT = Codim1LimitCycle.PointTypes.saddle_node
+    point_candidates = special_points(lc_solver, PT)
+    if isempty(point_candidates)
+        error("Cannot find fold bifurcation of the limit cycle.")
+    end
+    sw1_points = special_points(lc_solver.sol.sweeps[1], PT)
+    sw2_points = special_points(lc_solver.sol.sweeps[2], PT)
+    sweep_index = -1
+    if length(sw2_points) == 0
+        @assert length(sw1_points) > 0
+        flc_point, = sw1_points
+        sweep_index = 1
+    elseif length(sw1_points) == 0
+        @assert length(sw2_points) > 0
+        flc_point, = sw2_points
+        sweep_index = 2
+    else
+        # Choose increasing sweep
+        cont_sweeps = as(lc_solver, ContinuationSolver).sol.sweeps
+        at_most = (n, u) -> u[1:max(length(u), n)]
+        ds1 = [diameter(u, lc_prob) for u in at_most(10, cont_sweeps[1].u)]
+        ds2 = [diameter(u, lc_prob) for u in at_most(10, cont_sweeps[2].u)]
+        mean_dd1 = mean(diff(ds1))
+        mean_dd2 = mean(diff(ds2))
+        if mean_dd1 < 0 && mean_dd2 < 0
+            @warn "Both sweeps have decreasing diameters."
+        end
+        if mean_dd1 > mean_dd2
+            flc_point, = sw1_points
+            sweep_index = 1
+        else
+            flc_point, = sw2_points
+            sweep_index = 2
+        end
+    end
+
+    # TODO?: resolve flc_point
+    u_init = (flc_point.u0 .+ flc_point.u1) ./ 2
+
+    if length(point_candidates) > 1
+        @warn """
+        $(length(point_candidates)) fold bifurcations are found.
+        Using the first point found in sweep $sweep_index:
+            $(lc_prob.param_axis) : $(u_init[end])
+            diameter : $(diameter(u_init, lc_prob))
+        """
+    end
+
+    return u_init
 end
 
 
