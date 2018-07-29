@@ -44,10 +44,10 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     vals, vecs = eig(Codim1.ds_jacobian(resolved.J))
     # TOOD: use eigs (depending on size(J)?)
     if timekind(point) isa Discrete
-        val, idx = findmax(abs.(vals))
+        val, idx = findmax(@. abs(abs(vals) - 1))
         # @assert val ≈ 1
     else
-        val, idx = findmax(real.(vals))
+        val, idx = findmin(@. abs(real(vals)))
         # @assert val ≈ 0
     end
     v0 = cast_container(xtype, vecs[:, idx])
