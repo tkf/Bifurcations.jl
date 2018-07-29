@@ -95,19 +95,3 @@ testfn(::Val{PointTypes.saddle_node}, ::Discrete, ::FixedPointCont,
 testfn(::Val{PointTypes.period_doubling}, ::Discrete, ::FixedPointCont,
        prob_cache, u, J, L, Q) =
     det(ds_jacobian(J) + I)
-
-const Instability = Union{
-    Val{PointTypes.saddle_node},
-    Val{PointTypes.period_doubling},
-    Val{PointTypes.hopf},
-}
-
-testfn(::Instability, tkind::TimeKind, ::FixedPointCont,
-       prob_cache, u, J, L, Q) =
-    stability_index(tkind, ds_jacobian(J))
-
-stability_index(tkind::Discrete, J) =
-    abs(ds_eigvals(tkind, J)[1]) - 1
-stability_index(tkind::Continuous, J) =
-    real(ds_eigvals(tkind, J)[1]) # TODO: improve!
-# I don't need to calculate all eigenvalues here.
