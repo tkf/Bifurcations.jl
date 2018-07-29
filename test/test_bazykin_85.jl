@@ -42,10 +42,11 @@ KNOWN_POINTS = Dict(
     codim1_solver = init(prob)
     solve!(codim1_solver)
 
+    resolved = resolved_points(codim1_solver)
     if ϵ > 0.001
-        @test length(special_points(codim1_solver)) == 4
+        @test length(resolved) == 4
     else
-        @test_broken length(special_points(codim1_solver)) == 4
+        @test_broken length(resolved) == 4
     end
 
     sn_point, = sort!(
