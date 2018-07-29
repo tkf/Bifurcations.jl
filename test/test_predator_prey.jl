@@ -20,13 +20,12 @@ CODIM1_KNOWN_POINTS = Dict(
     ],
 )
 
-@testset "smoke PredatorPrey codim-2 ($(nameof(ASType)))" for
-        ASType in [NormalizingAS, BackReferencingAS]
+@testset "smoke PredatorPrey" begin
 
     codim1_solver = init(PredatorPrey.prob, nominal_angle_rad=0.01)
     solve!(codim1_solver)
 
-    @testset "known points" begin
+    @testset "known codim1 points" begin
         resolved = resolved_points(codim1_solver)
         known = CODIM1_KNOWN_POINTS[codim1_solver.prob.p.de_prob.p]
         @test length(resolved) == length(known)
@@ -37,7 +36,10 @@ CODIM1_KNOWN_POINTS = Dict(
         end
     end
 
-    for point in special_points(codim1_solver)
+    @testset "codim-2 ($(nameof(ASType))) from $(point.u0[[1, end]])" for
+            ASType in [NormalizingAS, BackReferencingAS],
+            point in special_points(codim1_solver)
+
         codim2_prob = BifurcationProblem(
             point,
             codim1_solver,
