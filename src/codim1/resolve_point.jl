@@ -23,20 +23,17 @@ function resolving_points(
         warn_exceptions = (LinAlg.SingularException,),
         exception_handler = default_resolve_exception_handler(warn_exceptions),
         )
-    local point
-    return (
-        point for interval in special_points(solver, args...)
-        if try
-            point = resolve_point(interval, solver)
-            true
+    Iterators.filter(
+        point -> point !== nothing,
+        try
+            resolve_point(interval, solver)
         catch err
             # [[../continuations/branching.jl::SingularException]]
             if ! exception_handler(err, interval)
                 rethrow()
             end
-            false
-        end
-    )
+            nothing
+        end for interval in special_points(solver, args...))
 end
 
 resolved_points(solver::BifurcationSolver, args...; kwargs...) =
