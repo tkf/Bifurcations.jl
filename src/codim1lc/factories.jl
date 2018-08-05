@@ -104,8 +104,9 @@ function LimitCycleProblem(de_prob::ODEProblem,
     sol = solve(ode, de_args...; de_opts...)
 
     xs0 = similar(ode.u0, (length(ode.u0), num_mesh * degree))
-    for (i, t) in enumerate(linspace(0, l0, num_mesh * degree))
-        xs0[:, i] = sol(t)
+    dt = l0 / (num_mesh * degree + 1)
+    for i in 1:(num_mesh * degree)
+        xs0[:, i] = sol(time_offset + (i - 1) * dt)
     end
 
     return LimitCycleProblem(;
