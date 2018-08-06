@@ -15,6 +15,7 @@ using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
 using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver
 using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
     CWStateMeasurement, limitcycles
+using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver
 
 const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
 const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
@@ -22,6 +23,8 @@ const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
 const Codim1Ctx = Union{Codim1Sweep, Codim1Solution, Codim1Solver}
 const Codim2Ctx = Union{Codim2Sweep, Codim2Solution, Codim2Solver}
 const Codim1LCCtx = Union{Codim1LCSweep, Codim1LCSolution, Codim1LCSolver}
+const Codim2LCCtx = Union{Codim2LCSweep, Codim2LCSolution, Codim2LCSolver}
+const LCCtx = Union{Codim1LCCtx, Codim2LCCtx}
 
 @with_kw struct StateSpacePlotter{TC, TM}
     ctx::TC
@@ -30,7 +33,7 @@ end
 
 StateSpacePlotter(ctx) =
     StateSpacePlotter(ctx, (:x => 1, :y => 2))
-StateSpacePlotter(ctx::Codim1LCCtx) =
+StateSpacePlotter(ctx::LCCtx) =
     StateSpacePlotter(ctx, (:x => 1, :y => 2, :color => :period))
 
 plot_state_space(args...; kwargs...) =
@@ -297,7 +300,7 @@ end
 end
 
 _get_keys(
-    ::Codim1LCCtx;
+    ::LCCtx;
     (@required x),
     (@required y),
     color = nothing,
@@ -345,7 +348,7 @@ process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
 end
 
 @recipe function plot(
-        ssp::StateSpacePlotter{<: Codim1LCCtx},
+        ssp::StateSpacePlotter{<: LCCtx},
         vars = nothing,
         bif_style = STYLE)
     @unpack ctx, mapping = ssp

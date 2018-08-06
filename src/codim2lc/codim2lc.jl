@@ -22,5 +22,6 @@ using Setfield: Lens
 include("problem.jl")
 include("solver.jl")
 include("factories.jl")
+include("data.jl")
 
 end  # module

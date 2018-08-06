@@ -28,10 +28,11 @@ Base.length(sweep::ContinuationSweep) = length(sweep.u)
 
 struct ContinuationSolution{uType <: AbstractVector}
     sweeps::Vector{ContinuationSweep{uType}}
+    prob
 end
 
-ContinuationSolution(uType::Type{<: AbstractArray}) =
-    ContinuationSolution(ContinuationSweep{uType}[])
+ContinuationSolution(uType::Type{<: AbstractArray}, prob) =
+    ContinuationSolution(ContinuationSweep{uType}[], prob)
 
 function push_point!(sweep::ContinuationSweep, cache)
     push_point!(sweep, cache.u)

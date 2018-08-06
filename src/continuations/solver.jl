@@ -27,7 +27,7 @@ end
 
 function ContinuationSolver(prob, opts)
     cache = ContinuationCache(prob, opts.h0, opts.direction)
-    sol = ContinuationSolution(typeof(cache.u))
+    sol = ContinuationSolution(typeof(cache.u), prob)
     return ContinuationSolver(prob, opts, cache, sol, 0)
 end
 

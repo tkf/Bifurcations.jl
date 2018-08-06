@@ -60,4 +60,7 @@ flc_β₂ = [u[end]   for sweep in flc_solver.super.sol.sweeps for u in sweep.u]
 @test maximum(flc_β₂) > 2
 @test minimum(flc_β₂) > -1e-6
 
+plt_lcs = plot_state_space(flc_solver)
+@test_nothrow nullshow(plt_lcs)
+
 end  # module

@@ -1,7 +1,9 @@
 dim_ds_state(sweep::Codim1LCSweep) = length(sweep.eigvals[1])  # TODO: don't
 
 
-struct LimitCycleData{M, R, V}
+abstract type AbstractLimitCycleData end
+
+struct LimitCycleData{M, R, V} <: AbstractLimitCycleData
     state::M
     period::R
     param_value::V
@@ -25,7 +27,7 @@ limitcycles(sol::Codim1LCSolution) = vcat(limitcycles.(sol.sweeps)...)
 limitcycles(solver::Codim1LCSolver) = limitcycles(solver.sol)
 
 
-BifurcationsBase.measure(lc::LimitCycleData, i::Integer) =
+BifurcationsBase.measure(lc::AbstractLimitCycleData, i::Integer) =
     @view lc.state[i, :]
 
 # TODO: make it more type-based
