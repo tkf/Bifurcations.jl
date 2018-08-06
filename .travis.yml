@@ -46,7 +46,7 @@ before_script:
 
 script:
   - if [ "$CI_GROUP" = docs ]; then
-    julia --color=yes docs/build.jl;
+    travis_wait 60 julia --color=yes docs/build.jl;
     else
     julia --color=yes --check-bounds=yes -e 'Pkg.test("Bifurcations"; coverage=true)';
     fi

@@ -3,5 +3,6 @@
 ```@contents
 Pages = [
     "examples/calcium.md",
+    "examples/van_der_pol.md",
 ]
 ```
