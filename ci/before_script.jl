@@ -10,8 +10,11 @@ required_packages(path::AbstractString) = open(required_packages, path)
 packages = vcat(
     required_packages("REQUIRE"),
     required_packages("test/REQUIRE"),
-    ["Coverage", "Documenter", "Plots", "QuickTypes"],
+    ["Coverage"],
 )
+if get(ENV, "CI_GROUP", "") == "docs"
+    append!(packages, ["Documenter", "QuickTypes"])
+end
 info("Installing: ", join(packages, ", "))
 open(Pkg.dir("REQUIRE"), "a") do io
     writedlm(io, packages)

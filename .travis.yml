@@ -16,6 +16,7 @@ env:
     - CI_GROUP=0
     - CI_GROUP=1
     - CI_GROUP=2
+    - CI_GROUP=docs
 notifications:
   email: false
 git:
@@ -38,13 +39,24 @@ before_script:
   # (some of) them in the after_success phase:
   - julia --color=yes ci/before_script.jl
 
-## uncomment the following lines to override the default test script
-#script:
-#  - julia -e 'Pkg.clone(pwd()); Pkg.build("Bifurcations"); Pkg.test("Bifurcations"; coverage=true)'
+  # Run some non-test portion of standard script here.  See also:
+  # https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/julia.rb
+  - julia --color=yes -e 'Pkg.clone(pwd())'
+  - julia --color=yes -e 'Pkg.build("Bifurcations")'
+
+script:
+  - if [ "$CI_GROUP" = docs ]; then
+    julia --color=yes docs/build.jl;
+    else
+    julia --color=yes --check-bounds=yes -e 'Pkg.test("Bifurcations"; coverage=true)';
+    fi
+
 after_success:
   # push coverage results to Coveralls
   - julia --color=yes -e 'cd(Pkg.dir("Bifurcations")); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
   - julia --color=yes -e 'cd(Pkg.dir("Bifurcations")); using Coverage; Codecov.submit(Codecov.process_folder())'
   # build documents
-  - julia --color=yes -e 'cd(Pkg.dir("Bifurcations")); include(joinpath("docs", "make.jl"))'
+  - if [ "$CI_GROUP" = docs ]; then
+    julia --color=yes docs/deploy.jl;
+    fi
