@@ -119,38 +119,6 @@ using OrdinaryDiffEq: Tsit5, remake
 
 <pre><code>WARNING: using Plots.plot in module ex-van_der_pol conflicts with an existing identifier.
 WARNING: using Plots.plot! in module ex-van_der_pol conflicts with an existing identifier.
-WARNING: Error requiring Juno from Plots:
-ArgumentError: Module Hiccup not found in current path.
-Run `Pkg.add(&quot;Hiccup&quot;)` to install the Hiccup package.
-Stacktrace:
- [1] _require(::Symbol) at ./loading.jl:435
- [2] require(::Symbol) at ./loading.jl:405
- [3] err(::Plots.##703#710, ::Module, ::String) at /home/travis/.julia/v0.6/Requires/src/require.jl:44
- [4] withpath(::Plots.##702#709, ::String) at /home/travis/.julia/v0.6/Requires/src/require.jl:34
- [5] (::Plots.##701#708)() at /home/travis/.julia/v0.6/Requires/src/require.jl:56
- [6] collect_to!(::Array{Void,1}, ::Base.Generator{Array{Function,1},Requires.##3#4}, ::Int64, ::Int64) at ./array.jl:503
- [7] _collect(::Array{Function,1}, ::Base.Generator{Array{Function,1},Requires.##3#4}, ::Base.EltypeUnknown, ::Base.HasShape) at ./array.jl:484
- [8] loadmod(::Symbol) at /home/travis/.julia/v0.6/Requires/src/require.jl:22
- [9] require(::Symbol) at ./loading.jl:408
- [10] _include_from_serialized(::String) at ./loading.jl:157
- [11] _require_from_serialized(::Int64, ::Symbol, ::String, ::Bool) at ./loading.jl:200
- [12] _require(::Symbol) at ./loading.jl:498
- [13] require(::Symbol) at ./loading.jl:405
- [14] cd(::Documenter.Expanders.##8#10{Module}, ::String) at ./file.jl:70
- [15] (::Documenter.Utilities.##19#20{Documenter.Expanders.##7#9{Documenter.Documents.Page,Module},IOStream,IOStream,Pipe,Array{UInt8,1}})() at /home/travis/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:593
- [16] withoutput(::Documenter.Expanders.##7#9{Documenter.Documents.Page,Module}) at /home/travis/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:591
- [17] runner(::Type{Documenter.Expanders.ExampleBlocks}, ::Base.Markdown.Code, ::Documenter.Documents.Page, ::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Expanders.jl:478
- [18] dispatch(::Type{Documenter.Expanders.ExpanderPipeline}, ::Base.Markdown.Code, ::Vararg{Any,N} where N) at /home/travis/.julia/v0.6/Documenter/src/Selectors.jl:168
- [19] expand(::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Expanders.jl:31
- [20] runner(::Type{Documenter.Builder.ExpandTemplates}, ::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Builder.jl:178
- [21] dispatch(::Type{Documenter.Builder.DocumentPipeline}, ::Documenter.Documents.Document, ::Vararg{Documenter.Documents.Document,N} where N) at /home/travis/.julia/v0.6/Documenter/src/Selectors.jl:168
- [22] cd(::Documenter.##2#3{Documenter.Documents.Document}, ::String) at ./file.jl:70
- [23] #makedocs#1(::Bool, ::Array{Any,1}, ::Function) at /home/travis/.julia/v0.6/Documenter/src/Documenter.jl:203
- [24] (::Documenter.#kw##makedocs)(::Array{Any,1}, ::Documenter.#makedocs) at ./&lt;missing&gt;:0
- [25] include_from_node1(::String) at ./loading.jl:576
- [26] include(::String) at ./sysimg.jl:14
- [27] process_options(::Base.JLOptions) at ./client.jl:305
- [28] _start() at ./client.jl:371
 </code></pre>
 
 <p>Create an <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html"><code>ODEProblem</code></a> and solve it:</p>
@@ -203,7 +171,7 @@ prob = LimitCycleProblem(
 @time solve!(solver)
 </code></pre>
 
-<pre><code>1241.783046 seconds (31.31 M allocations: 2.145 GiB, 0.43% gc time)
+<pre><code>1241.152092 seconds (31.27 M allocations: 2.143 GiB, 0.45% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 35
