@@ -8,7 +8,7 @@
         <meta name="author" content="tkf">
         
         <link rel="shortcut icon" href="../../img/favicon.ico">
-        <title>Calcium - Bifurcations.jl</title>
+        <title>Van der pol - Bifurcations.jl</title>
         <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../../css/font-awesome-4.5.0.css" rel="stylesheet">
         <link href="../../css/base.css" rel="stylesheet">
@@ -63,12 +63,12 @@
     <a href="../">Examples</a>
 </li>
                             
-<li class="active">
-    <a href="./">Calcium</a>
+<li >
+    <a href="../calcium/">Calcium</a>
 </li>
                             
-<li >
-    <a href="../van_der_pol/">Van der pol</a>
+<li class="active">
+    <a href="./">Van der pol</a>
 </li>
                         </ul>
                     </li>
@@ -81,17 +81,17 @@
                     </a>
                 </li>
                     <li >
-                        <a rel="next" href="../">
+                        <a rel="next" href="../calcium/">
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li >
-                        <a rel="prev" href="../van_der_pol/">
+                    <li class="disabled">
+                        <a rel="prev" >
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
                     <li>
-                        <a href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/examples/calcium.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                        <a href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/examples/van_der_pol.md"><i class="fa fa-github"></i> Edit on GitHub</a>
                     </li>
             </ul>
         </div>
@@ -101,132 +101,121 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#calcium-channel-model">Calcium channel model</a></li>
+        <li class="main active"><a href="#continuation-of-limit-cycles-of-the-van-der-pol-oscillator">Continuation of limit cycles of the van der Pol oscillator</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<p><a id='Calcium-channel-model-1'></a></p>
-<h1 id="calcium-channel-model">Calcium channel model</h1>
-<p>Calcium channel model taken from PyDSTool example.  See:</p>
-<ul>
-<li><a href="https://github.com/robclewley/pydstool/blob/master/examples/Tutorial_Calcium.py">pydstool/Tutorial_Calcium.py at master · robclewley/pydstool</a></li>
-<li><a href="http://www2.gsu.edu/~matrhc/Tutorial.html">Tutorial - PyDSTool Wiki</a></li>
-<li><a href="http://docs.juliadiffeq.org/latest/analysis/bifurcation.html">Bifurcation Analysis · DifferentialEquations.jl</a></li>
-</ul>
-<p>Use <a href="https://github.com/cstjean/QuickTypes.jl"><code>QuickTypes.@qstruct_fp</code></a> to define model parameter:</p>
-<pre><code class="julia">using QuickTypes: @qstruct_fp
+<p><a id='Continuation-of-limit-cycles-of-the-van-der-Pol-oscillator-1'></a></p>
+<h1 id="continuation-of-limit-cycles-of-the-van-der-pol-oscillator">Continuation of limit cycles of the van der Pol oscillator</h1>
+<pre><code class="julia">using Bifurcations
+using Bifurcations: plot, plot!  # a workaround
+using Bifurcations: LimitCycleProblem
+using Bifurcations.Examples: DuffingVanDerPol
 
-@qstruct_fp CalciumParam(
-    vl = -60,
-    vca = 120,
-    i = -220.0,
-    gl = 2,
-    gca = 4,
-    c = 20,
-    v1 = -1.2,
-    v2 = 18,
+using Plots
+using OrdinaryDiffEq: Tsit5, remake
+</code></pre>
+
+<pre><code>WARNING: using Plots.plot in module ex-van_der_pol conflicts with an existing identifier.
+WARNING: using Plots.plot! in module ex-van_der_pol conflicts with an existing identifier.
+WARNING: Error requiring Juno from Plots:
+ArgumentError: Module Hiccup not found in current path.
+Run `Pkg.add(&quot;Hiccup&quot;)` to install the Hiccup package.
+Stacktrace:
+ [1] _require(::Symbol) at ./loading.jl:435
+ [2] require(::Symbol) at ./loading.jl:405
+ [3] err(::Plots.##703#710, ::Module, ::String) at /home/travis/.julia/v0.6/Requires/src/require.jl:44
+ [4] withpath(::Plots.##702#709, ::String) at /home/travis/.julia/v0.6/Requires/src/require.jl:34
+ [5] (::Plots.##701#708)() at /home/travis/.julia/v0.6/Requires/src/require.jl:56
+ [6] collect_to!(::Array{Void,1}, ::Base.Generator{Array{Function,1},Requires.##3#4}, ::Int64, ::Int64) at ./array.jl:503
+ [7] _collect(::Array{Function,1}, ::Base.Generator{Array{Function,1},Requires.##3#4}, ::Base.EltypeUnknown, ::Base.HasShape) at ./array.jl:484
+ [8] loadmod(::Symbol) at /home/travis/.julia/v0.6/Requires/src/require.jl:22
+ [9] require(::Symbol) at ./loading.jl:408
+ [10] _include_from_serialized(::String) at ./loading.jl:157
+ [11] _require_from_serialized(::Int64, ::Symbol, ::String, ::Bool) at ./loading.jl:200
+ [12] _require(::Symbol) at ./loading.jl:498
+ [13] require(::Symbol) at ./loading.jl:405
+ [14] cd(::Documenter.Expanders.##8#10{Module}, ::String) at ./file.jl:70
+ [15] (::Documenter.Utilities.##19#20{Documenter.Expanders.##7#9{Documenter.Documents.Page,Module},IOStream,IOStream,Pipe,Array{UInt8,1}})() at /home/travis/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:593
+ [16] withoutput(::Documenter.Expanders.##7#9{Documenter.Documents.Page,Module}) at /home/travis/.julia/v0.6/Documenter/src/Utilities/Utilities.jl:591
+ [17] runner(::Type{Documenter.Expanders.ExampleBlocks}, ::Base.Markdown.Code, ::Documenter.Documents.Page, ::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Expanders.jl:478
+ [18] dispatch(::Type{Documenter.Expanders.ExpanderPipeline}, ::Base.Markdown.Code, ::Vararg{Any,N} where N) at /home/travis/.julia/v0.6/Documenter/src/Selectors.jl:168
+ [19] expand(::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Expanders.jl:31
+ [20] runner(::Type{Documenter.Builder.ExpandTemplates}, ::Documenter.Documents.Document) at /home/travis/.julia/v0.6/Documenter/src/Builder.jl:178
+ [21] dispatch(::Type{Documenter.Builder.DocumentPipeline}, ::Documenter.Documents.Document, ::Vararg{Documenter.Documents.Document,N} where N) at /home/travis/.julia/v0.6/Documenter/src/Selectors.jl:168
+ [22] cd(::Documenter.##2#3{Documenter.Documents.Document}, ::String) at ./file.jl:70
+ [23] #makedocs#1(::Bool, ::Array{Any,1}, ::Function) at /home/travis/.julia/v0.6/Documenter/src/Documenter.jl:203
+ [24] (::Documenter.#kw##makedocs)(::Array{Any,1}, ::Documenter.#makedocs) at ./&lt;missing&gt;:0
+ [25] include_from_node1(::String) at ./loading.jl:576
+ [26] include(::String) at ./sysimg.jl:14
+ [27] process_options(::Base.JLOptions) at ./client.jl:305
+ [28] _start() at ./client.jl:371
+</code></pre>
+
+<p>Create an <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html"><code>ODEProblem</code></a> and solve it:</p>
+<pre><code class="julia">ode = remake(
+    DuffingVanDerPol.ode,
+    p = DuffingVanDerPol.DuffingVanDerPolParam(
+        d = 0.1,
+    ),
+    u0 = [1.0, 1.8],
+    tspan = (0.0, 90),
+)
+sol = solve(ode, Tsit5())
+
+plt_ode = plot(sol, vars=1, tspan=(70, 90))
+</code></pre>
+
+<p><img alt="" src="../van_der_pol-ode.png" /></p>
+<p>Let's find a point (approximately) on the limit cycle and its period:</p>
+<pre><code class="julia">using Roots: find_zero
+t0 = find_zero((t) -&gt; sol(t)[1] - 1, (80, 83))
+t1 = find_zero((t) -&gt; sol(t)[1] - 1, (t0 + 3, t0 + 7))
+x0 = sol(t0)
+@assert all(isapprox.(x0, sol(t1); rtol=1e-2))
+x0
+</code></pre>
+
+<pre><code>2-element Array{Float64,1}:
+ 1.0
+ 1.8229
+</code></pre>
+
+<p>Then a <code>LimitCycleProblem</code> can be constructed from the <code>ode</code>.</p>
+<pre><code class="julia">num_mesh = 50
+degree = 5
+t_domain = (0.01, 4.0)  # so that it works with this `num_mesh` / `degree`
+prob = LimitCycleProblem(
+    ode, DuffingVanDerPol.param_axis, t_domain,
+    num_mesh, degree;
+    x0 = x0,
+    l0 = t1 - t0,
+    de_args = [Tsit5()],
 )
 </code></pre>
 
-<p>Define the model as in <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html">DifferentialEquations.jl</a>:</p>
-<pre><code class="julia">using Parameters: @unpack
-
-function f(u, p::CalciumParam, t)
-    @unpack vl, vca, i, gl, gca, c, v1, v2 = p
-    v = u[1]
-    w = u[2]
-    dv = (i + gl * (vl - v) - gca * 0.5 * (1 + tanh((v-v1)/v2)) * (v-vca)) / c
-    dw = v-w
-    return SVector(dv, dw)
-end
-</code></pre>
-
-<pre><code>f (generic function with 1 method)
-</code></pre>
-
-<p>Create an <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html"><code>ODEProblem</code></a>:</p>
-<pre><code class="julia">using DiffEqBase: ODEProblem
-using StaticArrays: SVector
-
-u0 = SVector(-170.0, -170.0)
-tspan = (0.0, 30.0)  # ignored by Bifurcations.jl
-p = CalciumParam()
-ode = ODEProblem(f, u0, tspan, p)
-</code></pre>
-
-<pre><code>DiffEqBase.ODEProblem with uType StaticArrays.SArray{Tuple{2},Float64,1,2} and tType Float64. In-place: false
-timespan: (0.0, 30.0)
-u0: [-170.0, -170.0]
-</code></pre>
-
-<p>Create a bifurcation problem:</p>
-<pre><code class="julia">using Bifurcations: BifurcationProblem
-using Setfield: @lens
-
-param_axis = @lens _.i
-prob = BifurcationProblem(ode, param_axis, (-300.0, 100.0))
-</code></pre>
-
-<p>Solve it:</p>
-<pre><code class="julia">using DiffEqBase: init, solve!
-
-solver = init(prob)
-solve!(solver)
-sol = solver.sol
-</code></pre>
-
-<pre><code>Codim1Solution &lt;Continuous&gt;
-# sweeps             : 2
-# points             : 106
-# simple bifurcations: 0
-# special points     : 2
-</code></pre>
-
-<p>Plot it:</p>
-<pre><code class="julia">using Plots
-using Bifurcations: plot  # a workaround
-
-plt = plot(sol)
-</code></pre>
-
-<p><img alt="" src="../calcium-1.png" /></p>
-<p>Find the left Saddle-Node bifurcation point:</p>
-<pre><code class="julia">using Bifurcations: special_points
-
-point_list = sort!(special_points(solver), by=p-&gt;p.u0[end])
-point = point_list[1]
-</code></pre>
-
-<pre><code>SpecialPointInterval &lt;Continuous saddle_node&gt;
-happened between:
-  u0 = [15.36, 15.36, -210.476]
-  u1 = [15.822, 15.822, -210.44]
-</code></pre>
-
-<p>Numerical continuation of the Saddle-Node bifurcation point:</p>
-<pre><code class="julia">sn_prob = BifurcationProblem(
-    point,
-    solver,
-    (@lens _.gca),
-    (0.0, 8.0),
+<p>As the limit cycle is only approximately specified, solver option <code>start_from_nearest_root = true</code> must be passed to start continuation:</p>
+<pre><code class="julia">solver = init(
+    prob;
+    start_from_nearest_root = true,
 )
-sn_solver = init(sn_prob)
-solve!(sn_solver)
+@time solve!(solver)
 </code></pre>
 
-<pre><code>Codim2Solver &lt;Continuous&gt;
+<pre><code>1163.842705 seconds (31.31 M allocations: 2.144 GiB, 0.49% gc time)
+BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
-# points             : 68
+# points             : 35
 # simple bifurcations: 0
-# special points     : 1
+# special points     : 0
 </code></pre>
 
-<p>Plot the phase diagram:</p>
-<pre><code class="julia">plt2 = plot(sn_solver.sol)
+<p>By default, <code>plot_state_space</code> plots limit cycles colored by its period:</p>
+<pre><code class="julia">plt_lc = plot_state_space(solver)
 </code></pre>
 
-<p><img alt="" src="../calcium-2.png" /></p></div>
+<p><img alt="" src="../van_der_pol-lc.png" /></p></div>
         </div>
 
         <footer class="col-md-12">
