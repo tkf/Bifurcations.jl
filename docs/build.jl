@@ -3,4 +3,6 @@ using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
 
-makedocs()
+makedocs(
+    strict = true,
+)
