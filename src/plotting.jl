@@ -438,7 +438,8 @@ function plot!(plt,
                                 BifurcationSolution,
                                 BifurcationSolver},
                args...;
-               resolve_points = plottable isa Codim1Solver,
+               resolve_points = plottable isa Union{Codim1Solver,
+                                                    Codim2Solver},
                include_points = !(plottable isa Codim1LCSolver),  # TODO: don't
                vars = length(args) > 0 ? nothing : default_vars(plottable),
                bif_style = STYLE,
