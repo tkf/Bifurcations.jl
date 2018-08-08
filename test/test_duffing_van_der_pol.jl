@@ -5,37 +5,38 @@ using Bifurcations: LimitCycleProblem
 using Bifurcations.Examples: DuffingVanDerPol
 using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 
-# Create a limit cycle solution.
-using OrdinaryDiffEq: Tsit5
 using DiffEqBase: remake
 param = DuffingVanDerPol.DuffingVanDerPolParam(
     d = 0.1,
 )
 ode = remake(
     DuffingVanDerPol.ode,
-    u0 = [1.0, 1.8],
     p = param,
-    tspan = (0.0, 100),
 )
-sol = solve(ode, Tsit5())
-
-using Roots: find_zero
-# I know that t1 - t0 ~ 6.2 so I can do this:
-t0 = find_zero((t) -> sol(t)[1] - 1, (80, 83))
-t1 = find_zero((t) -> sol(t)[1] - 1, (t0 + 3, t0 + 7))
-
-x0 = sol(t0)
-@assert all(isapprox.(x0, sol(t1); rtol=1e-2))
 
 num_mesh = 20
 degree = 3
+
+# Start continuation of the limit cycle at the small damping limit.
+xs0 = let
+    n = num_mesh * degree
+    dt = 2π / n
+    ts = ((1:n) - 1) * dt
+    hcat(
+        2 .* cos.(ts),
+        -2 .* sin.(ts),
+    )'
+end
+
 prob = LimitCycleProblem(
-    ode, DuffingVanDerPol.param_axis, DuffingVanDerPol.t_domain,
-    num_mesh, degree;
-    x0 = x0,
-    l0 = t1 - t0,
+    de_prob = ode;
+    param_axis = DuffingVanDerPol.param_axis,
+    num_mesh = num_mesh,
+    degree = degree,
+    xs0 = xs0,
+    l0 = 2π,
     t_domain = (0.01, 1.5), # bound it so that it works with above `num_mesh`
-    de_args = [Tsit5()],
+    t0 = get(DuffingVanDerPol.param_axis, ode.p),
 )
 
 @test size(prob.xs0) == (2, num_mesh * degree)
