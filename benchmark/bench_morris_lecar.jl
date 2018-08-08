@@ -53,4 +53,8 @@ suite["sweep!(hopf_solver)"] = @benchmarkable(
 suite["sweep!(flc_solver)"] = @benchmarkable(
     sweep!(flc_solver),
     setup = (flc_solver = pre_solve!(make_morris_lecar_flc_solver())))
-suite
+
+if !isdefined(:SUITE)
+    SUITE = BenchmarkGroup()
+end
+SUITE["morris_lecar"] = suite

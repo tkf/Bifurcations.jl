@@ -55,4 +55,8 @@ suite = BenchmarkGroup()
 suite["sweep!(lc_solver)"] = @benchmarkable(
     sweep!(lc_solver),
     setup = (lc_solver = pre_solve!(make_van_der_pol_lc_solver())))
-suite
+
+if !isdefined(:SUITE)
+    SUITE = BenchmarkGroup()
+end
+SUITE["van_der_pol"] = suite
