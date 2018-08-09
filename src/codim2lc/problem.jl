@@ -198,16 +198,20 @@ function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
     )
     @views J[n_lc .+ (1:n_lc), n_lc .+ (1:n_lc)] .= ∂₁F
 
+    inner_jac1 = (y, x) -> ForwardDiff.jacobian!(
+        reshape(view(y, :), :, 1),
+        (H_lc, d) -> residual_lc!(H_lc, (@. x + d[1] * η), q, cache.super),
+        fill!(similar(y), zero(eltype(y))),  # TODO: pre-allocate
+        SVector(zero(eltype(η))),
+    )
     ForwardDiff.jacobian!(
         view(J, n_lc .+ (1:n_lc), 1:n_lc),  # (∂ᵪ(∂ᵧF(χ + γ η, α)))(χ = ξ)
-        (y, x) -> ForwardDiff.jacobian!(
-            reshape(view(y, :), :, 1),
-            (H_lc, d) -> residual_lc!(H_lc, (@. x + d[1] * η), q, cache.super),
-            fill!(similar(y), zero(eltype(y))),  # TODO: pre-allocate
-            SVector(zero(eltype(η))),
-        ),
+        inner_jac1,
         H_ev,  # y = ∂₁ F(ξ, α) η
         ξ,     # x
+        ForwardDiff.JacobianConfig(inner_jac1, H_ev, ξ,
+                                   ForwardDiff.Chunk{length(ξ)}()),
+        # ^- using vector-mode
     )
 
     # Compute ∂₂F and ∂₂((∂₁F)η) in one go:
