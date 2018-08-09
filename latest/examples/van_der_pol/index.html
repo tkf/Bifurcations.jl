@@ -117,8 +117,8 @@ using Plots
 using OrdinaryDiffEq: Tsit5, remake
 </code></pre>
 
-<pre><code>WARNING: using Plots.plot in module ex-van_der_pol conflicts with an existing identifier.
-WARNING: using Plots.plot! in module ex-van_der_pol conflicts with an existing identifier.
+<pre><code>WARNING: using Plots.plot! in module ex-van_der_pol conflicts with an existing identifier.
+WARNING: using Plots.plot in module ex-van_der_pol conflicts with an existing identifier.
 </code></pre>
 
 <p>Create an <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html"><code>ODEProblem</code></a> and solve it:</p>
@@ -171,7 +171,7 @@ prob = LimitCycleProblem(
 @time solve!(solver)
 </code></pre>
 
-<pre><code>1241.152092 seconds (31.27 M allocations: 2.143 GiB, 0.45% gc time)
+<pre><code>1099.077203 seconds (7.92 M allocations: 1.176 GiB, 0.40% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 35
