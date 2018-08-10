@@ -4,7 +4,7 @@ using Compat
 
 using StaticArrays: SVector, SMatrix
 
-using Bifurcations.ArrayUtils: container_array_of, lq!, canonicalize, nan_
+using Bifurcations.ArrayUtils: container_array_of, _lq!, canonicalize, nan_
 using Bifurcations.Codim2: cast_container, as_reals, _ds_eigvec
 
 @testset "container_array_of" begin
@@ -29,7 +29,7 @@ end
     @test cast_container(SVector{2, Float64}, v) === SVector{2, ComplexF64}(v)
 end
 
-@testset "lq!" begin
+@testset "_lq!" begin
     rng = MersenneTwister(0)
     for _ in 1:10, array_type in [Array, SMatrix{3, 3}]
         A = array_type(randn(rng, (3, 3)))
@@ -37,7 +37,7 @@ end
         L0, Q0 = lq(Array(A))
 
         Q1 = copy(Q0)
-        L1, Q1 = lq!(Q1, copy(A))
+        L1, Q1 = _lq!(Q1, copy(A))
 
         @test L0 ≈ L1
         @test Q0 ≈ Q1

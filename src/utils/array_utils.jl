@@ -93,13 +93,13 @@ function qr!(_, A::SMatrix)
     return (Q, UpperTriangular(R))
 end
 
-function lq!(Q, A)
+function _lq!(Q, A)
     F = lqfact!(A)
     A_mul_B!(F[:Q], eye!(Q))  # L = Matrix(F[:L])[...]; but lesser allocation
     return (LowerTriangular(F[:L]), Q)
 end
 
-function lq!(_, A::SMatrix)
+function _lq!(_, A::SMatrix)
     Q, R = qr(A')
     return (LowerTriangular(R'), Q')
 end

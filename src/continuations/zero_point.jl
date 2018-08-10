@@ -57,12 +57,12 @@ function find_zero!(cache, opts, f, u0, u1, direction)
 
     H, J = residual_jacobian!(H, J, u1, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = lq!(Q, A)
+    L, Q = _lq!(Q, A)
     f1 = f(u1, J, L, Q)
 
     H, J = residual_jacobian!(H, J, u0, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = lq!(Q, A)
+    L, Q = _lq!(Q, A)
     tJ = tangent(L, Q)
     f0 = f(u0, J, L, Q)
 

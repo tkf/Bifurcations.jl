@@ -3,7 +3,7 @@ using Compat
 using StaticArrays: StaticArray, SMatrix, SVector, SArray
 import DiffEqBase: solve, solve!, init, step!
 
-using ..ArrayUtils: _similar, _zeros, isalmostzero, zero_if_nan, lq!,
+using ..ArrayUtils: _similar, _zeros, isalmostzero, zero_if_nan, _lq!,
     _normalize!
 
 include("interface.jl")

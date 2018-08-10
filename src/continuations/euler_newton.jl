@@ -102,7 +102,7 @@ function current_tangent(cache::ContinuationCache,
 
     H, J = residual_jacobian!(H, J, u, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = lq!(Q, A)
+    L, Q = _lq!(Q, A)
     return tangent(L, Q)
 end
 
@@ -118,7 +118,7 @@ function corrector_step!(H::HType,
                          }
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = lq!(Q, A)
+    L, Q = _lq!(Q, A)
     y = (@view L[1:end-1, 1:end-1]) \ H
     dv = (@view Q[1:end-1, :])' * y
     w = v - dv
