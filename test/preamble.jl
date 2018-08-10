@@ -1,6 +1,4 @@
 using Test
-using Compat
-using Compat: @info
 using Setfield: @lens
 
 using Bifurcations

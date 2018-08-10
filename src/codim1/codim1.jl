@@ -1,6 +1,4 @@
 module Codim1
-using Compat
-using Compat: @warn, @info
 include("solver.jl")
 include("analysis.jl")
 include("tools.jl")
