@@ -6,7 +6,6 @@ using StaticArrays: SVector, SMatrix, Size
 using Jacobi: lagrange, zgj, wgj
 using ..PolyUtils: dlagrange
 
-using ..CompatUtils: @required
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     isindomain
 using ..BifurcationsBase: MutableState, TimeKind
@@ -42,19 +41,19 @@ struct LimitCycleProblem{
 end
 
 function LimitCycleProblem(;
-        (@required xs0),
-        (@required l0),
-        (@required t0),
+        xs0,
+        l0,
+        t0,
         period_bound = (0.0, Inf),
         t_domain = (typemin(typeof(t0)), typemax(typeof(t0))),
         phase_space = (typemin(eltype(xs0)),
                        typemax(eltype(xs0))),
         diameter_bound = (1e-5, Inf),
         time_offset = 0.0,
-        (@required de_prob),
-        (@required param_axis),
-        (@required num_mesh),
-        (@required degree),
+        de_prob,
+        param_axis,
+        num_mesh,
+        degree,
         )
     return LimitCycleProblem(
         MutableState(),
