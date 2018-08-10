@@ -38,9 +38,12 @@ function f(du, u, p, t)
     nothing
 end
 
+const _f = f
+
 
 make_prob(
         p = CalciumParam();
+        f = _f,
         u0 = SVector(-170.0, -170.0),
         tspan = (0.0, 30.0),
         ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),
