@@ -1,6 +1,5 @@
 module TestBifurcations
 using Test
-using Compat: @warn, stdout
 
 RUNINFO = []
 

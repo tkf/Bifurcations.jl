@@ -15,7 +15,6 @@ include("bazykin_khibnik_81.jl")
 include("duffing_van_der_pol.jl")
 include("morris_lecar.jl")
 
-using Compat
 
 example_modules() = [
     Pitchfork,
