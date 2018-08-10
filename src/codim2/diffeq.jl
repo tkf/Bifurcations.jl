@@ -202,7 +202,7 @@ function _ds_eigvec(::Type{E}, u::Array{T}) where {E <: Complex, T}
     d = dims_from_augsys(length(u), E)
     # return ComplexView(u, eigvec_range(d))  # TODO: implement
     ofs, r = divrem(d.ds_dim, 2)
-    if r != 0
+    if r != 0 || length(u) ÷ 2 != 0
         # Can't be done without copy?  Maybe this memory layout was a
         # bad idea...
         uc = reinterpret(Complex{T}, u[d.ds_dim + (1:d.eigvec_dim)])
