@@ -81,18 +81,6 @@ zero_if_nan(x) = isnan(x) ? zero(x) : x
     A
 end
 
-function qr!(Q, A)
-    F = qrfact!(A)
-    A_mul_B!(F[:Q], eye!(Q))  # Q = Matrix(F[:Q])[...]; but lesser allocation
-    return (Q, UpperTriangular(F[:R]))
-end
-
-function qr!(_, A::SMatrix)
-    Q, R = qr(A)
-    # return (Q, R)
-    return (Q, UpperTriangular(R))
-end
-
 function _lq!(Q, A)
     F = lqfact!(A)
     A_mul_B!(F[:Q], eye!(Q))  # L = Matrix(F[:L])[...]; but lesser allocation
