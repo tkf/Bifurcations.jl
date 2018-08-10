@@ -5,8 +5,8 @@ using ..BifurcationsBase: AbstractSpecialPoint, special_points,
 
 function default_resolve_exception_handler(err, interval, warn_exceptions)
     if any(isa.(Ref(err), warn_exceptions))
-        warn(err)
-        warn("""
+        @warn(err)
+        @warn("""
             Failed to find bifurcation point within:
             $(interval)
             """)
