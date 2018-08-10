@@ -41,7 +41,7 @@ function LimitCycleProblem(point::SpecialPoint{Continuous},
     center = point.u[1:end - 1]
     t0 = point.u[end]
 
-    vals, vecs = eig(Codim1.ds_jacobian(point.J))
+    vals, vecs = eigen(Codim1.ds_jacobian(point.J))
     _, idx0 = findmin(abs.(real.(vals)))  # real closest to zero
     v0 = normalize(vecs[:, idx0])
     w0 = imag(vals[idx0])
