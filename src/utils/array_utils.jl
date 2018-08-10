@@ -39,7 +39,7 @@ _eig(A::SMatrix) = eig(Array(A))
 
 _similar(x::AbstractArray, dims...) = similar(x, dims)
 _similar(x::StaticArray, dims...) = _zeros(x, dims...)
-_zeros(x::AbstractArray{T}, dims...) where T = zeros(x, T, dims)
+_zeros(x::AbstractArray{T}, dims...) where T = fill!(similar(x, T, dims), zero(T))
 _zeros(x::StaticArray, dims...) = zeros(similar_type(x, Size(dims)))
 
 const AnyDual = Dual{T, V, N} where {T, V, N}
@@ -150,6 +150,7 @@ Example: `nan_(mean, v)` computes the average of `v` ignoring all `NaN` values.
 nan_(aggregator, v::AbstractArray) = aggregator(filter(!isnan, v))
 nan_(aggregator, v) = aggregator(Iterators.filter(!isnan, v))
 nan_(aggregator, f::Function, v) = nan_(x -> aggregator(f, x), v)
-nan_(aggregator, v, region) = mapslices(v -> nan_(aggregator, v), v, region)
+nan_(aggregator, v, region) = mapslices(v -> nan_(aggregator, v), v,
+                                        dims = region)
 
 end  # module

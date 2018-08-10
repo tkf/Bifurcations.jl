@@ -4,7 +4,7 @@
 using Bifurcations
 using Bifurcations: plot, plot!  # a workaround
 using Bifurcations: LimitCycleProblem
-using Bifurcations.Examples: DuffingVanDerPol
+using Bifurcations.Examples.DuffingVanDerPol
 
 using Plots
 using OrdinaryDiffEq: Tsit5, remake

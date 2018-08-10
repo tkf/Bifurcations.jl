@@ -56,7 +56,7 @@ function LimitCycleProblem(point::SpecialPoint{Continuous},
     vc = imag(v0) .* amp
 
     points = num_mesh * degree
-    rads = range(0, 2π / points, points)
+    rads = range(0, step=2π / points, length=points)
     xs0 = center .+ (vs * sin.(rads)' .+
                      vc * cos.(rads)')
 

@@ -18,6 +18,8 @@ using Bifurcations.Codim2: DiffEqCodim2Problem, get_augsys_cache, augsys,
 using Bifurcations.Continuations: get_prob_cache, get_u0, residual
 import Bifurcations.Continuations: residual_jacobian
 
+∙(a, b) = sum(a .* b)
+
 sjac(f, x) = [diff(f[i], x[j]) for i in 1:length(f), j in 1:length(x)]
 
 @with_kw struct SymDiffCodim2Problem
@@ -34,7 +36,7 @@ sjac(f, x) = [diff(f[i], x[j]) for i in 1:length(f), j in 1:length(x)]
     dHdu::Matrix
 end
 
-interleave(x, y) = [x y]'[:]
+interleave(x, y) = transpose([x y])[:]
 
 function SymDiffCodim2Problem(prob::DiffEqCodim2Problem)
     @vars param1 param2
@@ -61,7 +63,7 @@ function SymDiffCodim2Problem(prob::DiffEqCodim2Problem)
         H = vcat(
             f,
             dfdx * v,
-            v0 ⋅ v - 1,
+            v0 ∙ v - 1,
         )
         if prob.augmented_system isa NormalizingAS
             v0 = nothing
@@ -83,8 +85,8 @@ function SymDiffCodim2Problem(prob::DiffEqCodim2Problem)
         if prob.augmented_system isa NormalizingAS
             H = vcat(
                 H_head,
-                vr ⋅ vr + vi ⋅ vi - 1,
-                vr ⋅ vi,
+                vr ∙ vr + vi ∙ vi - 1,
+                vr ∙ vi,
             )
             v0 = nothing
         else
@@ -93,8 +95,8 @@ function SymDiffCodim2Problem(prob::DiffEqCodim2Problem)
             v0 = interleave(v0r, v0i)
             H = vcat(
                 H_head,
-                v0r ⋅ vr + v0i ⋅ vi - 1,
-                v0r ⋅ vi - v0i ⋅ vr,
+                v0r ∙ vr + v0i ∙ vi - 1,
+                v0r ∙ vi - v0i ∙ vr,
             )
         end
     end

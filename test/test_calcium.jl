@@ -2,7 +2,7 @@ module TestCodim2
 include("preamble_plots.jl")
 
 using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
-using Bifurcations.Examples: Calcium
+using Bifurcations.Examples.Calcium
 
 @testset "smoke Calcium codim-2 ($(nameof(ASType)))" for
         ASType in [NormalizingAS, BackReferencingAS]

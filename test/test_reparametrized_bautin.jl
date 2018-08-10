@@ -5,12 +5,12 @@ using ForwardDiff
 using Setfield: compose
 using StaticArrays: SVector, SMatrix
 
-using Bifurcations: Codim1, Codim2, resolved_points, reparametrize
+using Bifurcations: resolved_points, reparametrize
 using Bifurcations.Codim2: first_lyapunov_coefficient
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Continuations: get_prob_cache, get_u0,
     residual!, residual_jacobian
-using Bifurcations.Examples: Bautin
+using Bifurcations.Examples.Bautin
 using Bifurcations.Examples.Reparametrization: orig_p
 
 # Putting @info so that Travis won't stop testing.
