@@ -1,5 +1,4 @@
 module BifurcationsBase
-using Compat
 using ..Continuations: AbstractContinuationCache, AbstractProblemCache,
     AbstractContinuationSolver
 include("timekind.jl")

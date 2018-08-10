@@ -1,7 +1,6 @@
 module TestReparametrizedBautin
 include("preamble.jl")
 
-using Compat: @info
 using ForwardDiff
 using Setfield: compose
 using StaticArrays: SVector, SMatrix

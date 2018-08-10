@@ -1,6 +1,6 @@
 module ArrayUtils
 
-using Compat.TypeUtils: typename
+using Base: typename
 
 using ForwardDiff: Dual
 using LinearAlgebra

@@ -1,6 +1,5 @@
 module TestUtils
 using Test
-using Compat
 
 using StaticArrays: SVector, SMatrix
 

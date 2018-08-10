@@ -1,5 +1,4 @@
 module Continuations
-using Compat
 using StaticArrays: StaticArray, SMatrix, SVector, SArray
 import DiffEqBase: solve, solve!, init, step!
 
