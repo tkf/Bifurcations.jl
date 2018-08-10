@@ -2,7 +2,6 @@ using Parameters: @with_kw, @unpack
 using RecipesBase
 using Setfield: @set
 
-using .CompatUtils: @required
 using .ArrayUtils: nan_
 
 using .Continuations: as, ContinuationSweep, ContinuationSolution,
@@ -301,10 +300,10 @@ end
 
 _get_keys(
     ::LCCtx;
-    (@required x),
-    (@required y),
+    x,
+    y,
     color = nothing,
-    # (@required color),  # TODO: use it
+    # color,  # TODO: use it
 ) = (x, y, color)
 
 process_key(::Codim1LCCtx, key::Any; _...) = key
