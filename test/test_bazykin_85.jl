@@ -4,10 +4,10 @@ include("preamble_plots.jl")
 using DiffEqBase: ODEProblem
 using StaticArrays: SVector
 
-using Bifurcations: Codim1, Codim2, resolved_points
+using Bifurcations: resolved_points
 using Bifurcations.BifurcationsBase: contkind, HopfCont
 using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
-using Bifurcations.Examples: Bazykin85
+using Bifurcations.Examples.Bazykin85
 
 # Bifurcation points calculated in some version of Bifurcations.jl
 KNOWN_POINTS = Dict(

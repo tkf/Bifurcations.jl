@@ -82,7 +82,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     xs0 = reshape(point.u[1:end-2], size(cd1_prob.xs0))
 
     # Initialize perturbation direction
-    vs0 = xs0 .- mean(xs0, 2)
+    vs0 = xs0 .- mean(xs0, dims=2)
     normalize!(view(vs0, :))
 
     l0 = point.u[end - 1]

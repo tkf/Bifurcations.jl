@@ -24,7 +24,7 @@ end
 function Reparametrizer(orig_f::TF, orig_p::TP, M, shift::TS, extra::TE,
                         invM = inv(M),
                         ) where {TF, TP, TS, TE}
-    @assert M * invM ≈ eye(M)
+    @assert M * invM ≈ typeof(M)(I)
     orig_TM = typeof(M)
     M, invM = promote(M, invM)
     TM = typeof(M) :: Type{<: AbstractMatrix}
@@ -55,7 +55,7 @@ Setfield.constructor_of(::Type{<: Reparametrizer{DIM_ALL, DIM_ORIG, DIM_EXTRA}})
                             ) where {S, T, DIM_ALL, DIM_ORIG, DIM_EXTRA}
     @assert S == DIM_ALL
     idx_orig = 1:DIM_ORIG
-    idx_extra = DIM_ORIG + (1:DIM_EXTRA)
+    idx_extra = DIM_ORIG .+ (1:DIM_EXTRA)
     quote
         (SVector{$DIM_ORIG, $T}($((:(x[$i]) for i in idx_orig)...)),
          SVector{$DIM_EXTRA, $T}($((:(x[$i]) for i in idx_extra)...)))

@@ -6,6 +6,8 @@ using Test
 using Setfield: @lens
 
 using Bifurcations
+using Bifurcations.Codim1
+using Bifurcations.Codim2
 using Bifurcations: BifurcationProblem, special_points
 using Bifurcations.Codim2: cast_container
 
@@ -62,7 +64,7 @@ function uniquify_points(point_list; digits=3)
     uniquified = []
     seen = []
     for point in point_list
-        y = round.(point.u, digits)
+        y = round.(point.u, digits=digits)
         for x in seen
             if x == y
                 @goto seen

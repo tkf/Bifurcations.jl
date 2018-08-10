@@ -2,7 +2,8 @@ module TestNormalForm
 include("preamble.jl")
 
 using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
-using Bifurcations.Examples: Pitchfork, Transcritical
+using Bifurcations.Examples.Pitchfork
+using Bifurcations.Examples.Transcritical
 
 @testset "$normal" for normal in [Pitchfork, Transcritical]
     solver = init(normal.prob; h0=0.3)

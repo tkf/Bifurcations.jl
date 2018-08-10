@@ -1,9 +1,9 @@
 module TestBautin
 include("preamble_plots.jl")
 
-using Bifurcations: Codim1, Codim2, resolved_points
+using Bifurcations: resolved_points
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
-using Bifurcations.Examples: Bautin
+using Bifurcations.Examples.Bautin
 
 prob = Bautin.make_prob()
 solver1 = init(prob)

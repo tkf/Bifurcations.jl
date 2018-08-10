@@ -2,7 +2,7 @@ module TestVanDerPol
 include("preamble.jl")
 
 using Bifurcations: LimitCycleProblem
-using Bifurcations.Examples: DuffingVanDerPol
+using Bifurcations.Examples.DuffingVanDerPol
 using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 
 using DiffEqBase: remake
@@ -21,7 +21,7 @@ degree = 3
 xs0 = let
     n = num_mesh * degree
     dt = 2π / n
-    ts = ((1:n) - 1) * dt
+    ts = ((1:n) .- 1) .* dt
     hcat(
         2 .* cos.(ts),
         -2 .* sin.(ts),
