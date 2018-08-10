@@ -41,9 +41,9 @@ uuid = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 
 [[DiffEqBase]]
 deps = ["Compat", "IteratorInterfaceExtensions", "LinearAlgebra", "RecipesBase", "RecursiveArrayTools", "Requires", "Statistics", "TableTraits", "Test", "TreeViews"]
-git-tree-sha1 = "9f47874435006c3afc7ea9752c5a2f96273bd99b"
+git-tree-sha1 = "0b739197e53c40ec15c5c770e4a08821be2c46fe"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
-version = "4.21.0"
+version = "4.20.3"
 
 [[DiffResults]]
 deps = ["Compat", "StaticArrays"]
