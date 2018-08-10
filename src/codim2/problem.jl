@@ -41,7 +41,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     x0 = xtype(resolved.u[1:end - 1])
     t0 = SVector(resolved.u[end], get(param_axis2, de_prob.p))
 
-    vals, vecs = eig(Codim1.ds_jacobian(resolved.J))
+    vals, vecs = eigen(Codim1.ds_jacobian(resolved.J))
     # TOOD: use eigs (depending on size(J)?)
     if timekind(point) isa Discrete
         val, idx = findmax(@. abs(abs(vals) - 1))
