@@ -186,7 +186,7 @@ function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
     fill!(J, zero(eltype(J)))
 
     @views H[end] = η ⋅ η - 1  # H_ec = <η,η> - 1
-    @views J[end, n_lc + (1:n_lc)] .= 2 .* η
+    @views J[end, n_lc .+ (1:n_lc)] .= 2 .* η
 
     ∂₁F = view(J, 1:n_lc, 1:n_lc)  # = ∂₁F(ξ, α)
     ForwardDiff.jacobian!(

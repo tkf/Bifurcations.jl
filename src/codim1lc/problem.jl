@@ -109,7 +109,7 @@ function LimitCycleCache(prob)
     # Compute τ: equi-distant points (within a mesh)
     interval = 1 / num_mesh(prob)
     dτ = interval / m
-    τ = range(0, dτ, m + 1)
+    τ = range(0, step=dτ, length=m + 1)
     @assert τ[end] ≈ interval
 
     ζ = zgj(m, 0, 0) .* interval  # Gauss nodes
@@ -134,7 +134,7 @@ Base.@pure degree(cache::LimitCycleCache) = Size(cache.dv)[2]
 num_mesh(cache::LimitCycleCache) = cache.prob.num_mesh
 
 function set_reference!(cache::LimitCycleCache, u)
-    copy!(cache.reference, @view u[1:length(cache.reference)])
+    copyto!(cache.reference, @view u[1:length(cache.reference)])
 end
 
 # ------------------------------------------------------ continuation interface
@@ -275,7 +275,7 @@ turns(cache, j) = turns(num_mesh(cache), degree(cache), j)
 function turns(num_mesh::Integer, degree::Integer, j::Integer)
     interval = 1 / num_mesh
     dt = interval / degree
-    return range(interval * (j - 1), dt, degree)
+    return range(interval * (j - 1), step=dt, length=degree)
 end
 
 # ------------------------------------------------------------------- residual!

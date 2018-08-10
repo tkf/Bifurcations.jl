@@ -3,10 +3,11 @@ include("preamble.jl")
 
 using DiffEqBase: remake
 
-using Bifurcations: Codim1, resolved_points
+using Bifurcations: resolved_points
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
-using Bifurcations.Examples: Calcium, PredatorPrey
+using Bifurcations.Examples.Calcium
+using Bifurcations.Examples.PredatorPrey
 
 use_array(ex) =
     ex.make_prob(

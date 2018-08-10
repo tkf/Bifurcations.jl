@@ -1,10 +1,10 @@
 module TestFoldLC
 include("preamble.jl")
 
-using Bifurcations: Codim1, Codim2, resolved_points, LimitCycleProblem,
-    Codim1LimitCycle
+using Bifurcations: resolved_points, LimitCycleProblem
+using Bifurcations.Codim1LimitCycle
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
-using Bifurcations.Examples: Bautin
+using Bifurcations.Examples.Bautin
 
 prob = Bautin.make_prob(Bautin.BautinParam(β₂ = 1.0))
 solver0 = init(prob)

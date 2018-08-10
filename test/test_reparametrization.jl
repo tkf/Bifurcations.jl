@@ -4,7 +4,7 @@ include("preamble.jl")
 using StaticArrays: SVector
 
 using Bifurcations.Examples.Reparametrization: reparametrize, forward, backward
-using Bifurcations.Examples: Bautin
+using Bifurcations.Examples.Bautin
 
 ode0 = reparametrize(Bautin.ode)
 ode1 = reparametrize(Bautin.ode; seed=1, extra=SVector(-1.0))

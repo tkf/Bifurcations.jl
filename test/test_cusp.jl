@@ -1,7 +1,7 @@
 module TestCusp
 include("preamble_plots.jl")
 
-using Bifurcations: Codim1, Codim2, resolved_points
+using Bifurcations: resolved_points
 
 solver1 = init(Bifurcations.Examples.Cusp.prob)
 solve!(solver1)

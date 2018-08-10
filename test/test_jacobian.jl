@@ -7,8 +7,9 @@ using SymEngine: diff, subs, symbols
 
 using Bifurcations.Continuations: residual, residual_jacobian, get_prob_cache
 using Bifurcations.Codim2: DiffEqCodim2Problem, NormalizingAS
-using Bifurcations.Examples: PredatorPrey
+using Bifurcations.Examples.PredatorPrey
 
+∙(a, b) = sum(a .* b)
 sjac(f, x) = [diff(f[i], x[j]) for i in 1:length(f), j in 1:length(x)]
 
 nx = length(PredatorPrey.u0)
@@ -25,7 +26,7 @@ dfdx = sjac(fe, xe)
 ue = vcat(xe, ve, pe[1], pe[3])
 He = vcat(fe,
           dfdx * ve,
-          ve ⋅ ve - 1)
+          ve ∙ ve - 1)
 dHdu = sjac(He, ue)
 
 

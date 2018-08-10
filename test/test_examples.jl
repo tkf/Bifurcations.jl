@@ -3,12 +3,12 @@ include("preamble.jl")
 
 using DiffEqBase: remake
 
-using Bifurcations: Codim1, resolved_points
+using Bifurcations: resolved_points
 using Bifurcations.Codim1: resolve_point
 using Bifurcations.Codim2: BackReferencingAS, NormalizingAS
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
-using Bifurcations.Examples: Calcium
+using Bifurcations.Examples.Calcium
 using Bifurcations.Examples.Calcium: CalciumParam
 using Bifurcations.Examples.Bazykin85: Bazykin85Param
 using Bifurcations.Examples.BazykinKhibnik81: BazykinKhibnik81Param

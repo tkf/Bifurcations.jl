@@ -3,9 +3,9 @@ include("preamble.jl")
 
 using StaticArrays: SVector
 
-using Bifurcations: Codim1, Codim2, resolved_points
+using Bifurcations: resolved_points
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
-using Bifurcations.Examples: MorrisLecar
+using Bifurcations.Examples.MorrisLecar
 
 # To test start_from_nearest_root, let's start from an arbitrary
 # place:
@@ -46,7 +46,6 @@ all_bautin = special_points(hopf_solver, Codim2.PointTypes.bautin)
 bautin_point, = all_bautin
 bautin_point
 
-using Bifurcations: Codim2
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 
 @time flc_prob = FoldLimitCycleProblem(

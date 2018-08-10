@@ -2,8 +2,8 @@ module TestHopfToLC
 include("preamble_plots.jl")
 
 using Bifurcations
-using Bifurcations: Codim1, special_points, LimitCycleProblem, limitcycles
-using Bifurcations.Examples: PredatorPrey
+using Bifurcations: special_points, LimitCycleProblem, limitcycles
+using Bifurcations.Examples.PredatorPrey
 
 solver0 = init(PredatorPrey.prob)
 solve!(solver0)

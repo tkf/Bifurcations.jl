@@ -1,9 +1,10 @@
 module TestPredatorPrey
 include("preamble_plots.jl")
 
-using Bifurcations: Codim1, resolved_points
+using Bifurcations: resolved_points
+using Bifurcations.Codim1
 using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
-using Bifurcations.Examples: PredatorPrey
+using Bifurcations.Examples.PredatorPrey
 
 # Bifurcation points calculated in some version of Bifurcations.jl
 CODIM1_KNOWN_POINTS = Dict(
