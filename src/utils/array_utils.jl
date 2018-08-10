@@ -36,6 +36,7 @@ _eigvals(A::SMatrix) = eigvals(Array(A))
 
 _eig(A) = eigen(A)
 _eig(A::SMatrix) = eigen(Array(A))
+_eig(A::Adjoint) = eigen(Array(A))
 
 _similar(x::AbstractArray, dims...) = similar(x, dims)
 _similar(x::StaticArray, dims...) = _zeros(x, dims...)
