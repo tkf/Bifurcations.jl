@@ -4,7 +4,7 @@ using Documenter
 if get(ENV, "TRAVIS", "") != "true"
     # Don't do anything outside Travis CI
 elseif get(ENV, "CI_GROUP", "") != "docs"
-    info("Skipping deploy since CI_GROUP != docs.")
+    @info("Skipping deploy since CI_GROUP != docs.")
 elseif startswith(get(ENV, "TRAVIS_BRANCH", ""), "pre/")
     # For branches pre/*, deploy them into gh-pages.pre.
     branch = ENV["TRAVIS_BRANCH"]

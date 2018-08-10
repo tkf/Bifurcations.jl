@@ -75,7 +75,7 @@ end
 struct HasJac end
 struct NoJac end
 hasjac(::FixedPointBifurcationProblem{<:Any, <:Any, <:Function}) = HasJac()
-hasjac(::FixedPointBifurcationProblem{<:Any, <:Any, Void}) = NoJac()
+hasjac(::FixedPointBifurcationProblem{<:Any, <:Any, Nothing}) = NoJac()
 
 function FixedPointBifurcationProblem(tkind::TimeKind,
                                       homotopy, args...; kwargs...)

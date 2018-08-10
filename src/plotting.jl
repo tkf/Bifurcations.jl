@@ -248,7 +248,7 @@ end
 
 function warn_include_points(include_points)
     if include_points
-        warn("""include_points = true is set.
+        @warn("""include_points = true is set.
              Note that it is known to disturb line styles and colors
              such that stability information is wrongly plotted.
              As a workaround, use:

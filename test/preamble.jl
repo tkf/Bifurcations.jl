@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using Compat
 using Compat: @info
 using Setfield: @lens

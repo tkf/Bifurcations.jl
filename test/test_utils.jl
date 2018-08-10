@@ -1,5 +1,5 @@
 module TestUtils
-using Base.Test
+using Test
 using Compat
 
 using StaticArrays: SVector, SMatrix

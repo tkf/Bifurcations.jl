@@ -3,7 +3,7 @@ Pkg.init()
 function required_packages(io::IO)
     filter(
         x -> x != "julia",
-        [split(line)[1] for line in split(strip(readstring(io)), '\n')])
+        [split(line)[1] for line in split(strip(read(io, String)), '\n')])
 end
 required_packages(path::AbstractString) = open(required_packages, path)
 

@@ -1,19 +1,19 @@
-print_with_color(:blue, let
+printstyled(let
     message = " Warnings below (if any) are fine. "
-    margin = (displaysize(STDOUT)[2] - length(message)) ÷ 2
+    margin = (displaysize(stdout)[2] - length(message)) ÷ 2
     ("=" ^ margin) * message * ("=" ^ margin)
-end)
+end, color=:blue)
 println()
-flush(STDOUT)
+flush(stdout)
 using Documenter
 using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
 import Jacobi
 import OrdinaryDiffEq
-flush(STDOUT)
-flush(STDERR)
-print_with_color(:blue, "=" ^ displaysize(STDOUT)[2])
+flush(stdout)
+flush(stderr)
+printstyled("=" ^ displaysize(stdout)[2], color=:blue)
 println()
 
 using Bifurcations

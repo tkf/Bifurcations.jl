@@ -1,5 +1,5 @@
 module TestBifurcations
-using Base.Test
+using Test
 using Compat: @warn, stdout
 
 RUNINFO = []

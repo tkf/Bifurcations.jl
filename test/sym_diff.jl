@@ -1,6 +1,6 @@
 module SymDiff
 
-using Compat.Test
+using Test
 using Compat: Nothing
 using Parameters: @with_kw, @unpack
 using Setfield: set

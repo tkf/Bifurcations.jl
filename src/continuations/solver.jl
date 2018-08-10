@@ -165,7 +165,7 @@ function solve!(wrapper::AbstractContinuationSolver)
         if isempty(bifurcations)
             break
         end
-        sbint = shift!(bifurcations)
+        sbint = popfirst!(bifurcations)
         for (u0, u1, direction, h) in new_branches!(cache, opts, sbint)
             if ! (isindomain(u0, cache.prob_cache) &&
                   isindomain(u1, cache.prob_cache))
