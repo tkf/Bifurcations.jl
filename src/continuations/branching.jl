@@ -127,8 +127,8 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
         # Maybe there is a singularity (around which det(J; tJ)
         # flips) within `sbint` and the root finder hits that?
         if err isa SingularException
-            warn(err)
-            warn("""
+            @warn(err)
+            @warn("""
                 Failed to find bifurcation point within:
                 $(sbint)
                 """)
@@ -198,7 +198,7 @@ function check(result::BranchResult, opts)
             isapprox(u1, u0; atol=opts.atol, rtol=opts.rtol) ||
             isapprox(u2, u0; atol=opts.atol, rtol=opts.rtol)
         # throw(BranchError(result, opts))
-        warn(BranchError(result, opts))
+        @warn(BranchError(result, opts))
     end
 end
 
