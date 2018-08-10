@@ -1,3 +1,5 @@
+using Printf: @sprintf
+
 set_if_not(io, key, val) = haskey(io, key) ? io : IOContext(io, key => val)
 
 function print_header(io::IO, x)

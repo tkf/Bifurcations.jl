@@ -1,4 +1,6 @@
 module Codim1
+using LinearAlgebra
+using Statistics: mean
 include("solver.jl")
 include("analysis.jl")
 include("tools.jl")

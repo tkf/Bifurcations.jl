@@ -1,4 +1,8 @@
+using LinearAlgebra
+using Random
+using Statistics: mean
 using Test
+
 using Setfield: @lens
 
 using Bifurcations
