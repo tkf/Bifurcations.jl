@@ -3,7 +3,6 @@ using Parameters: @with_kw, @unpack
 using Setfield: set
 using StaticArrays: SVector
 
-using ..CompatUtils: @required
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     isindomain
 
@@ -38,12 +37,12 @@ end
 
 function FoldLimitCycleProblem(
         prob::LimitCycleProblem;
-        (@required vs0),
-        (@required dl0),
+        vs0,
+        dl0,
         xs0 = prob.xs0,
         l0 = prob.l0,
         param_axis1 = prob.param_axis,
-        (@required param_axis2),
+        param_axis2,
         t0 = SVector(get(param_axis1, prob.de_prob.p),
                      get(param_axis2, prob.de_prob.p)),
         t2_domain = (typemin(eltype(t0)), typemax(eltype(t0))),
@@ -68,10 +67,10 @@ function FoldLimitCycleProblem(
 end
 
 function FoldLimitCycleProblem(;
-        (@required vs0),
-        (@required t0),
-        (@required param_axis1),
-        (@required param_axis2),
+        vs0,
+        t0,
+        param_axis1,
+        param_axis2,
         kwargs...)
     prob = LimitCycleProblem(;
         t0 = t0[1],
