@@ -116,7 +116,7 @@ get_u0(prob::FoldLimitCycleProblem) = vcat(
 # modified_param! requires prob.t0 to be at the end
 
 Codim1LimitCycle.u_idx_param(cache::FoldLimitCycleCache) =
-    2(length(cache.prob.xs0) + 1) + (1:2)
+    2(length(cache.prob.xs0) + 1) .+ (1:2)
 
 isindomain(u, cache::FoldLimitCycleCache) =
     Codim1LimitCycle.isindomain_lc(u, cache)
@@ -147,9 +147,9 @@ function residual!(H, u, cache::FoldLimitCycleCache)
 
     n_lc = length(prob.xs0) + 1
     ξ = view(u, 1:n_lc)                  # [xs; period]
-    η = view(u, (1:n_lc) + n_lc)         # ∂ξ
+    η = view(u, (1:n_lc) .+ n_lc)        # ∂ξ
     H_lc = view(H, 1:n_lc)               # F(ξ, α)
-    H_ev = view(H, (1:n_lc) + n_lc)      # ∂₁ F(ξ, α) η
+    H_ev = view(H, (1:n_lc) .+ n_lc)     # ∂₁ F(ξ, α) η
     H_ec = @view H[end]                  # <η,η> - 1
 
     ForwardDiff.jacobian!(
@@ -179,9 +179,9 @@ function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
 
     n_lc = length(prob.xs0) + 1
     ξ = view(u, 1:n_lc)                  # [xs; period]
-    η = view(u, (1:n_lc) + n_lc)         # ∂ξ
+    η = view(u, (1:n_lc) .+ n_lc)        # ∂ξ
     H_lc = view(H, 1:n_lc)               # F(ξ, α)
-    H_ev = view(H, (1:n_lc) + n_lc)      # ∂₁ F(ξ, α) η
+    H_ev = view(H, (1:n_lc) .+ n_lc)     # ∂₁ F(ξ, α) η
 
     fill!(J, zero(eltype(J)))
 
@@ -196,10 +196,10 @@ function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
         ξ,
         # TODO: setup cache
     )
-    @views J[n_lc + (1:n_lc), n_lc + (1:n_lc)] .= ∂₁F
+    @views J[n_lc .+ (1:n_lc), n_lc .+ (1:n_lc)] .= ∂₁F
 
     ForwardDiff.jacobian!(
-        view(J, n_lc + (1:n_lc), 1:n_lc),  # (∂ᵪ(∂ᵧF(χ + γ η, α)))(χ = ξ)
+        view(J, n_lc .+ (1:n_lc), 1:n_lc),  # (∂ᵪ(∂ᵧF(χ + γ η, α)))(χ = ξ)
         (y, x) -> ForwardDiff.jacobian!(
             reshape(view(y, :), :, 1),
             (H_lc, d) -> residual_lc!(H_lc, (@. x + d[1] * η), q, cache.super),
@@ -216,7 +216,7 @@ function residual_jacobian!(H, J, u, cache::FoldLimitCycleCache)
         (H_, α) -> begin
             p = modified_param!(prob, α)
             ForwardDiff.jacobian!(
-                reshape(view(H_, (1:n_lc) + n_lc), :, 1),  # H_ev
+                reshape(view(H_, (1:n_lc) .+ n_lc), :, 1),  # H_ev
                 (H_lc, d) -> residual_lc!(H_lc, (@. ξ + d[1] * η),
                                           p, cache.super),
                 view(H_, 1:n_lc),  # H_lc
