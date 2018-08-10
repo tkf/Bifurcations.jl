@@ -244,7 +244,7 @@ end
 #   lpv, lpd    [i, k]    (m, m + 1)
 #   xτ          [p, k]    (n, m + 1)
 
-@inline function collocation!(cache, u, j)
+@inline function collocation(cache, u, j)
     lpv = cache.lagrange_polynomial_vals  # ℓᵀ; ℓᵢₖ = [ℓᵀ]ₖᵢ = ℓₖ(ζᵢ)
     lpd = cache.lagrange_polynomial_driv
     xτ = get_samples(cache, u, j) # xₚ(τₖ)
@@ -254,7 +254,7 @@ end
 end
 # TODO: store ℓ (not ℓᵀ) in lpv? (Why not?)
 
-@inline function reference_diff!(cache, j)
+@inline function reference_diff(cache, j)
     dv = cache.dv
     lpd = cache.lagrange_polynomial_driv
     vτ = get_samples(cache, cache.reference, j)
@@ -294,8 +294,8 @@ function residual_lc!(H, u, q, cache::LimitCycleCache)
 
     phase_condition = zero(eltype(H))
     for j in 1:num_mesh(cache)
-        x, dx = collocation!(cache, u, j)
-        dv = reference_diff!(cache, j)
+        x, dx = collocation(cache, u, j)
+        dv = reference_diff(cache, j)
         @inbounds for (i, t) in enumerate(turns(cache, j))
             r = diff_range(cache, j, i)
             f = @view H[r]
