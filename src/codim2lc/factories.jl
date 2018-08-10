@@ -42,7 +42,7 @@ function FoldLimitCycleProblem(
     _H, J_init = residual_jacobian(u_init, prob_cache)
 
     n = length(lc_prob.xs0) + 1  # +1 to include period
-    vals, vecs = eig(@view J_init[1:n, 1:n])
+    vals, vecs = eigen(@view J_init[1:n, 1:n])
     _, idx0 = findmin(abs.(vals))  # closest to zero
     opts = as(solver, ContinuationSolver).opts
     if any(x -> abs(imag(x)) > opts.atol, @view vecs[:, idx0])
