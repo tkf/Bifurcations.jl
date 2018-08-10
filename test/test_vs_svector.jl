@@ -1,8 +1,6 @@
 module TestVsSVector
 include("preamble.jl")
 
-using DiffEqBase: remake
-
 using Bifurcations: resolved_points
 using Bifurcations.Continuations: find_errors, print_errors
 using Bifurcations: examples
@@ -11,9 +9,8 @@ using Bifurcations.Examples.PredatorPrey
 
 use_array(ex) =
     ex.make_prob(
-        ode = remake(ex.ode;
-                     f = generalized_f(ex),
-                     u0 = Array(ex.u0)),
+        f = generalized_f(ex),
+        u0 = Array(ex.u0),
     )
 
 EXAMPLES = [

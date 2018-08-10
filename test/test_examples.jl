@@ -1,8 +1,6 @@
 module TestExamples
 include("preamble.jl")
 
-using DiffEqBase: remake
-
 using Bifurcations: resolved_points
 using Bifurcations.Codim1: resolve_point
 using Bifurcations.Codim2: BackReferencingAS, NormalizingAS
@@ -86,9 +84,8 @@ end
 EXAMPLES = [
     examples()...,
     :CalciumSTDArray => Example(Calcium.make_prob(
-        ode = remake(Calcium.ode;
-                     f = generalized_f(Calcium),
-                     u0 = Array(Calcium.u0)),
+        f = generalized_f(Calcium),
+        u0 = Array(Calcium.u0),
     )),
 ]
 
