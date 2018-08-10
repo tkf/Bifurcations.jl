@@ -1,0 +1,6 @@
+authors = ["Takafumi Arakaki <aka.tkf@gmail.com>"]
+name = "Bifurcations"
+uuid = "0487d830-9c4b-11e8-0cca-ad1c5175e159"
+version = "0.0.1"
+
+[deps]
