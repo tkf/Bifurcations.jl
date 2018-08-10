@@ -30,7 +30,7 @@ Number of variables `dim(dom(H))` of the augmented system.
 """
 augsys_dim(d::VarDims) =
     d.ds_dim + d.eigvec_dim + 2 + (d.eigvec_eltype <: Complex)
-eigvec_range(d::VarDims) = d.ds_dim + (1:d.eigvec_dim)
+eigvec_range(d::VarDims) = d.ds_dim .+ (1:d.eigvec_dim)
 eigval_index(d::VarDims) = d.ds_dim + d.eigvec_dim + 1
 
 function dims_from_augsys(as_dim::Int, T::Type)

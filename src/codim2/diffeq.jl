@@ -205,11 +205,11 @@ function _ds_eigvec(::Type{E}, u::Array{T}) where {E <: Complex, T}
     if r != 0 || length(u) ÷ 2 != 0
         # Can't be done without copy?  Maybe this memory layout was a
         # bad idea...
-        uc = reinterpret(Complex{T}, u[d.ds_dim + (1:d.eigvec_dim)])
+        uc = reinterpret(Complex{T}, u[d.ds_dim .+ (1:d.eigvec_dim)])
         return view(uc, :)
     end
     uc = reinterpret(Complex{T}, u)
-    return @view uc[ofs + 1:ofs + d.ds_dim]
+    return @view uc[ofs .+ 1:ofs .+ d.ds_dim]
 end
 
 function _ds_eigvec_expr(C::Type{<: Real}, indices)
