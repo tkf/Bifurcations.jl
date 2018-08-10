@@ -1,4 +1,5 @@
 module Continuations
+using LinearAlgebra
 using StaticArrays: StaticArray, SMatrix, SVector, SArray
 import DiffEqBase: solve, solve!, init, step!
 

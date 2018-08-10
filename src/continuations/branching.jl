@@ -126,7 +126,7 @@ function new_branches!(cache, opts, sbint::SimpleBifurcationInterval)
     catch err
         # Maybe there is a singularity (around which det(J; tJ)
         # flips) within `sbint` and the root finder hits that?
-        if err isa LinAlg.SingularException
+        if err isa SingularException
             warn(err)
             warn("""
                 Failed to find bifurcation point within:

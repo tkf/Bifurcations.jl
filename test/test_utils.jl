@@ -1,4 +1,8 @@
 module TestUtils
+
+using LinearAlgebra
+using Random
+using Statistics: mean
 using Test
 
 using StaticArrays: SVector, SMatrix

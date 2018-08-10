@@ -2,8 +2,9 @@ module ArrayUtils
 
 using Base: typename
 
-using ForwardDiff: Dual
 using LinearAlgebra
+
+using ForwardDiff: Dual
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
 
 container_array_of(::SVector{S}) where {S} = SVector{S}

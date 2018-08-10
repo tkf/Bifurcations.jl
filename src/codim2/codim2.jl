@@ -1,5 +1,8 @@
 module Codim2
 
+using LinearAlgebra
+using Statistics: mean
+
 using ..ArrayUtils: cast_container
 
 using ..Continuations: AbstractContinuationProblem, AbstractProblemCache
