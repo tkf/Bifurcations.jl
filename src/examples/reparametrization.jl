@@ -1,5 +1,8 @@
 module Reparametrization
 
+using LinearAlgebra
+using Random
+
 using DiffEqBase: ODEProblem, isinplace
 using Parameters: @with_kw, @unpack
 using Setfield: @lens, compose

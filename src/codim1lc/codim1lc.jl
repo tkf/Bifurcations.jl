@@ -1,6 +1,8 @@
 module Codim1LimitCycle  # TODO: merge it to Codim1?  Should I?  Maybe
                          # just rename Codim1 to Codim1FixedPoint?
 
+using LinearAlgebra
+
 using ..Continuations: AbstractContinuationProblem, AbstractProblemCache
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain

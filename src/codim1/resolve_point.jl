@@ -20,7 +20,7 @@ default_resolve_exception_handler(warn_exceptions::Tuple) =
 
 function resolving_points(
         solver::BifurcationSolver, args...;
-        warn_exceptions = (LinAlg.SingularException,),
+        warn_exceptions = (SingularException,),
         exception_handler = default_resolve_exception_handler(warn_exceptions),
         )
     Iterators.filter(

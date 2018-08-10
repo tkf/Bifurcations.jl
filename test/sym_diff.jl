@@ -1,6 +1,9 @@
 module SymDiff
 
+using LinearAlgebra
+using Random
 using Test
+
 using Parameters: @with_kw, @unpack
 using Setfield: set
 using StaticArrays: SVector
