@@ -1,6 +1,9 @@
 JULIA_BIN = julia
 JULIA = time $(JULIA_BIN) --color=yes
 
+JULIA_PROJECT = @.
+export JULIA_PROJECT
+
 OMP_NUM_THREADS = 2
 export OMP_NUM_THREADS
 
