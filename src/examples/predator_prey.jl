@@ -30,9 +30,12 @@ function f(du, u, p, t)
     nothing
 end
 
+const _f = f
+
 
 function make_prob(
         p = (0.0, 3, 5, 3);
+        f = _f,
         u0 = SVector(0.0, 0.0),
         tspan = (0.0, 30.0),
         ode = ODEProblem{!(u0 isa SVector)}(f, u0, tspan, p),

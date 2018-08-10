@@ -51,10 +51,16 @@ function smoke_test_solver_plot(solver)
     @test_nothrow nullshow(plot(solver))
 end
 
-_generalize_f(f, A) = function(u::U, p, t) where {T, U <: AbstractArray{T}}
-    v = cast_container(A, u)
-    H = f(v, p, t)
-    return cast_container(U, H)
+function _generalize_f(f, A)
+    function g(u::U, p, t) where {T, U <: AbstractArray{T}}
+        v = cast_container(A, u)
+        H = f(v, p, t)
+        return cast_container(U, H)
+    end
+
+    g(args...) = f(args...)
+
+    return g
 end
 
 generalized_f(mod) = _generalize_f(mod.f, typeof(mod.u0))
