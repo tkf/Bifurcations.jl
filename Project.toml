@@ -1,6 +1,14 @@
-authors = ["Takafumi Arakaki <aka.tkf@gmail.com>"]
 name = "Bifurcations"
 uuid = "0487d830-9c4b-11e8-0cca-ad1c5175e159"
+authors = ["Takafumi Arakaki <aka.tkf@gmail.com>"]
 version = "0.0.1"
 
 [deps]
+Compat = "34da2185-b29b-5c13-b0c7-acf172513d20"
+DiffEqBase = "2b5f629d-d688-5b77-993f-72d75c75574e"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Jacobi = "83f21c0b-4282-5fbc-9e3f-f6da3d2e584c"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
+RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
+Setfield = "efcf1570-3423-57d1-acb7-fd33fddbac46"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
