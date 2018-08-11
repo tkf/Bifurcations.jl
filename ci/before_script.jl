@@ -7,7 +7,7 @@ Pkg.build()
 # Manually installing other CI dependencies
 packages = ["Coverage"]
 if get(ENV, "CI_GROUP", "") == "docs"
-    append!(packages, ["Documenter", "QuickTypes"])
+    append!(packages, ["Documenter", "QuickTypes", "Roots"])
 end
 @info string("Installing: ", join(packages, ", "))
 Pkg.add(packages)
