@@ -3,7 +3,7 @@ LIVERELOAD = livereload --port $(DOCS_PORT) --wait 0.5
 
 .PHONY: docs-* only-serve
 
-docs-build:
+docs-build: prepare
 	$(RUN_JULIA) docs/build.jl
 	cd docs && mkdocs build
 

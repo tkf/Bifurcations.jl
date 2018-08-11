@@ -11,12 +11,15 @@ export OMP_NUM_THREADS
 GKS_WSTYPE ?= png
 export GKS_WSTYPE
 
-.PHONY: help test
+.PHONY: help test prepare
 
 help:
 	@cat misc/make-help.md
 
-test:
+prepare:
+	$(RUN_JULIA) -e "using Pkg; Pkg.instantiate()"
+
+test: prepare
 	$(RUN_JULIA) --check-bounds=yes test/runtests.jl
 
 include misc/docs.mk
