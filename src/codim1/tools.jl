@@ -1,4 +1,4 @@
-stabilities(sweep::Codim1Sweep) = isstable.(sweep.timekind, sweep.eigvals)
+stabilities(sweep::Codim1Sweep) = isstable.((sweep.timekind,), sweep.eigvals)
 
 regions(xs::AbstractVector{<: Bool}) = regions(identity, xs)
 
