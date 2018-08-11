@@ -17,6 +17,7 @@ help:
 	@cat misc/make-help.md
 
 test:
+	$(RUN_JULIA) -e "using Pkg; Pkg.instantiate()"
 	$(RUN_JULIA) --check-bounds=yes test/runtests.jl
 
 include misc/docs.mk
