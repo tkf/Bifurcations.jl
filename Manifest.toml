@@ -71,9 +71,9 @@ version = "0.3.2"
 
 [[DiffEqBase]]
 deps = ["Compat", "IteratorInterfaceExtensions", "LinearAlgebra", "RecipesBase", "RecursiveArrayTools", "Requires", "Statistics", "TableTraits", "Test", "TreeViews"]
-git-tree-sha1 = "0b739197e53c40ec15c5c770e4a08821be2c46fe"
+git-tree-sha1 = "9052e3b5cb908747b421a57ad641cd4625285a3c"
 uuid = "2b5f629d-d688-5b77-993f-72d75c75574e"
-version = "4.20.3"
+version = "4.21.2"
 
 [[DiffEqDiffTools]]
 deps = ["LinearAlgebra", "Test"]
