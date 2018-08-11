@@ -1,3 +1,5 @@
+using Statistics: mean
+
 using Parameters: @with_kw, @unpack
 using RecipesBase
 using Setfield: @set
