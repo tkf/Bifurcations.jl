@@ -1,23 +1,13 @@
-Pkg.init()
+# Run some non-test portion of standard script here.  See also:
+# https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/julia.rb
 
-function required_packages(io::IO)
-    filter(
-        x -> x != "julia",
-        [split(line)[1] for line in split(strip(read(io, String)), '\n')])
-end
-required_packages(path::AbstractString) = open(required_packages, path)
+using Pkg
+Pkg.build()
 
-packages = vcat(
-    required_packages("REQUIRE"),
-    required_packages("test/REQUIRE"),
-    ["Coverage"],
-)
+# Manually installing other CI dependencies
+packages = ["Coverage"]
 if get(ENV, "CI_GROUP", "") == "docs"
     append!(packages, ["Documenter", "QuickTypes"])
 end
-info("Installing: ", join(packages, ", "))
-open(Pkg.dir("REQUIRE"), "a") do io
-    writedlm(io, packages)
-end
-
-Pkg.resolve()
+@info string("Installing: ", join(packages, ", "))
+Pkg.add(packages)
