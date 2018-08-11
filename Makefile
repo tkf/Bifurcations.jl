@@ -1,5 +1,5 @@
-JULIA_BIN = julia
-JULIA = time $(JULIA_BIN) --color=yes
+JULIA = julia
+RUN_JULIA = time $(JULIA) --color=yes
 
 JULIA_PROJECT = @.
 export JULIA_PROJECT
@@ -17,6 +17,6 @@ help:
 	@cat misc/make-help.md
 
 test:
-	$(JULIA) --check-bounds=yes test/runtests.jl
+	$(RUN_JULIA) --check-bounds=yes test/runtests.jl
 
 include misc/docs.mk
