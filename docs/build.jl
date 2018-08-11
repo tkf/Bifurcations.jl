@@ -19,6 +19,12 @@ println()
 using Bifurcations
 using Bifurcations: plot, plot!  # a workaround
 
-makedocs(
-    strict = true,
-)
+let strict = get(ENV, "DOCS_STRICT", "yes") == "yes"
+    @info """
+    `makedocs` with:
+    strict = $strict
+    """
+    makedocs(
+        strict = strict,
+    )
+end
