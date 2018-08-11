@@ -139,9 +139,9 @@ uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
 [[IteratorInterfaceExtensions]]
 deps = ["Test"]
-git-tree-sha1 = "0c41964e8383281ee837dcd034148ab83ff6154e"
+git-tree-sha1 = "5484e5ede2a4137b9643f4d646e8e7b87b794415"
 uuid = "82899510-4779-5014-852e-03e436cf321d"
-version = "0.1.0"
+version = "0.1.1"
 
 [[JSON]]
 deps = ["Dates", "Distributed", "Mmap", "Pkg", "Sockets", "Test", "Unicode"]
@@ -209,9 +209,9 @@ version = "0.2.1"
 
 [[NLSolversBase]]
 deps = ["Calculus", "DiffEqDiffTools", "DiffResults", "Distributed", "ForwardDiff", "LinearAlgebra", "Random", "SparseArrays", "Test"]
-git-tree-sha1 = "89dd06727a7b0d292757fb04fa32e6033e50b3bb"
+git-tree-sha1 = "71b48622edd3f33077e62b3a49c817fe5527af6d"
 uuid = "d41bc354-129a-5804-8e4c-c37616107c6c"
-version = "7.0.3"
+version = "7.0.4"
 
 [[NLsolve]]
 deps = ["DiffBase", "DiffEqDiffTools", "Distances", "ForwardDiff", "LineSearches", "LinearAlgebra", "NLSolversBase", "Printf", "Reexport", "SparseArrays", "Test"]
@@ -249,9 +249,9 @@ version = "0.3.0"
 
 [[PlotUtils]]
 deps = ["Colors", "Dates", "Printf", "Reexport", "Test"]
-git-tree-sha1 = "99c6f7f9111d49209cd5859f8fc407bc030defad"
+git-tree-sha1 = "02e6c64afea08496f43ac7bf8d2c0454b4d378c2"
 uuid = "995b91a9-d308-5afd-9ec6-746e21dbc043"
-version = "0.5.0"
+version = "0.5.1"
 
 [[Plots]]
 deps = ["Base64", "Contour", "Dates", "FixedPointNumbers", "GR", "JSON", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Printf", "REPL", "RecipesBase", "Reexport", "Requires", "Showoff", "StaticArrays", "Statistics", "StatsBase", "Test"]
@@ -302,10 +302,10 @@ uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "0.5.2"
 
 [[Roots]]
-deps = ["Compat", "ForwardDiff", "Missings", "Printf"]
-git-tree-sha1 = "251601c13cfdc1fc1057b7fcc5b6f8e618d3a54d"
+deps = ["Compat", "Missings", "Printf"]
+git-tree-sha1 = "94a8e2662841b8dd3b2a81cc15b85199fc609fd2"
 uuid = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
-version = "0.6.0"
+version = "0.7.0"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
@@ -326,10 +326,10 @@ deps = ["Distributed", "Mmap", "Random", "Serialization"]
 uuid = "1a1011a3-84de-559e-8e89-a11a2f7dc383"
 
 [[Showoff]]
-deps = ["Compat"]
-git-tree-sha1 = "9cb3f3bc5819a5142706cd185d76801c7d292809"
+deps = ["Compat", "Pkg"]
+git-tree-sha1 = "276b24f3ace98bec911be7ff2928d497dc759085"
 uuid = "992d4aef-0814-514b-bc4d-f2e9a6c4116f"
-version = "0.2.0"
+version = "0.2.1"
 
 [[Sockets]]
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
@@ -367,16 +367,16 @@ uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 version = "0.25.0"
 
 [[SymEngine]]
-deps = ["BinaryProvider", "Compat", "Libdl", "RecipesBase"]
-git-tree-sha1 = "05a1a77e26aa27ded6a323f0aaa1d7728dbe1425"
+deps = ["BinaryProvider", "Compat", "Libdl", "RecipesBase", "SpecialFunctions"]
+git-tree-sha1 = "3c19b0f44314f6832963d0672312592cf0edbf62"
 uuid = "123dc426-2d89-5057-bbad-38513e3affd8"
-version = "0.4.1"
+version = "0.4.2"
 
 [[TableTraits]]
 deps = ["IteratorInterfaceExtensions", "Test"]
-git-tree-sha1 = "7dff93e0a753f5d5dfd288d321b533af1ea2dfef"
+git-tree-sha1 = "afee1fb3bc99c28eb4533ff0f22e33f6effcec18"
 uuid = "3783bdb8-4a98-5b6b-af9a-565f29a5fe9c"
-version = "0.3.0"
+version = "0.3.1"
 
 [[Test]]
 deps = ["Distributed", "InteractiveUtils", "Logging", "Random"]
