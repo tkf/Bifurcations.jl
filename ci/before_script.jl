@@ -10,7 +10,7 @@ if get(ENV, "TRAVIS", "") == "true"
     append!(packages, ["Coverage"])
 end
 if get(ENV, "CI_GROUP", "") == "docs"
-    append!(packages, ["Documenter", "QuickTypes"])
+    append!(packages, ["Documenter", "QuickTypes", "Roots"])
 end
 specs = [
     PackageSpec(url="https://github.com/jw3126/Setfield.jl"),
