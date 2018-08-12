@@ -16,8 +16,11 @@ export GKS_WSTYPE
 help:
 	@cat misc/make-help.md
 
+Manifest.toml: ci/before_script.jl
+	$(RUN_JULIA) $<
+
 prepare:
-	$(RUN_JULIA) -e "using Pkg; Pkg.instantiate()"
+	$(MAKE) Manifest.toml
 
 test: prepare
 	$(RUN_JULIA) --check-bounds=yes test/runtests.jl
