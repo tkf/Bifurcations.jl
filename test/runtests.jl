@@ -19,12 +19,10 @@ TEST_GROUPS = Dict{String, Vector{String}}(
         "test_vs_svector.jl",
         "test_duffing_van_der_pol.jl",
         "test_hopf_to_lc.jl",
+        "test_reparametrized_bautin.jl",
     ],
     "1" => [
         "test_reparametrization.jl",
-        "test_reparametrized_bautin.jl",
-    ],
-    "2" => [
         "test_fold_lc.jl",
         "test_morris_lecar.jl",
     ],

@@ -16,7 +16,6 @@ env:
   matrix:
     - CI_GROUP=0
     - CI_GROUP=1
-    - CI_GROUP=2
     - CI_GROUP=docs
 notifications:
   email: false
