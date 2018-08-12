@@ -50,6 +50,7 @@ script:
     else
     julia --color=yes --check-bounds=yes -e 'Pkg.test("Bifurcations"; coverage=true)';
     fi
+  - cat Manifest.toml
 
 after_success:
   # push coverage results to Coveralls
