@@ -46,9 +46,13 @@ script:
 after_success:
   - cat Manifest.toml
   # push coverage results to Coveralls
-  - julia --color=yes -e 'using Pkg; cd(Pkg.dir("Bifurcations")); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - if [ "$CI_GROUP" != docs ]; then
+    julia --color=yes -e 'using Coverage; Coveralls.submit(Coveralls.process_folder())';
+    fi
   # push coverage results to Codecov
-  - julia --color=yes -e 'using Pkg; cd(Pkg.dir("Bifurcations")); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - if [ "$CI_GROUP" != docs ]; then
+    julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())'
+    fi
   # build documents
   - if [ "$CI_GROUP" = docs ]; then
     julia --color=yes docs/deploy.jl;
