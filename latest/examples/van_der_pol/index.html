@@ -111,7 +111,7 @@
 <pre><code class="julia">using Bifurcations
 using Bifurcations: plot, plot!  # a workaround
 using Bifurcations: LimitCycleProblem
-using Bifurcations.Examples: DuffingVanDerPol
+using Bifurcations.Examples.DuffingVanDerPol
 
 using Plots
 using OrdinaryDiffEq: Tsit5, remake
@@ -146,8 +146,8 @@ x0
 </code></pre>
 
 <pre><code>2-element Array{Float64,1}:
- 1.0
- 1.8229
+ 0.9999999999999799
+ 1.8229006727041834
 </code></pre>
 
 <p>Then a <code>LimitCycleProblem</code> can be constructed from the <code>ode</code>.</p>
@@ -171,7 +171,7 @@ prob = LimitCycleProblem(
 @time solve!(solver)
 </code></pre>
 
-<pre><code>1123.468464 seconds (7.92 M allocations: 1.177 GiB, 0.46% gc time)
+<pre><code>488.304168 seconds (18.13 M allocations: 1.720 GiB, 1.26% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 35
