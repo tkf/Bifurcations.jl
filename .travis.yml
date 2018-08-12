@@ -4,7 +4,7 @@ os:
   - linux
   # - osx
 julia:
-  - 0.6
+  - 0.7
   # - nightly
 env:
   global:
@@ -35,28 +35,21 @@ git:
 #    - gfortran
 
 before_script:
-  # Install packages required for the build to avoid re-installing
-  # (some of) them in the after_success phase:
   - julia --color=yes ci/before_script.jl
-
-  # Run some non-test portion of standard script here.  See also:
-  # https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/julia.rb
-  - julia --color=yes -e 'Pkg.clone(pwd())'
-  - julia --color=yes -e 'Pkg.build("Bifurcations")'
 
 script:
   - if [ "$CI_GROUP" = docs ]; then
     travis_wait 60 julia --color=yes docs/build.jl;
     else
-    julia --color=yes --check-bounds=yes -e 'Pkg.test("Bifurcations"; coverage=true)';
+    julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.test(coverage=true)';
     fi
   - cat Manifest.toml
 
 after_success:
   # push coverage results to Coveralls
-  - julia --color=yes -e 'cd(Pkg.dir("Bifurcations")); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+  - julia --color=yes -e 'using Pkg; cd(Pkg.dir("Bifurcations")); using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
-  - julia --color=yes -e 'cd(Pkg.dir("Bifurcations")); using Coverage; Codecov.submit(Codecov.process_folder())'
+  - julia --color=yes -e 'using Pkg; cd(Pkg.dir("Bifurcations")); using Coverage; Codecov.submit(Codecov.process_folder())'
   # build documents
   - if [ "$CI_GROUP" = docs ]; then
     julia --color=yes docs/deploy.jl;
