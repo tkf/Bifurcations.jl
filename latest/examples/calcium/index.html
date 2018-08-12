@@ -129,20 +129,6 @@
 )
 </code></pre>
 
-<pre><code>┌ Warning: Deprecated syntax `parametric method syntax narrow_typeof{T}(t::Type{T})` around /home/travis/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:130.
-│ Use `narrow_typeof(t::Type{T}) where T` instead.
-└ @ ~/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:130
-┌ Warning: Deprecated syntax `parametric method syntax narrow_typeof{T}(t::T)` around /home/travis/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:131.
-│ Use `narrow_typeof(t::T) where T` instead.
-└ @ ~/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:131
-┌ Warning: Deprecated syntax `:type expression head`.
-│ Use `:struct` instead.
-└ @ none:0
-┌ Warning: Deprecated syntax `parametric method syntax (::Type{CalciumParam{T1, T2, T3, T4, T5, T6, T7, T8}}){T1 &lt;: Any, T2 &lt;: Any, T3 &lt;: Any, T4 &lt;: Any, T5 &lt;: Any, T6 &lt;: Any, T7 &lt;: Any, T8 &lt;: Any}(vl = -60, vca = 120, i = -220, gl = 2, gca = 4, c = 20, v1 = -1.2, v2 = 18; )` around /home/travis/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:229.
-│ Use `(::Type{CalciumParam{T1, T2, T3, T4, T5, T6, T7, T8}})(vl = -60, vca = 120, i = -220, gl = 2, gca = 4, c = 20, v1 = -1.2, v2 = 18; ) where {T1 &lt;: Any, T2 &lt;: Any, T3 &lt;: Any, T4 &lt;: Any, T5 &lt;: Any, T6 &lt;: Any, T7 &lt;: Any, T8 &lt;: Any}` instead.
-└ @ ~/.julia/packages/QuickTypes/JMtln/src/QuickTypes.jl:229
-</code></pre>
-
 <p>Define the model as in <a href="http://docs.juliadiffeq.org/latest/tutorials/ode_example.html">DifferentialEquations.jl</a>:</p>
 <pre><code class="julia">using Parameters: @unpack
 
