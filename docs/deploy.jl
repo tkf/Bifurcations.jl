@@ -11,7 +11,7 @@ elseif startswith(get(ENV, "TRAVIS_BRANCH", ""), "pre/")
     deploydocs(
         deps   = Deps.pip("mkdocs", "python-markdown-math"),
         repo   = "github.com/tkf/Bifurcations.jl.git",
-        julia  = "0.6",
+        julia  = "1.0",
         branch = "gh-pages.pre",
         latest = branch,
     )
@@ -19,6 +19,6 @@ else
     deploydocs(
         deps   = Deps.pip("mkdocs", "python-markdown-math"),
         repo   = "github.com/tkf/Bifurcations.jl.git",
-        julia  = "0.6",
+        julia  = "1.0",
     )
 end
