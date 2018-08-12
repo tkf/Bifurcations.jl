@@ -17,6 +17,8 @@ help:
 	@cat misc/make-help.md
 
 Manifest.toml: ci/before_script.jl
+	mkdir -pv tmp/Manifest
+	-cp -v Manifest.toml tmp/Manifest/backup.$$(date +%Y-%m-%d-%H%M%S).toml
 	$(RUN_JULIA) $<
 
 prepare:
