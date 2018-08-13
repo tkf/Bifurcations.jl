@@ -75,8 +75,9 @@ at `bautin_point`:
 flc_prob = FoldLimitCycleProblem(
     bautin_point,
     hopf_solver1;
-    num_mesh = 30,
-    degree = 8,
+    period_bound = (0.0, 14.0),  # see below
+    num_mesh = 120,
+    degree = 4,
 )
 flc_solver = init(
     flc_prob;
@@ -84,6 +85,7 @@ flc_solver = init(
     max_branches = 0,
     bidirectional_first_sweep = false,
     nominal_angle_rad = 2π * (5 / 360),
+    max_samples = 500,
 )
 @time solve!(flc_solver)
 ```
@@ -96,6 +98,22 @@ savefig(plt_state_space, "morris_lecar-state_space.png"); nothing # hide
 ```
 
 ![](morris_lecar-state_space.png)
+
+The continuation was configured to stop just before the period is
+about to diverge.  Note that stopping at larger period requires larger
+mesh size.
+
+```@example morris_lecar
+d_lc = length(flc_solver.prob.xs0)
+plt_periods = plot(
+    [u[end-1] for u in flc_solver.sol.sweeps[1].super.u],
+    [u[d_lc + 1] for u in flc_solver.sol.sweeps[1].super.u],
+    xlabel = "p1",
+    ylabel = "period")
+savefig(plt_periods, "morris_lecar-periods.png"); nothing # hide
+```
+
+![](morris_lecar-periods.png)
 
 ### Start continuation of Saddle-Node bifurcation
 
