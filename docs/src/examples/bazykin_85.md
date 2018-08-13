@@ -2,7 +2,7 @@
 
 ```@example bazykin85
 using Bifurcations
-using Bifurcations.Examples: Bazykin85
+using Bifurcations.Examples.Bazykin85
 
 solver = init(Bazykin85.prob)
 solve!(solver)
@@ -23,7 +23,8 @@ savefig(plt1, "bazykin85-1.png"); nothing # hide
 Let's follow the Hopf and Saddle-Node bifurcations:
 
 ```@example bazykin85
-using Bifurcations: Codim1, special_points
+using Bifurcations: special_points
+using Bifurcations.Codim1
 using Setfield: @lens
 
 sn_point, = sort!(
@@ -62,7 +63,7 @@ nothing # hide
 Switch to Hopf bifurcation via Bogdanov-Takens bifurcation:
 
 ```@example bazykin85
-using Bifurcations: Codim2
+using Bifurcations.Codim2
 bt_point, = sort(
     special_points(sn_solver1,
                    Codim2.PointTypes.bogdanov_takens);
@@ -81,7 +82,6 @@ nothing # hide
 Switch to the fold bifurcation of limit cycle via Bautin bifurcation:
 
 ```@example bazykin85
-using Bifurcations: Codim2
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 bautin_point_list = special_points(hopf_solver2, Codim2.PointTypes.bautin)
 @assert length(bautin_point_list) == 1
