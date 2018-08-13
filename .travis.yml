@@ -40,7 +40,7 @@ after_success:
     fi
   # push coverage results to Codecov
   - if [ "$CI_GROUP" != docs ]; then
-    julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())'
+    julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
   # build documents
   - if [ "$CI_GROUP" = docs ]; then
