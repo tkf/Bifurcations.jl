@@ -1,5 +1,9 @@
-JULIA = julia
+JULIA ?= julia
 RUN_JULIA = time $(JULIA) --color=yes
+
+# Make variable JULIA is cached in config.mk (which is created by make
+# automatically or manually configured by "make configure"):
+-include config.mk
 
 JULIA_PROJECT = @.
 export JULIA_PROJECT
@@ -11,10 +15,16 @@ export OMP_NUM_THREADS
 GKS_WSTYPE ?= png
 export GKS_WSTYPE
 
-.PHONY: help test prepare
+.PHONY: help test prepare configure
 
 help:
 	@cat misc/make-help.md
+
+config.mk:
+	echo "JULIA = $(JULIA)" > $@
+
+configure:
+	$(MAKE) JULIA=$(JULIA) config.mk --always-make
 
 Manifest.toml: ci/before_script.jl
 	mkdir -pv tmp/Manifest

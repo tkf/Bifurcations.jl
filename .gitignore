@@ -3,6 +3,7 @@
 *.jl.mem
 
 /Manifest.toml
+/config.mk
 /docs/build
 /docs/site
 /tmp
