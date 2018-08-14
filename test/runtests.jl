@@ -62,8 +62,7 @@ try
     print_runinfo()
     println()
 catch err
-    @warn "Error while printing RUNINFO"
-    @warn err
+    @warn "Error while printing RUNINFO" exception=err
 end
 
 end  # module
