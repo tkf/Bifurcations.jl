@@ -45,7 +45,7 @@ end
 function print_runinfo(io = stdout, runinfo = RUNINFO)
     io = IOContext(io, :compact => true)  # reduce number of digits shown
     titles = ["File", "Time (sec)", "%GC", "GiB"]
-    table = Array{Any}((length(runinfo) + 1, length(titles)))
+    table = Array{Any}(undef, (length(runinfo) + 1, length(titles)))
     table[1, :] .= titles
     for (i, rec) in enumerate(runinfo)
         table[i + 1, 1] = rec[:file]
