@@ -64,6 +64,11 @@ TimeKind(::Type{<: BifurcationSweep{tkind}}) where tkind = tkind()
 
 Base.length(sweep::BifurcationSweep) = length(as(sweep, ContinuationSweep))
 
+PointTypeType(::Type{<: BifurcationSweep{_tk, ptType}}) where {_tk, ptType} =
+    ptType
+
+point_type_type(::T) where {T <: BifurcationSweep} = PointTypeType(T)
+
 function check_sweep_length(sweep)
     @assert length(sweep) == length(sweep.jacobians) == length(sweep.eigvals)
 end

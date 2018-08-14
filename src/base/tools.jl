@@ -24,3 +24,21 @@ problem_of(sweep::ContinuationSweep) = problem_of(sweep.sol.value)
 problem_of(solver::BifurcationSolver) = solver.prob
 problem_of(sol::BifurcationSolution) = problem_of(as(sol, ContinuationSolution))
 problem_of(sweep::BifurcationSweep) = problem_of(as(sweep, ContinuationSweep))
+
+function count_special_points(sweep::BifurcationSweep)
+    counter = Dict{point_type_type(sweep), Int}()
+    for sp in sweep.special_points
+        counter[sp.point_type] = get!(counter, sp.point_type, 0) + 1
+    end
+    return counter
+end
+
+function count_special_points(sol::BifurcationSolution)
+    counter = Dict{PointTypeType(eltype(sol.sweeps)), Int}()
+    for sweep in sol.sweeps
+        for (k, v) in count_special_points(sweep)
+            counter[k] = get!(counter, k, 0) + v
+        end
+    end
+    return counter
+end

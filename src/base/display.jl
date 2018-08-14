@@ -40,6 +40,16 @@ function Base.show(io::IO, point::SpecialPointInterval)
     end
 end
 
+function show_special_points_counts(io, ctx)
+    for (point_type, n) in sort(collect(count_special_points(ctx)),
+                                by = first)
+        print(io, "# ")
+        print(io, rpad(string(point_type), 19))
+        print(io, ": ")
+        println(io, n)
+    end
+end
+
 function Base.show(io::IO, sweep::BifurcationSweep)
     super = as(sweep, ContinuationSweep)
     print_header(io, sweep)
@@ -52,8 +62,8 @@ function Base.show(io::IO, sweep::BifurcationSweep)
     else
         println(io)
         println(io, "# points             : ", n_all)
-        println(io, "# simple bifurcations: ", n_sb)
-        println(io, "# special points     : ", n_sp)
+        println(io, "# branches           : ", n_sb)
+        show_special_points_counts(io, sweep)
     end
 end
 
@@ -72,8 +82,8 @@ function show_solution_info(io::IO, sol::BifurcationSolution)
         println(io)
         println(io, "# sweeps             : ", length(sol.sweeps))
         println(io, "# points             : ", n_all)
-        println(io, "# simple bifurcations: ", n_sb)
-        println(io, "# special points     : ", n_sp)
+        println(io, "# branches           : ", n_sb)
+        show_special_points_counts(io, sol)
     end
 end
 
