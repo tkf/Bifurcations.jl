@@ -15,7 +15,7 @@ export OMP_NUM_THREADS
 GKS_WSTYPE ?= png
 export GKS_WSTYPE
 
-.PHONY: help test prepare configure
+.PHONY: help test parallel-test test_* prepare configure
 
 help:
 	@cat misc/make-help.md
@@ -36,5 +36,13 @@ prepare:
 
 test: prepare
 	$(RUN_JULIA) --check-bounds=yes test/runtests.jl
+
+TEST_NAMES = $(patsubst test/test_%.jl, test_%, $(wildcard test/test_*.jl))
+
+parallel-test: $(TEST_NAMES)
+
+$(TEST_NAMES): test_%: test/test_%.jl prepare
+	mkdir -pv tmp/test
+	$(RUN_JULIA) --check-bounds=yes $< 2>&1 | tee tmp/test/$@.log
 
 include misc/docs.mk

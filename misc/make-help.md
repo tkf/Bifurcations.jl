@@ -2,6 +2,10 @@
 
 Run `test/runtests.jl`.
 
+    make parallel-test [-j N]
+
+Run tests in parallel with `N` processes.
+
     make prepare [--always-make]
 
 Run `Pkg.build()` to install required dependencies.
