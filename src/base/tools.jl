@@ -42,3 +42,6 @@ function count_special_points(sol::BifurcationSolution)
     end
     return counter
 end
+
+count_special_points(solver::BifurcationSolver) =
+    count_special_points(solver.sol)

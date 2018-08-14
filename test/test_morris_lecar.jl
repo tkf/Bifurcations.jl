@@ -4,6 +4,7 @@ include("preamble.jl")
 using StaticArrays: SVector
 
 using Bifurcations: resolved_points
+using Bifurcations.BifurcationsBase: count_special_points
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Examples.MorrisLecar
 
@@ -64,5 +65,43 @@ flc_solver = init(
     verbose = true,
 )
 @time solve!(flc_solver)
+
+
+
+sn_prob = BifurcationProblem(
+    special_points(solver1, Codim1.PointTypes.saddle_node)[1],
+    solver1,
+    (@lens _.z),
+    (-1.0, 1.0),
+)
+sn_solver = init(
+    sn_prob;
+    nominal_angle_rad = 2π * (5 / 360),
+    max_samples = 1000,
+    start_from_nearest_root = true,
+)
+@time solve!(sn_solver)
+
+@test count_special_points(sn_solver) == Dict(
+    Codim2.PointTypes.bogdanov_takens => 1,
+    Codim2.PointTypes.cusp => 1,
+)
+
+
+hopf_prob2 = BifurcationProblem(
+    special_points(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
+    sn_solver,
+)
+hopf_solver2 = init(hopf_prob2)
+@time solve!(hopf_solver2)
+
+count_hopf_solver2 = count_special_points(hopf_solver2)
+
+@test Set(keys(count_hopf_solver2)) <= Set([Codim2.PointTypes.bogdanov_takens])
+if Codim2.PointTypes.bogdanov_takens in keys(count_hopf_solver2)
+    @test count_hopf_solver2 == Dict(
+        Codim2.PointTypes.bogdanov_takens => 1,
+    )
+end
 
 end  # module

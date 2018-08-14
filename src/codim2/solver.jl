@@ -154,6 +154,7 @@ function re_analyze!(solver::Codim2Solver, u::AbstractVector)
     # Suppress special point recording:
     # It's a bit ugly hack... (communicate by sharing!)
     solver.cache.point_type = PointTypes.none  # TODO: FIX!
+    solver.cache.lyapunov_coefficient = NaN    # TODO: FIX!
 
     record!(solver.sol, solver.cache)
 end
