@@ -2,14 +2,14 @@ using Statistics: mean
 
 using Parameters: @with_kw, @unpack
 using RecipesBase
-using Setfield: @set
+using Setfield: @set, print_application, Lens, PropertyLens
 
 using .ArrayUtils: nan_
 
 using .Continuations: as, ContinuationSweep, ContinuationSolution,
     ContinuationSolver, sweeps_as_vectors
 using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
-    BifurcationSolver, special_points, measure
+    BifurcationSolver, special_points, measure, problem_of
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
@@ -109,6 +109,34 @@ function _merge_to_mapping(ctx, mapping, vars)   # TODO: remove
     end
     return mapping
 end
+
+lens_name(l::Lens) = sprint(print_application, l)
+lens_name(l::PropertyLens) = lstrip(invoke(lens_name, Tuple{Lens}, l), '.')
+
+function var_name(ctx::Codim1Ctx, i::Integer)
+    prob = problem_of(ctx)
+    if i == dim_domain(ctx)
+        return lens_name(prob.p.param_axis)
+    else
+        return "u$i"
+    end
+end
+# - [[./fixedpoint.jl::^function.*get_u0]]
+
+function var_name(ctx::Codim2Ctx, i::Integer)
+    prob = problem_of(ctx)
+    if i == dim_domain(ctx)
+        return lens_name(prob.param_axis2)
+    elseif i == dim_domain(ctx) - 1
+        return lens_name(prob.param_axis1)
+    elseif contkind(prob) isa HopfCont && i == dim_domain(ctx) - 2
+        return "ω"
+    else
+        return "u$i"
+    end
+end
+# - [[./codim2/diffeq.jl::^function.*get_u0]]
+# - [[./codim2/diffeq.jl::get(param_axis]]
 
 const STYLE = Dict(
     :stability => Dict(
@@ -280,11 +308,15 @@ end
         end
     end
 
+    xname = var_name(sweep, ix)
+    yname = var_name(sweep, iy)
     for (x, y, lc, ls) in zip(xs, ys, linecolor, linestyle)
         @series begin
             label --> ""
             linecolor --> lc
             linestyle --> ls
+            xlabel --> xname
+            ylabel --> yname
             (x, y)
         end
     end
@@ -348,6 +380,9 @@ end
 
     keys = get_keys(ctx, mapping)
 
+    xlabel --> "u$(keys[1])"
+    ylabel --> "u$(keys[2])"
+    colorbar_title --> "$(keys[3])"
     PlottableData(limitcycles(ctx), keys)
 end
 
@@ -364,8 +399,14 @@ end
         end
     end
 
+    ix, iy = var_as_index.((sweep,), vars)
+    xname = var_name(sweep, ix)
+    yname = var_name(sweep, iy)
+
     label --> ""
     linecolor --> 1
+    xlabel --> xname
+    ylabel --> yname
     vars := vars
     as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
 end
