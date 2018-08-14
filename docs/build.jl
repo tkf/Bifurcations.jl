@@ -17,7 +17,6 @@ printstyled("=" ^ displaysize(stdout)[2], color=:blue)
 println()
 
 using Bifurcations
-using Bifurcations: plot, plot!  # a workaround
 
 let strict = get(ENV, "DOCS_STRICT", "yes") == "yes"
     @info """

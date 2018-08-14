@@ -247,27 +247,13 @@ function maybe_get_points(sweep, include_points, resolve_points)
     return []
 end
 
-function warn_include_points(include_points)
-    if include_points
-        @warn("""include_points = true is set.
-             Note that it is known to disturb line styles and colors
-             such that stability information is wrongly plotted.
-             As a workaround, use:
-                 Bifurcations.plot(sweep)
-                 Bifurcations.plot(sol)
-                 Bifurcations.plot(solver)
-             """)
-    end
-end
-# TODO: Make `include_points` work.
-
 @recipe function plot(
         sweep::Codim1Sweep;
         vars = default_vars(sweep),
         bif_style = STYLE,
         resolve_points = false,
-        include_points = false)
-    warn_include_points(include_points)
+        include_points = true)
+
     ix, iy = (var_as_index(sweep, v) for v in vars)
     (info, (xs, ys)) = curves_by_stability(sweep, (ix, iy))
 
@@ -294,10 +280,14 @@ end
         end
     end
 
-    label --> ""
-    linecolor --> reshape(linecolor, (1, length(linecolor)))
-    linestyle --> reshape(linestyle, (1, length(linestyle)))
-    (xs, ys)
+    for (x, y, lc, ls) in zip(xs, ys, linecolor, linestyle)
+        @series begin
+            label --> ""
+            linecolor --> lc
+            linestyle --> ls
+            (x, y)
+        end
+    end
 end
 
 _get_keys(
@@ -328,7 +318,6 @@ process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
 
     mapping = _merge_to_mapping(sweep, mapping, vars)
 
-    warn_include_points(include_points)
     # TODO: support special points; note that I have to get rid of
     # `vars` first.
     #=
@@ -364,17 +353,20 @@ end
 
 @recipe function plot(
         sweep::Codim2Sweep;
+        vars = default_vars(sweep),
         resolve_points = false,
-        include_points = false)
+        include_points = true)
 
     for point in maybe_get_points(sweep, include_points, resolve_points)
         @series begin
+            vars := vars
             point
         end
     end
 
     label --> ""
     linecolor --> 1
+    vars := vars
     as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
 end
 
@@ -392,9 +384,8 @@ end
 @recipe function plot(
         solver::BifurcationSolver,
         arguments__...;  # TODO: use `mapping`
-        resolve_points = solver isa Codim1Solver,
+        resolve_points = solver isa Union{Codim1Solver, Codim2Solver},
         include_points = true)
-    warn_include_points(include_points)
 
     for point in maybe_get_points(solver, include_points, resolve_points)
         @series begin
@@ -427,56 +418,3 @@ end
     @set ssp.ctx = ssp.ctx.sol
 end
 =#
-
-"""
-    plot!(...)
-
-A thin wrapper of `Plots.plot!` with some workarounds for
-`Bifurcations`-related objects.
-"""
-function plot!(plt,
-               plottable::Union{BifurcationSweep,
-                                BifurcationSolution,
-                                BifurcationSolver},
-               args...;
-               resolve_points = plottable isa Union{Codim1Solver,
-                                                    Codim2Solver},
-               include_points = !(plottable isa Codim1LCSolver),  # TODO: don't
-               vars = length(args) > 0 ? nothing : default_vars(plottable),
-               bif_style = STYLE,
-               kwargs...)
-    for point in maybe_get_points(plottable, include_points, resolve_points)
-        RecipesBase.plot!(
-            plt, point, args...;
-            vars = vars,
-            bif_style = bif_style)
-    end
-    RecipesBase.plot!(
-        plt, plottable, args...;
-        include_points = false,
-        vars = vars,
-        bif_style = bif_style,
-        kwargs...)
-    return plt
-end
-
-plot!(args...; kwargs...) = RecipesBase.plot!(args...; kwargs...)
-
-
-"""
-    plot(...)
-
-A thin wrapper of `Plots.plot` with some workarounds for
-`Bifurcations`-related objects.
-"""
-function plot(plottable::Union{BifurcationSweep,
-                               BifurcationSolution,
-                               BifurcationSolver},
-              args...;
-              kwargs...)
-    plt = RecipesBase.plot()
-    plot!(plt, plottable, args...; kwargs...)
-    return plt
-end
-
-plot(args...; kwargs...) = RecipesBase.plot(args...; kwargs...)

@@ -77,7 +77,6 @@ Plot it:
 
 ```@example calcium
 using Plots
-using Bifurcations: plot  # a workaround
 
 plt = plot(sol)
 savefig(plt, "calcium-1.png"); nothing # hide

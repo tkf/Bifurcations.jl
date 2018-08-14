@@ -2,7 +2,6 @@
 
 ```@example van_der_pol
 using Bifurcations
-using Bifurcations: plot, plot!  # a workaround
 using Bifurcations: LimitCycleProblem
 using Bifurcations.Examples.DuffingVanDerPol
 
