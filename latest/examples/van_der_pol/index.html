@@ -166,12 +166,11 @@ prob = LimitCycleProblem(
 @time solve!(solver)
 </code></pre>
 
-<pre><code>558.293247 seconds (18.02 M allocations: 1.714 GiB, 0.71% gc time)
+<pre><code>378.091768 seconds (18.02 M allocations: 1.715 GiB, 0.91% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 35
-# simple bifurcations: 0
-# special points     : 0
+# branches           : 0
 </code></pre>
 
 <p>By default, <code>plot_state_space</code> plots limit cycles colored by its period:</p>
