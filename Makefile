@@ -26,7 +26,7 @@ config.mk:
 configure:
 	$(MAKE) JULIA=$(JULIA) config.mk --always-make
 
-Manifest.toml: ci/before_script.jl
+Manifest.toml: ci/before_script.jl config.mk
 	mkdir -pv tmp/Manifest
 	-cp -v Manifest.toml tmp/Manifest/backup.$$(date +%Y-%m-%d-%H%M%S).toml
 	$(RUN_JULIA) $<
