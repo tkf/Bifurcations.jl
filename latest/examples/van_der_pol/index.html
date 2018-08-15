@@ -70,6 +70,10 @@
 <li class="active">
     <a href="./">Van der pol</a>
 </li>
+                            
+<li >
+    <a href="../morris_lecar/">Morris lecar</a>
+</li>
                         </ul>
                     </li>
                 </ul>
@@ -85,8 +89,8 @@
                             <i class="fa fa-arrow-left"></i> Previous
                         </a>
                     </li>
-                    <li class="disabled">
-                        <a rel="prev" >
+                    <li >
+                        <a rel="prev" href="../morris_lecar/">
                             Next <i class="fa fa-arrow-right"></i>
                         </a>
                     </li>
@@ -166,7 +170,7 @@ prob = LimitCycleProblem(
 @time solve!(solver)
 </code></pre>
 
-<pre><code>378.091768 seconds (18.02 M allocations: 1.715 GiB, 0.91% gc time)
+<pre><code>448.188767 seconds (9.03 M allocations: 1.286 GiB, 0.88% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 35
