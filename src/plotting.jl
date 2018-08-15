@@ -127,7 +127,8 @@ function assert_non_empty(sweep::AbstractSweep)
 end
 
 default_mapping(::Any) = (:x => 1, :y => 2)
-default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) = (:x => :p1, :y => 1)
+default_mapping(::Codim1Ctx) = (:x => :p1, :y => 1)
+default_mapping(::Codim1LCCtx) = (:x => :p1, :y => :p2, :color => :stability)
 default_mapping(::Union{Codim2Ctx, Codim2LCCtx}) = (:x => :p1, :y => :p2)
 
 lens_name(l::Lens) = sprint(print_application, l)
@@ -346,8 +347,8 @@ mapping_to_tuple(
     # color,  # TODO: use it
 ) = (x, y, color)
 
-process_key(::Codim1LCCtx, key::Any; _...) = key
-process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
+process_key(::LCCtx, key::Any; _...) = key
+process_key(::LCCtx, key::Integer; cw_agg=nothing) =
     if cw_agg !== nothing
         CWStateMeasurement(key, cw_agg)
     else
@@ -355,9 +356,8 @@ process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
     end
 
 @recipe function plot(
-        sweep::Codim1LCSweep,
-        mapping = nothing;
-        # mapping = (:x => :p1, :y => 1, :color => :stability);  # TODO: use it
+        sweep::Union{Codim1LCSweep, Codim2LCSweep},
+        mapping = default_mapping(sweep);
         cw_agg = extrema,  # coordinate-wise aggregator
         resolve_points = false,
         include_points = false,

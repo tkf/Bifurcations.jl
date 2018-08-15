@@ -61,7 +61,7 @@ function BifurcationsBase.measure(sweep::Codim2LCSweep, key::Symbol)
     if isempty(u_list)
         state_elements = 0  # won't be used
     else
-        state_elements, r = (length(u_list[1]) - 3) ÷ 2
+        state_elements, r = divrem(length(u_list[1]) - 4, 2)
         @assert r == 0
     end
     if key == :p1
