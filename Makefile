@@ -39,14 +39,17 @@ test: prepare
 
 TEST_NAMES = $(patsubst test/test_%.jl, test_%, $(wildcard test/test_*.jl))
 
-parallel-test:
-	mkdir -pv tmp/test
+parallel-test: tmp/test
+	-git log -n1 > tmp/test/git-log.log
+	-git status > tmp/test/git-status.log
 	-rm tmp/test/test_*.log
 	$(MAKE) $(TEST_NAMES)
 	@echo -e '\033[0;32m Finished! \033[0m'
 
-$(TEST_NAMES): test_%: test/test_%.jl prepare
-	mkdir -pv tmp/test
+tmp/test:
+	mkdir -pv $@
+
+$(TEST_NAMES): test_%: test/test_%.jl prepare tmp/test
 	$(RUN_JULIA) --check-bounds=yes $< 2>&1 | tee tmp/test/$@.log
 
 include misc/docs.mk
