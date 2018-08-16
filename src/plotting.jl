@@ -131,6 +131,17 @@ default_mapping(::Codim1Ctx) = (:x => :p1, :y => 1)
 default_mapping(::Codim1LCCtx) = (:x => :p1, :y => :p2, :color => :stability)
 default_mapping(::Union{Codim2Ctx, Codim2LCCtx}) = (:x => :p1, :y => :p2)
 
+# TODO: handle "color = :stability" etc. everywhere:
+#=
+default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) =
+    (x = :p1, y = 1,
+     color = :stability, linestyle = :stability,
+     marker = :special_point)
+=#
+# Supporting "marker" this way is ugly since using marker for the
+# curves (non-special points) is also makes sense.  (Maybe don't use
+# named tuple then?)
+
 lens_name(l::Lens) = sprint(print_application, l)
 lens_name(l::PropertyLens) = lstrip(invoke(lens_name, Tuple{Lens}, l), '.')
 
