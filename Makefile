@@ -39,7 +39,11 @@ test: prepare
 
 TEST_NAMES = $(patsubst test/test_%.jl, test_%, $(wildcard test/test_*.jl))
 
-parallel-test: $(TEST_NAMES)
+parallel-test:
+	mkdir -pv tmp/test
+	-rm tmp/test/test_*.log
+	$(MAKE) $(TEST_NAMES)
+	@echo -e '\033[0;32m Finished! \033[0m'
 
 $(TEST_NAMES): test_%: test/test_%.jl prepare
 	mkdir -pv tmp/test
