@@ -16,8 +16,9 @@ using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
 using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver,
     AbstractCodim2SpecialPoint
 using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
-    CWStateMeasurement, limitcycles
-using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver
+    LimitCycleData, CWStateMeasurement, limitcycles
+using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver,
+    FoldLimitCycleData
 
 const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
 const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
@@ -145,6 +146,37 @@ default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) =
 lens_name(l::Lens) = sprint(print_application, l)
 lens_name(l::PropertyLens) = lstrip(invoke(lens_name, Tuple{Lens}, l), '.')
 
+plottable_name(::Any, key::Integer) = "u$key"
+
+function plottable_name(ctx, key::Symbol)
+    if key in (:parameter, :p1, :p2)
+        lens = if key in (:parameter, :p1)
+            if ctx isa LimitCycleData
+                ctx.param_axis
+            elseif ctx isa FoldLimitCycleData
+                ctx.param_axis1
+            elseif ctx isa Codim1Ctx
+                problem_of(ctx).p.param_axis
+            elseif ctx isa Codim1LCCtx
+                problem_of(ctx).param_axis
+            else
+                problem_of(ctx).param_axis1
+            end
+        else
+            if ctx isa FoldLimitCycleData
+                ctx.param_axis2
+            else
+                problem_of(ctx).param_axis2
+            end
+        end
+        return lens_name(lens)
+    else
+        return key
+    end
+end
+
+plottable_name(ctx, key::CWStateMeasurement) = plottable_name(ctx, key.index)
+
 function var_name(ctx::Codim1Ctx, i::Integer)
     prob = problem_of(ctx)
     if i == dim_domain(ctx)
@@ -241,6 +273,8 @@ end
                 line_z := zs
                 marker_z := zs
             end
+            xlabel --> plottable_name(data, pltbl.keys[1])
+            ylabel --> plottable_name(data, pltbl.keys[2])
             (xs, ys)
         end
     end
@@ -399,9 +433,6 @@ end
 
     keys = get_keys(ctx, mapping)
 
-    xlabel --> "u$(keys[1])"
-    ylabel --> "u$(keys[2])"
-    colorbar_title --> "$(keys[3])"
     PlottableData(limitcycles(ctx), keys)
 end
 
