@@ -49,6 +49,9 @@ end
 
 (key::GenericMeasurement)(lc::LimitCycleData) = key.f(lc)
 
+"""
+Coordinate-wise measurement of the state.
+"""
 struct CWStateMeasurement{F} <: LCMeasurement
     index::Int
     f::F
