@@ -10,7 +10,8 @@ using ..BifurcationsBase: timekind, Continuous, Discrete
 import ..BifurcationsBase: TimeKind
 
 using ..BifurcationsBase
-using ..BifurcationsBase: SpecialPoint, SpecialPointInterval,
+using ..BifurcationsBase:
+    AbstractSpecialPoint, SpecialPoint, SpecialPointInterval,
     BifurcationSweep, BifurcationSolution, BifurcationSolver,
     BifurcationProblem, BifurcationCache,
     eigvals_prototype, allocate_sweep!, check_sweep_length, record!
@@ -30,6 +31,9 @@ module PointTypes
 )
 end  # module
 using .PointTypes: PointType
+
+const AbstractCodim1SpecialPoint{tkind <: TimeKind} =
+    AbstractSpecialPoint{tkind, PointType}
 
 const Codim1Sweep{tkind <: TimeKind, ptType <: PointType} =
     BifurcationSweep{tkind, ptType}

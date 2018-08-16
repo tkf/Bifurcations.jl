@@ -57,6 +57,9 @@ module PointTypes
 end  # module
 using .PointTypes: PointType
 
+const AbstractCodim2SpecialPoint{tkind <: TimeKind} =
+    AbstractSpecialPoint{tkind, PointType}
+
 const Codim2Sweep{tkind <: TimeKind, ptType <: PointType} =
     BifurcationSweep{tkind, ptType}
 const Codim2Solution{S <: ContinuationSolution, W <: Codim2Sweep} =

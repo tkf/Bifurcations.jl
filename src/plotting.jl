@@ -11,9 +11,10 @@ using .Continuations: as, ContinuationSweep, ContinuationSolution,
 using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
     BifurcationSolver, special_points, measure, problem_of
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
-    stabilities, curves_by_stability,
+    AbstractCodim1SpecialPoint, stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
-using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver
+using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver,
+    AbstractCodim2SpecialPoint
 using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
     CWStateMeasurement, limitcycles
 using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver
@@ -21,8 +22,10 @@ using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver
 const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
 const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
 const AbstractSweep = Union{ContinuationSweep, BifurcationSweep}
-const Codim1Ctx = Union{Codim1Sweep, Codim1Solution, Codim1Solver}
-const Codim2Ctx = Union{Codim2Sweep, Codim2Solution, Codim2Solver}
+const Codim1Ctx = Union{Codim1Sweep, Codim1Solution, Codim1Solver,
+                        AbstractCodim1SpecialPoint}
+const Codim2Ctx = Union{Codim2Sweep, Codim2Solution, Codim2Solver,
+                        AbstractCodim2SpecialPoint}
 const Codim1LCCtx = Union{Codim1LCSweep, Codim1LCSolution, Codim1LCSolver}
 const Codim2LCCtx = Union{Codim2LCSweep, Codim2LCSolution, Codim2LCSolver}
 const LCCtx = Union{Codim1LCCtx, Codim2LCCtx}
