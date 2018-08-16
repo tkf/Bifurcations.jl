@@ -104,12 +104,7 @@ about to diverge.  Note that stopping at larger period requires larger
 mesh size.
 
 ```@example morris_lecar
-d_lc = length(flc_solver.prob.xs0)
-plt_periods = plot(
-    [u[end-1] for u in flc_solver.sol.sweeps[1].super.u],
-    [u[d_lc + 1] for u in flc_solver.sol.sweeps[1].super.u],
-    xlabel = "p1",
-    ylabel = "period")
+plt_periods = plot(flc_solver, (x=:p1, y=:period))
 savefig(plt_periods, "morris_lecar-periods.png"); nothing # hide
 ```
 
@@ -156,8 +151,7 @@ hopf_solver2 = init(hopf_prob2)
 ```@example morris_lecar
 plt2 = plot()
 for s in [hopf_solver1, flc_solver, sn_solver, hopf_solver2]
-    n = length(s.sol.sweeps[1].super.u[1])
-    plot!(plt2, s, vars=(n - 1, n))
+    plot!(plt2, s)
 end
 plot!(plt2, ylim=(0.03, 0.15), xlim=(-0.05, 0.2))
 
