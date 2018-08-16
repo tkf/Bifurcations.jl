@@ -391,7 +391,7 @@ process_key(::LCCtx, key::Integer; cw_agg=nothing) =
 end
 
 @recipe function plot(
-        ssp::StateSpacePlotter{<: LCCtx},
+        ssp::StateSpacePlotter{<: LCCtx};
         bif_style = STYLE)
     @unpack ctx, mapping = ssp
 
