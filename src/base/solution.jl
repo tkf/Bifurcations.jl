@@ -69,6 +69,9 @@ PointTypeType(::Type{<: BifurcationSweep{_tk, ptType}}) where {_tk, ptType} =
 
 point_type_type(::T) where {T <: BifurcationSweep} = PointTypeType(T)
 
+contkind(sweep::BifurcationSweep) = contkind(problem_of(sweep)) # TODO: don't
+# this is terrible!
+
 function check_sweep_length(sweep)
     @assert length(sweep) == length(sweep.jacobians) == length(sweep.eigvals)
 end

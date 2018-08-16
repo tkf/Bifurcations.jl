@@ -1,26 +1,39 @@
+import ..BifurcationsBase
+
+
 dim_ds_state(sweep::Codim1LCSweep) = length(sweep.eigvals[1])  # TODO: don't
 
 
 abstract type AbstractLimitCycleData end
 
-struct LimitCycleData{M, R, V} <: AbstractLimitCycleData
+struct LimitCycleData{M, R, V, P} <: AbstractLimitCycleData
     state::M
     period::R
     param_value::V
-    # param_axis::L
+    prob::P
 end
 
-LimitCycleData(u::AbstractVector, n::Integer) =
+BifurcationsBase.problem_of(lc::LimitCycleData) = lc.prob
+BifurcationsBase.contkind(lc::LimitCycleData) = contkind(lc.prob)  # TODO: don't
+
+LimitCycleData(u::AbstractVector, n::Integer, prob) =
     LimitCycleData(
         reshape((@view u[1:end-2]), n, :),
         u[end - 1],  # period
         u[end],      # param_value
+        prob,
     )
 
 function limitcycles(sweep::Codim1LCSweep)
     n = dim_ds_state(sweep)
     u_list = as(sweep, ContinuationSweep).u
-    return LimitCycleData.(u_list, (n,))
+    sol = as(sweep, ContinuationSweep).sol.value  # TODO: don't
+    if sol !== nothing
+        prob = sol.prob
+    else
+        prob = nothing
+    end
+    return LimitCycleData.(u_list, (n,), (prob,))
 end
 
 limitcycles(sol::Codim1LCSolution) = vcat(limitcycles.(sol.sweeps)...)

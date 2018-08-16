@@ -25,6 +25,15 @@ problem_of(solver::BifurcationSolver) = solver.prob
 problem_of(sol::BifurcationSolution) = problem_of(as(sol, ContinuationSolution))
 problem_of(sweep::BifurcationSweep) = problem_of(as(sweep, ContinuationSweep))
 
+get_param_axis(ctx, ::Val{1}) = _get_param_axis1(contkind(ctx), ctx)
+_get_param_axis1(::OneParamCont, ctx) = problem_of(ctx).param_axis
+_get_param_axis1(::FixedPointCont, ctx) = problem_of(ctx).p.param_axis  # TODO: remove
+_get_param_axis1(::TwoParamCont, ctx) = problem_of(ctx).param_axis1
+
+get_param_axis(ctx, ::Val{2}) = problem_of(ctx).param_axis2
+get_param_axis1(ctx) = get_param_axis(ctx, Val(1))
+get_param_axis2(ctx) = get_param_axis(ctx, Val(2))
+
 function count_special_points(sweep::BifurcationSweep)
     counter = Dict{point_type_type(sweep), Int}()
     for sp in sweep.special_points

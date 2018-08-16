@@ -9,16 +9,16 @@ using .ArrayUtils: nan_
 using .Continuations: as, ContinuationSweep, ContinuationSolution,
     ContinuationSolver, sweeps_as_vectors
 using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
-    BifurcationSolver, special_points, measure, problem_of
+    BifurcationSolver, special_points, measure, problem_of,
+    get_param_axis1, get_param_axis2
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     AbstractCodim1SpecialPoint, stabilities, curves_by_stability,
     SpecialPoint, SpecialPointInterval, resolved_points
 using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver,
     AbstractCodim2SpecialPoint
 using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
-    LimitCycleData, CWStateMeasurement, limitcycles
-using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver,
-    FoldLimitCycleData
+    CWStateMeasurement, limitcycles
+using .Codim2LimitCycle: Codim2LCSweep, Codim2LCSolution, Codim2LCSolver
 
 const AbstractSolver = Union{ContinuationSolver, BifurcationSolver}
 const AbstractSolution = Union{ContinuationSolution, BifurcationSolution}
@@ -151,23 +151,9 @@ plottable_name(::Any, key::Integer) = "u$key"
 function plottable_name(ctx, key::Symbol)
     if key in (:parameter, :p1, :p2)
         lens = if key in (:parameter, :p1)
-            if ctx isa LimitCycleData
-                ctx.param_axis
-            elseif ctx isa FoldLimitCycleData
-                ctx.param_axis1
-            elseif ctx isa Codim1Ctx
-                problem_of(ctx).p.param_axis
-            elseif ctx isa Codim1LCCtx
-                problem_of(ctx).param_axis
-            else
-                problem_of(ctx).param_axis1
-            end
+            get_param_axis1(ctx)
         else
-            if ctx isa FoldLimitCycleData
-                ctx.param_axis2
-            else
-                problem_of(ctx).param_axis2
-            end
+            get_param_axis2(ctx)
         end
         return lens_name(lens)
     else

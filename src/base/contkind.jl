@@ -1,14 +1,16 @@
 abstract type ContinuationKind end
+abstract type OneParamCont <: ContinuationKind end
+abstract type TwoParamCont <: ContinuationKind end
 
 # Codim1
-struct FixedPointCont <: ContinuationKind end
+struct FixedPointCont <: OneParamCont end
 
 # Codim2
-struct SaddleNodeCont <: ContinuationKind end
-struct HopfCont <: ContinuationKind end
+struct SaddleNodeCont <: TwoParamCont end
+struct HopfCont <: TwoParamCont end
 
 # Codim1LimitCycle
-struct LimitCycleCont <: ContinuationKind end
+struct LimitCycleCont <: OneParamCont end
 
 
 #=
