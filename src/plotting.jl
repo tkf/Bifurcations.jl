@@ -53,6 +53,9 @@ plottables(x::Number) = x
 plottables(xs::AbstractArray) = xs
 plottables(xs::Vector{<: Tuple}) = hcat(collect.(xs)...)'
 
+process_key(::Any, key::Integer) = key
+mapping_to_tuple(::Any; x, y) = (x, y)
+
 """
     get_keys(ctx, mapping; kwargs...) :: Tuple
 
@@ -61,6 +64,10 @@ Transform `mapping` to measurement keys.
 get_keys(ctx, mapping; kwargs...) =
     process_key.((ctx,), mapping_to_tuple(ctx; mapping...);
                  kwargs...)
+# TODO: Maybe get rid of get_keys?  There are too much indirections here.
+
+map_to_plottables(ctx, mapping; kwargs...) =
+    plottables(ctx, get_keys(ctx, mapping; kwargs...))
 
 dim_domain(ctx) = length(domain_prototype(ctx))
 domain_prototype(solver::AbstractSolver) = domain_prototype(solver.sol)
@@ -69,12 +76,35 @@ domain_prototype(sweep::AbstractSweep) = as(sweep, ContinuationSweep).u[1]
 domain_prototype(point::SpecialPoint) = point.u
 domain_prototype(point::SpecialPointInterval) = point.u0
 
-function var_as_index(thing, i)
-    if i == 0
-        i = length(domain_prototype(thing))
+# TODO: don't define process_key(::Codim1Ctx, ...); use measure() interface.
+process_key(::Codim1Ctx, key::Integer) = key
+function process_key(ctx::Codim1Ctx, key::Symbol)
+    if key in (:p1, :parameter)
+        return length(domain_prototype(ctx))
+    else
+        error("Unsupported mapping key: ", key)
     end
-    return i
 end
+# - [[./fixedpoint.jl::^function.*get_u0]]
+
+# TODO: don't define process_key(::Codim2Ctx, ...); use measure() interface.
+process_key(::Codim2Ctx, key::Integer) = key
+function process_key(ctx::Codim2Ctx, key::Symbol)
+    if key == :p1
+        return length(domain_prototype(ctx)) - 1
+    elseif key == :p2
+        return length(domain_prototype(ctx))
+    elseif key in (:ω, :w)
+        if ! (contkind(problem_of(ctx)) isa HopfCont)
+            error("Key $key is invalid for $(contkind(prob))")
+        end
+        return length(domain_prototype(ctx)) - 2
+    else
+        error("Unsupported mapping key: ", key)
+    end
+end
+# - [[./codim2/diffeq.jl::^function.*get_u0]]
+# - [[./codim2/diffeq.jl::get(param_axis]]
 
 assert_non_empty(solver::AbstractSolver) = assert_non_empty(solver.sol)
 function assert_non_empty(sol::AbstractSolution)
@@ -93,29 +123,9 @@ function assert_non_empty(sweep::AbstractSweep)
     end
 end
 
-default_vars(::Any) = (0, 1)
-function default_vars(ctx::Codim1Ctx)
-    assert_non_empty(ctx)
-    D = dim_domain(ctx)
-    return (D, 1)
-end
-function default_vars(ctx::Codim2Ctx)
-    assert_non_empty(ctx)
-    D = dim_domain(ctx)
-    return (D - 1, D)
-end
-default_vars(ctx::Codim1LCCtx) = (:x => :p1, :y => 1)
-
-function _merge_to_mapping(ctx, mapping, vars)   # TODO: remove
-    # Get rid of `vars` in all plotting functions.
-    if vars !== nothing
-        @assert mapping === nothing
-        return vars
-    elseif mapping === nothing
-        return default_vars(ctx)
-    end
-    return mapping
-end
+default_mapping(::Any) = (:x => 1, :y => 2)
+default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) = (:x => :p1, :y => 1)
+default_mapping(::Union{Codim2Ctx, Codim2LCCtx}) = (:x => :p1, :y => :p2)
 
 lens_name(l::Lens) = sprint(print_application, l)
 lens_name(l::PropertyLens) = lstrip(invoke(lens_name, Tuple{Lens}, l), '.')
@@ -222,36 +232,39 @@ end
 end
 
 @recipe function plot(
-        wrapper::AbstractSweep;
-        vars = default_vars(wrapper),
+        wrapper::AbstractSweep,
+        mapping = default_mapping(wrapper);
         # To be compatible with Codim1Sweep plotter. They are ignored:
         bif_style = nothing,
         resolve_points = nothing,
         include_points = nothing,
         )
     sweep = as(wrapper, ContinuationSweep)
-    ix, iy = (var_as_index(sweep, v) for v in vars)
+    ix, iy = get_keys(sweep, mapping) :: Tuple{<: Integer, <: Integer}
     xs = [u[ix] for u in sweep.u]
     ys = [u[iy] for u in sweep.u]
     (xs, ys)
 end
 
-@recipe function plot(sol::ContinuationSolution;
-                      vars = default_vars(sol))
-    ix, iy = vars
+@recipe function plot(sol::ContinuationSolution,
+                      mapping)
+    ix, iy = get_keys(sol, mapping) :: Tuple{<: Integer, <: Integer}
     xs = sweeps_as_vectors(sol, ix)
     ys = sweeps_as_vectors(sol, iy)
 
-    delete!(plotattributes, :vars)
     (xs, ys)
 end
 
+plottables(point::SpecialPoint, key::Integer) = [point.u[key]]
+plottables(point::SpecialPointInterval, key::Integer) =
+    [point.u0[key], point.u1[key]]
+# TODO: plot SpecialPointInterval as an interval
+
 @recipe function plot(
         point::Union{SpecialPoint,
-                     SpecialPointInterval};
-        vars = default_vars(point),
+                     SpecialPointInterval},
+        mapping = default_mapping(point);
         bif_style = STYLE)
-    ix, iy = (var_as_index(point, v) for v in vars)
 
     if haskey(bif_style, :point)
         point_style = bif_style[:point]
@@ -261,14 +274,7 @@ end
     end
 
     label --> ""
-    if point isa SpecialPointInterval
-        xs = [point.u0[ix], point.u1[ix]]
-        ys = [point.u0[iy], point.u1[iy]]
-        # TODO: plot interval
-        ([mean(xs)], [mean(ys)])
-    else
-        ([point.u[ix]], [point.u[iy]])
-    end
+    map_to_plottables(point, mapping)
 end
 
 function maybe_get_points(sweep, include_points, resolve_points)
@@ -283,13 +289,13 @@ function maybe_get_points(sweep, include_points, resolve_points)
 end
 
 @recipe function plot(
-        sweep::Codim1Sweep;
-        vars = default_vars(sweep),
+        sweep::Codim1Sweep,
+        mapping = default_mapping(sweep);
         bif_style = STYLE,
         resolve_points = false,
         include_points = true)
 
-    ix, iy = (var_as_index(sweep, v) for v in vars)
+    ix, iy = get_keys(sweep, mapping) :: Tuple{<: Integer, <: Integer}
     (info, (xs, ys)) = curves_by_stability(sweep, (ix, iy))
 
     # is_stable => Dict(:linestyle => ?, :linecolor => ?)
@@ -349,16 +355,12 @@ process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
         sweep::Codim1LCSweep,
         mapping = nothing;
         # mapping = (:x => :p1, :y => 1, :color => :stability);  # TODO: use it
-        vars = nothing,
         cw_agg = extrema,  # coordinate-wise aggregator
         resolve_points = false,
         include_points = false,
         bif_style = STYLE)
 
-    mapping = _merge_to_mapping(sweep, mapping, vars)
-
-    # TODO: support special points; note that I have to get rid of
-    # `vars` first.
+    # TODO: support special points
     #=
     for point in maybe_get_points(sweep, include_points, resolve_points)
         @series begin
@@ -376,10 +378,8 @@ end
 
 @recipe function plot(
         ssp::StateSpacePlotter{<: LCCtx},
-        vars = nothing,
         bif_style = STYLE)
     @unpack ctx, mapping = ssp
-    mapping = _merge_to_mapping(ctx, mapping, vars)
 
     # TODO: support special "points"
 
@@ -392,19 +392,18 @@ end
 end
 
 @recipe function plot(
-        sweep::Codim2Sweep;
-        vars = default_vars(sweep),
+        sweep::Codim2Sweep,
+        mapping = default_mapping(sweep);
         resolve_points = false,
         include_points = true)
 
     for point in maybe_get_points(sweep, include_points, resolve_points)
         @series begin
-            vars := vars
-            point
+            (point, mapping)
         end
     end
 
-    ix, iy = var_as_index.((sweep,), vars)
+    ix, iy = get_keys(sweep, mapping) :: Tuple{<: Integer, <: Integer}
     xname = var_name(sweep, ix)
     yname = var_name(sweep, iy)
 
@@ -412,8 +411,7 @@ end
     linecolor --> 1
     xlabel --> xname
     ylabel --> yname
-    vars := vars
-    as(sweep, ContinuationSweep)  # plot(::AbstractSweep)
+    as(sweep, ContinuationSweep), (x=ix, y=iy)  # plot(::AbstractSweep)
 end
 
 @recipe function plot(
