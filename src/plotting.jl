@@ -53,7 +53,14 @@ plottables(x::Number) = x
 plottables(xs::AbstractArray) = xs
 plottables(xs::Vector{<: Tuple}) = hcat(collect.(xs)...)'
 
-get_keys(ctx, mapping) = _get_keys(ctx; mapping...)
+"""
+    get_keys(ctx, mapping; kwargs...) :: Tuple
+
+Transform `mapping` to measurement keys.
+"""
+get_keys(ctx, mapping; kwargs...) =
+    process_key.((ctx,), mapping_to_tuple(ctx; mapping...);
+                 kwargs...)
 
 dim_domain(ctx) = length(domain_prototype(ctx))
 domain_prototype(solver::AbstractSolver) = domain_prototype(solver.sol)
@@ -322,7 +329,7 @@ end
     end
 end
 
-_get_keys(
+mapping_to_tuple(
     ::LCCtx;
     x,
     y,
@@ -360,9 +367,7 @@ process_key(::Codim1LCCtx, key::Integer; cw_agg=nothing) =
     end
     =#
 
-    keys = process_key.((sweep,), get_keys(sweep, mapping);
-                        cw_agg = cw_agg)
-
+    keys = get_keys(sweep, mapping; cw_agg = cw_agg)
     curve_list = [sweep]  # TODO: chunk by stability
     # curve_list = curves(sweep, :stability)
 
