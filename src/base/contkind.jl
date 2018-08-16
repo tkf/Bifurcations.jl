@@ -12,6 +12,9 @@ struct HopfCont <: TwoParamCont end
 # Codim1LimitCycle
 struct LimitCycleCont <: OneParamCont end
 
+# Codim2LimitCycle
+struct FoldLimitCycleCont <: TwoParamCont end
+
 
 #=
 contkind(::T) where T = ContinuationKind(T)

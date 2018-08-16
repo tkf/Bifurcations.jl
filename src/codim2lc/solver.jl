@@ -84,6 +84,9 @@ const Codim2LCSolver{
         } =
     BifurcationSolver{R, P, C, S}
 
+# TODO: trait
+BifurcationsBase.contkind(::Codim2LCProblem) = FoldLimitCycleCont()
+
 function re_analyze!(solver::Codim2LCSolver, u::AbstractVector)
     residual_jacobian!(as(solver.cache, ContinuationCache), u)
     analyze!(solver.cache, solver.opts)
