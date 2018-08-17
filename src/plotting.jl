@@ -139,7 +139,7 @@ default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) =
      marker = :special_point)
 =#
 # Supporting "marker" this way is ugly since using marker for the
-# curves (non-special points) is also makes sense.  (Maybe don't use
+# curves (non-special points) also makes sense.  (Maybe don't use
 # named tuple then?)
 
 lens_name(l::Lens) = sprint(print_application, l)
