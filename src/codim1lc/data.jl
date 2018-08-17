@@ -40,8 +40,13 @@ limitcycles(sol::Codim1LCSolution) = vcat(limitcycles.(sol.sweeps)...)
 limitcycles(solver::Codim1LCSolver) = limitcycles(solver.sol)
 
 
-BifurcationsBase.measure(lc::AbstractLimitCycleData, i::Integer) =
-    @view lc.state[i, :]
+function BifurcationsBase.measure(lc::AbstractLimitCycleData, i::Integer)
+    state = @view lc.state[i, :]
+    xs = similar(state, length(state) + 1)
+    copyto!(xs, state)
+    xs[end] = state[1]
+    return xs
+end
 
 # TODO: make it more type-based
 function BifurcationsBase.measure(lc::LimitCycleData, key::Symbol)
