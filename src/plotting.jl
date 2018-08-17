@@ -258,6 +258,8 @@ end
             if zs !== nothing
                 line_z := zs
                 marker_z := zs
+            else
+                color --> 1
             end
             xlabel --> plottable_name(data, pltbl.keys[1])
             ylabel --> plottable_name(data, pltbl.keys[2])
