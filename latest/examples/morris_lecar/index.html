@@ -142,7 +142,7 @@ using Plots
 @time solve!(solver)
 </code></pre>
 
-<pre><code>  1.329987 seconds (1.81 M allocations: 97.792 MiB, 3.62% gc time)
+<pre><code>  0.998282 seconds (1.81 M allocations: 97.573 MiB, 5.17% gc time)
 Codim1Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 41
@@ -182,7 +182,7 @@ hopf_solver1 = init(
 @time solve!(hopf_solver1)
 </code></pre>
 
-<pre><code> 25.446374 seconds (40.67 M allocations: 2.028 GiB, 6.91% gc time)
+<pre><code> 18.487023 seconds (40.67 M allocations: 2.029 GiB, 7.76% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 55
@@ -221,7 +221,7 @@ flc_solver = init(
 @time solve!(flc_solver)
 </code></pre>
 
-<pre><code>1407.205580 seconds (218.78 M allocations: 36.351 GiB, 2.28% gc time)
+<pre><code>1142.253670 seconds (218.78 M allocations: 36.352 GiB, 2.44% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 1
 # points             : 46
@@ -234,12 +234,7 @@ BifurcationSolver &lt;Continuous&gt;
 
 <p><img alt="" src="../morris_lecar-state_space.png" /></p>
 <p>The continuation was configured to stop just before the period is about to diverge.  Note that stopping at larger period requires larger mesh size.</p>
-<pre><code class="julia">d_lc = length(flc_solver.prob.xs0)
-plt_periods = plot(
-    [u[end-1] for u in flc_solver.sol.sweeps[1].super.u],
-    [u[d_lc + 1] for u in flc_solver.sol.sweeps[1].super.u],
-    xlabel = &quot;p1&quot;,
-    ylabel = &quot;period&quot;)
+<pre><code class="julia">plt_periods = plot(flc_solver, (x=:p1, y=:period))
 </code></pre>
 
 <p><img alt="" src="../morris_lecar-periods.png" /></p>
@@ -276,7 +271,7 @@ sn_solver = init(
 @time solve!(sn_solver)
 </code></pre>
 
-<pre><code>  4.067685 seconds (5.26 M allocations: 283.872 MiB, 5.30% gc time)
+<pre><code>  3.214664 seconds (5.26 M allocations: 284.247 MiB, 5.41% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 385
@@ -295,7 +290,7 @@ hopf_solver2 = init(hopf_prob2)
 @time solve!(hopf_solver2)
 </code></pre>
 
-<pre><code>  0.003289 seconds (4.01 k allocations: 698.188 KiB)
+<pre><code>  0.002418 seconds (4.01 k allocations: 698.188 KiB)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 11
@@ -307,8 +302,7 @@ Codim2Solver &lt;Continuous&gt;
 <h3 id="phase-diagram">Phase diagram</h3>
 <pre><code class="julia">plt2 = plot()
 for s in [hopf_solver1, flc_solver, sn_solver, hopf_solver2]
-    n = length(s.sol.sweeps[1].super.u[1])
-    plot!(plt2, s, vars=(n - 1, n))
+    plot!(plt2, s)
 end
 plot!(plt2, ylim=(0.03, 0.15), xlim=(-0.05, 0.2))
 </code></pre>
