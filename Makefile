@@ -44,6 +44,7 @@ parallel-test: tmp/test
 	-git status > tmp/test/git-status.log
 	-rm tmp/test/test_*.log
 	$(MAKE) $(TEST_NAMES)
+	@if grep --color ERROR: tmp/test/test_*.log; then false; else true; fi
 	@echo -e '\033[0;32m Finished! \033[0m'
 
 tmp/test:
