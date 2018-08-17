@@ -55,7 +55,7 @@ plottables(::Any, ::Nothing) = nothing
 # post-processing:
 plottables(x::Number) = x
 plottables(xs::AbstractArray) = xs
-plottables(xs::Vector{<: Tuple}) = hcat(collect.(xs)...)'
+plottables(xs::Vector{<: Tuple}) = transpose(hcat(collect.(xs)...))
 
 process_key(::Any, key::Integer) = key
 mapping_to_tuple(::Any; x, y) = (x, y)
