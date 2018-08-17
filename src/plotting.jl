@@ -128,8 +128,7 @@ function assert_non_empty(sweep::AbstractSweep)
 end
 
 default_mapping(::Any) = (:x => 1, :y => 2)
-default_mapping(::Codim1Ctx) = (:x => :p1, :y => 1, :color => :stability)
-default_mapping(::Codim1LCCtx) = (:x => :p1, :y => 1)
+default_mapping(::Union{Codim1Ctx, Codim1LCCtx}) = (:x => :p1, :y => 1)
 default_mapping(::Union{Codim2Ctx, Codim2LCCtx}) = (:x => :p1, :y => :p2)
 
 # TODO: handle "color = :stability" etc. everywhere:
