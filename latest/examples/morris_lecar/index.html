@@ -142,7 +142,7 @@ using Plots
 @time solve!(solver)
 </code></pre>
 
-<pre><code>  0.998282 seconds (1.81 M allocations: 97.573 MiB, 5.17% gc time)
+<pre><code>  1.061208 seconds (1.81 M allocations: 97.568 MiB, 3.85% gc time)
 Codim1Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 41
@@ -182,7 +182,7 @@ hopf_solver1 = init(
 @time solve!(hopf_solver1)
 </code></pre>
 
-<pre><code> 18.487023 seconds (40.67 M allocations: 2.029 GiB, 7.76% gc time)
+<pre><code> 20.411073 seconds (40.67 M allocations: 2.029 GiB, 7.18% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 55
@@ -221,7 +221,7 @@ flc_solver = init(
 @time solve!(flc_solver)
 </code></pre>
 
-<pre><code>1142.253670 seconds (218.78 M allocations: 36.352 GiB, 2.44% gc time)
+<pre><code>1376.512848 seconds (218.78 M allocations: 36.351 GiB, 2.59% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 1
 # points             : 46
@@ -271,7 +271,7 @@ sn_solver = init(
 @time solve!(sn_solver)
 </code></pre>
 
-<pre><code>  3.214664 seconds (5.26 M allocations: 284.247 MiB, 5.41% gc time)
+<pre><code>  2.850949 seconds (5.26 M allocations: 284.221 MiB, 6.35% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 385
@@ -290,7 +290,7 @@ hopf_solver2 = init(hopf_prob2)
 @time solve!(hopf_solver2)
 </code></pre>
 
-<pre><code>  0.002418 seconds (4.01 k allocations: 698.188 KiB)
+<pre><code>  0.002416 seconds (4.01 k allocations: 698.188 KiB)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 11
