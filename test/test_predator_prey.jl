@@ -39,7 +39,7 @@ CODIM1_KNOWN_POINTS = Dict(
 
     @testset "codim-2 ($(nameof(ASType))) from $(point.u0[[1, end]])" for
             ASType in [NormalizingAS, BackReferencingAS],
-            point in special_points(codim1_solver)
+            point in special_intervals(codim1_solver)
 
         codim2_prob = BifurcationProblem(
             point,

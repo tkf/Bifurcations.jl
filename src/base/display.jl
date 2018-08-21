@@ -56,7 +56,7 @@ function Base.show(io::IO, sweep::BifurcationSweep)
 
     n_all = length(sweep)
     n_sb = length(super.simple_bifurcation)
-    n_sp = length(sweep.special_points)
+    n_sp = length(sweep.special_intervals)
     if get(io, :compact, false)
         println(io, " ", n_sb + n_sp, "/", n_all, " special/points")
     else
@@ -75,7 +75,7 @@ function show_solution_info(io::IO, sol::BifurcationSolution)
     end
     n_all = sum(length, super.sweeps)
     n_sb = sum(length(s.simple_bifurcation) for s in super.sweeps)
-    n_sp = sum(length(s.special_points) for s in sol.sweeps)
+    n_sp = sum(length(s.special_intervals) for s in sol.sweeps)
     if get(io, :compact, false)
         println(io, " ", n_sb + n_sp, "/", n_all, " special/points")
     else

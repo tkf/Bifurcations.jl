@@ -87,7 +87,7 @@ function push_special_point!(sweep::BifurcationSweep,
         J1,
         WeakRef(sweep),
     )
-    push!(sweep.special_points, point)
+    push!(sweep.special_intervals, point)
 end
 
 """

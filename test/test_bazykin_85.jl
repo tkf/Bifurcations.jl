@@ -50,9 +50,9 @@ KNOWN_POINTS = Dict(
     end
 
     sn_point, = sort!(
-        special_points(codim1_solver, Codim1.PointTypes.saddle_node),
+        special_intervals(codim1_solver, Codim1.PointTypes.saddle_node),
         by=p->p.u0[1])
-    hopf_point, = special_points(codim1_solver, Codim1.PointTypes.hopf)
+    hopf_point, = special_intervals(codim1_solver, Codim1.PointTypes.hopf)
 
     hopf_solver1 = nothing
     sn_solver1 = nothing
@@ -97,7 +97,7 @@ KNOWN_POINTS = Dict(
         @assert hopf_solver1 !== nothing
         # Find the right-most Bogdanov-Takens bifurcation:
         point = first(sort(
-            special_points(hopf_solver1,
+            special_intervals(hopf_solver1,
                            Codim2.PointTypes.bogdanov_takens);
             by = p -> p.u0[end - 1],  # α
             rev = true))
@@ -113,7 +113,7 @@ KNOWN_POINTS = Dict(
         @assert sn_solver1 !== nothing
         # Find the right-most Bogdanov-Takens bifurcation:
         point = first(sort(
-            special_points(sn_solver1,
+            special_intervals(sn_solver1,
                            Codim2.PointTypes.bogdanov_takens);
             by = p -> p.u0[end - 1],  # α
             rev = true))
@@ -124,7 +124,7 @@ KNOWN_POINTS = Dict(
         hopf_solver2 = init(hopf_prob)
         @test_nothrow solve!(hopf_solver2)
 
-        bpoints = special_points(hopf_solver2, Codim2.PointTypes.bautin)
+        bpoints = special_intervals(hopf_solver2, Codim2.PointTypes.bautin)
         @test length(bpoints) == 1
         @test_nothrow resolved_points(hopf_solver2, Codim2.PointTypes.bautin)
     end

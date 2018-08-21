@@ -4,7 +4,7 @@ using Setfield: get, set
 
 using ..Continuations: init, solve!, residual_jacobian, ContinuationSolver,
     ZeroNotFoundError, FindZeroInputError
-using ..BifurcationsBase: AbstractSpecialPoint, SpecialPoint, special_points
+using ..BifurcationsBase: AbstractSpecialPoint, SpecialPoint, special_intervals
 using ..Codim1
 using ..Codim1: resolving_points, resolve_point
 using ..Codim2
@@ -118,12 +118,12 @@ function nearest_fold_lc(lc_prob; lc_solver_opts...)
     solve!(lc_solver)
 
     PT = Codim1LimitCycle.PointTypes.saddle_node
-    point_candidates = special_points(lc_solver, PT)
+    point_candidates = special_intervals(lc_solver, PT)
     if isempty(point_candidates)
         error("Cannot find fold bifurcation of the limit cycle.")
     end
-    sw1_points = special_points(lc_solver.sol.sweeps[1], PT)
-    sw2_points = special_points(lc_solver.sol.sweeps[2], PT)
+    sw1_points = special_intervals(lc_solver.sol.sweeps[1], PT)
+    sw2_points = special_intervals(lc_solver.sol.sweeps[2], PT)
     sweep_index = -1
     if length(sw2_points) == 0
         @assert length(sw1_points) > 0

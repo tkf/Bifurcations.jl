@@ -9,7 +9,7 @@ Modified Morris-Lecar model from [Dhooge, Govaerts, Kuznetsov (2003)]:
 
 ```@example morris_lecar
 using Bifurcations
-using Bifurcations: special_points
+using Bifurcations: special_intervals
 using Bifurcations.Codim1
 using Bifurcations.Codim2
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
@@ -43,7 +43,7 @@ savefig(plt1, "morris_lecar-1.png"); nothing # hide
 ### Start continuation of Hopf bifurcation
 
 ```@example morris_lecar
-hopf_point, = special_points(solver, Codim1.PointTypes.hopf)
+hopf_point, = special_intervals(solver, Codim1.PointTypes.hopf)
 ```
 
 Solve continuation of the Hopf point:
@@ -65,7 +65,7 @@ hopf_solver1 = init(
 ### Start continuation of fold bifurcation of limit cycle at Bautin bifurcation
 
 ```@example morris_lecar
-bautin_point, = special_points(hopf_solver1, Codim2.PointTypes.bautin)
+bautin_point, = special_intervals(hopf_solver1, Codim2.PointTypes.bautin)
 ```
 
 Construct a problem for fold bifurcation of the limit cycle starting
@@ -113,7 +113,7 @@ savefig(plt_periods, "morris_lecar-periods.png"); nothing # hide
 ### Start continuation of Saddle-Node bifurcation
 
 ```@example morris_lecar
-sn_point, = special_points(solver, Codim1.PointTypes.saddle_node)
+sn_point, = special_intervals(solver, Codim1.PointTypes.saddle_node)
 ```
 
 Going back to the original continuation of the equilibrium, let's
@@ -139,7 +139,7 @@ sn_solver = init(
 
 ```@example morris_lecar
 hopf_prob2 = BifurcationProblem(
-    special_points(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
+    special_intervals(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
     sn_solver,
 )
 hopf_solver2 = init(hopf_prob2)

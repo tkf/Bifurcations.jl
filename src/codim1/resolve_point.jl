@@ -1,6 +1,6 @@
 using Parameters: @unpack
 using ..Continuations: find_zero!
-using ..BifurcationsBase: AbstractSpecialPoint, special_points,
+using ..BifurcationsBase: AbstractSpecialPoint, special_intervals,
     contkind, FixedPointCont, ContinuationKind
 
 function default_resolve_exception_handler(err, interval, warn_exceptions)
@@ -34,7 +34,7 @@ function resolving_points(
                 rethrow()
             end
             nothing
-        end for interval in special_points(solver, args...))
+        end for interval in special_intervals(solver, args...))
 end
 
 resolved_points(solver::BifurcationSolver, args...; kwargs...) =

@@ -1,15 +1,15 @@
-special_points(solver::BifurcationSolver, args...) =
-    special_points(solver.sol, args...)
+special_intervals(solver::BifurcationSolver, args...) =
+    special_intervals(solver.sol, args...)
 
-special_points(sol::BifurcationSolution, args...) =
-    [point for sweep in sol.sweeps for point in special_points(sweep, args...)]
+special_intervals(sol::BifurcationSolution, args...) =
+    [point for sweep in sol.sweeps for point in special_intervals(sweep, args...)]
 
-special_points(sweep::BifurcationSweep) = sweep.special_points
-special_points(sweep::BifurcationSweep, point_type::Enum) =
-    special_points(sweep, (point_type,))
-special_points(sweep::BifurcationSweep,
+special_intervals(sweep::BifurcationSweep) = sweep.special_intervals
+special_intervals(sweep::BifurcationSweep, point_type::Enum) =
+    special_intervals(sweep, (point_type,))
+special_intervals(sweep::BifurcationSweep,
                point_types::NTuple{N, <:Enum}) where N =
-    filter(p -> p.point_type in point_types, special_points(sweep))
+    filter(p -> p.point_type in point_types, special_intervals(sweep))
 
 
 """
@@ -36,7 +36,7 @@ get_param_axis2(ctx) = get_param_axis(ctx, Val(2))
 
 function count_special_points(sweep::BifurcationSweep)
     counter = Dict{point_type_type(sweep), Int}()
-    for sp in sweep.special_points
+    for sp in sweep.special_intervals
         counter[sp.point_type] = get!(counter, sp.point_type, 0) + 1
     end
     return counter

@@ -20,9 +20,9 @@ solver1 = init(
 )
 @time solve!(solver1)
 
-all_specials = special_points(solver1)
-all_hopf = special_points(solver1, Codim1.PointTypes.hopf)
-all_sn = special_points(solver1, Codim1.PointTypes.saddle_node)
+all_specials = special_intervals(solver1)
+all_hopf = special_intervals(solver1, Codim1.PointTypes.hopf)
+all_sn = special_intervals(solver1, Codim1.PointTypes.saddle_node)
 @test length(all_specials) == 3
 @test length(all_sn) == 2
 @test length(all_hopf) == 1
@@ -42,7 +42,7 @@ hopf_solver = init(
 )
 solve!(hopf_solver)
 
-all_bautin = special_points(hopf_solver, Codim2.PointTypes.bautin)
+all_bautin = special_intervals(hopf_solver, Codim2.PointTypes.bautin)
 @assert length(all_bautin) == 1
 bautin_point, = all_bautin
 bautin_point
@@ -69,7 +69,7 @@ flc_solver = init(
 
 
 sn_prob = BifurcationProblem(
-    special_points(solver1, Codim1.PointTypes.saddle_node)[1],
+    special_intervals(solver1, Codim1.PointTypes.saddle_node)[1],
     solver1,
     (@lens _.z),
     (-1.0, 1.0),
@@ -89,7 +89,7 @@ sn_solver = init(
 
 
 hopf_prob2 = BifurcationProblem(
-    special_points(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
+    special_intervals(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
     sn_solver,
 )
 hopf_solver2 = init(hopf_prob2)

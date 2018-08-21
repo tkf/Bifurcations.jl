@@ -2,13 +2,13 @@ module TestHopfToLC
 include("preamble_plots.jl")
 
 using Bifurcations
-using Bifurcations: special_points, LimitCycleProblem, limitcycles
+using Bifurcations: special_intervals, LimitCycleProblem, limitcycles
 using Bifurcations.Examples.PredatorPrey
 
 solver0 = init(PredatorPrey.prob)
 solve!(solver0)
 
-hopf_point, = special_points(solver0, Codim1.PointTypes.hopf)
+hopf_point, = special_intervals(solver0, Codim1.PointTypes.hopf)
 
 period_max = 36.0
 prob_lc = LimitCycleProblem(

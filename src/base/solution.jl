@@ -41,7 +41,7 @@ struct BifurcationSweep{
     super::S
     jacobians::Vector{JType}
     eigvals::Vector{eType}
-    special_points::Vector{pType}
+    special_intervals::Vector{pType}
 end
 # See: [[../continuations/solution.jl::ContinuationSweep]]
 

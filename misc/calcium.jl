@@ -11,10 +11,10 @@ plot = Bifurcations.plot  # workaround
 plt1 = plot(sol)
 display(plt1)
 
-using Bifurcations: BifurcationProblem, special_points
+using Bifurcations: BifurcationProblem, special_intervals
 using Setfield: @lens
 
-point_list = sort!(special_points(solver), by=p->p.u0[end])
+point_list = sort!(special_intervals(solver), by=p->p.u0[end])
 point = point_list[1]
 @show point
 

@@ -8,7 +8,7 @@ using Setfield: @lens
 using Bifurcations
 using Bifurcations.Codim1
 using Bifurcations.Codim2
-using Bifurcations: BifurcationProblem, special_points
+using Bifurcations: BifurcationProblem, special_intervals
 using Bifurcations.Codim2: cast_container
 
 macro test_nothrow(ex)
@@ -34,14 +34,14 @@ function smoke_test_solver_show(solver)
 
     for sweep in solver.sol.sweeps
         @test_nothrow nullshow(sweep)
-        for point in special_points(sweep)
+        for point in special_intervals(sweep)
             @test_nothrow nullshow(point)
         end
     end
 end
 
 function smoke_test_solver_plot(solver)
-    for p in special_points(solver)
+    for p in special_intervals(solver)
         @test_nothrow nullshow(plot(p))
     end
     for sweep in solver.sol.sweeps

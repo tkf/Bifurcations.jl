@@ -9,7 +9,7 @@ using .ArrayUtils: nan_
 using .Continuations: as, ContinuationSweep, ContinuationSolution,
     ContinuationSolver, sweeps_as_vectors
 using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
-    BifurcationSolver, special_points, measure, problem_of,
+    BifurcationSolver, special_intervals, measure, problem_of,
     get_param_axis1, get_param_axis2
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     AbstractCodim1SpecialPoint, stabilities, curves_by_stability,
@@ -318,7 +318,7 @@ function maybe_get_points(sweep, include_points, resolve_points)
         if resolve_points
             return resolved_points(sweep)
         else
-            return special_points(sweep)
+            return special_intervals(sweep)
         end
     end
     return []

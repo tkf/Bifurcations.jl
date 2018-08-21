@@ -10,7 +10,7 @@ using Bifurcations.Examples.Calcium
     codim1 = init(Calcium.prob)
     solve!(codim1)
 
-    for point in special_points(codim1)
+    for point in special_intervals(codim1)
         codim2_prob = BifurcationProblem(
             point,
             codim1,

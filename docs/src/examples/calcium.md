@@ -87,9 +87,9 @@ savefig(plt, "calcium-1.png"); nothing # hide
 Find the left Saddle-Node bifurcation point:
 
 ```@example calcium
-using Bifurcations: special_points
+using Bifurcations: special_intervals
 
-point_list = sort!(special_points(solver), by=p->p.u0[end])
+point_list = sort!(special_intervals(solver), by=p->p.u0[end])
 point = point_list[1]
 ```
 
