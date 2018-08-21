@@ -35,29 +35,33 @@ struct BifurcationSweep{
         S <: ContinuationSweep,
         JType <: AbstractArray,
         eType <: AbstractArray,
-        pType <: SpecialPointInterval{tkind, ptType},
+        siType <: SpecialPointInterval{tkind, ptType},
+        spType <: SpecialPoint{tkind, ptType},
         }
     timekind::tkind
     super::S
     jacobians::Vector{JType}
     eigvals::Vector{eType}
-    special_intervals::Vector{pType}
+    special_intervals::Vector{siType}
+    special_points::Vector{spType}
 end
 # See: [[../continuations/solution.jl::ContinuationSweep]]
 
-BifurcationSweep{tkind, ptType, S, JType, eType, pType}(super::S) where{
+BifurcationSweep{tkind, ptType, S, JType, eType, siType, spType}(super::S) where{
     tkind <: TimeKind,
     ptType,
     S <: ContinuationSweep,
     JType <: AbstractArray,
     eType <: AbstractArray,
-    pType <: SpecialPointInterval{tkind, ptType},
-} = BifurcationSweep{tkind, ptType, S, JType, eType, pType}(
+    siType <: SpecialPointInterval{tkind, ptType},
+    spType <: SpecialPoint{tkind, ptType},
+} = BifurcationSweep{tkind, ptType, S, JType, eType, siType, spType}(
     tkind(),
     super,
     JType[],
     eType[],
-    pType[],
+    siType[],
+    spType[],
 )
 
 TimeKind(::Type{<: BifurcationSweep{tkind}}) where tkind = tkind()
@@ -85,8 +89,9 @@ function sweeptype(prob::BifurcationProblem,
     S = eltype(solver.sol.sweeps)
     uType = eltype(S)
     ptType = point_type_type(prob)
-    pType = SpecialPointInterval{tkind, ptType, uType, JType}
-    return BifurcationSweep{tkind, ptType, S, JType, eType, pType}
+    siType = SpecialPointInterval{tkind, ptType, uType, JType}
+    spType = SpecialPoint{tkind, ptType, uType, JType}
+    return BifurcationSweep{tkind, ptType, S, JType, eType, siType, spType}
 end
 
 function BifurcationSweep(super::ContinuationSweep, solver::ContinuationSolver)
@@ -100,7 +105,7 @@ struct BifurcationSolution{S <: ContinuationSolution,
 end
 
 BifurcationSolution(super::ContinuationSolution,
-                    SweepType::Type{<: BifurcationSweep}) =
-    BifurcationSolution(super, SweepType[])
+                    SweesiType::Type{<: BifurcationSweep}) =
+    BifurcationSolution(super, SweesiType[])
 
 TimeKind(::Type{<: BifurcationSolution{_, W}}) where {_, W} = TimeKind(W)
