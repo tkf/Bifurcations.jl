@@ -45,6 +45,34 @@ function resolve_point(point::AbstractSpecialPoint, solver::BifurcationSolver)
     return resolve_point(point, super.cache, super.opts)
 end
 
+"""
+    resolve_points!(solver; kwargs...)
+
+Resolve special points if not.  It is a no-op if all points are
+already resolved.
+"""
+function resolve_points!(
+        solver::BifurcationSolver;
+        warn_exceptions = (SingularException,),
+        exception_handler = default_resolve_exception_handler(warn_exceptions),
+        )
+    for sweep in solver.sol.sweeps
+        ofs = length(sweep.special_points) + 1
+        for interval in @view sweep.special_intervals[ofs:end]
+            point = try
+                resolve_point!(interval,
+                               as(solver.cache, ContinuationCache),
+                               solver.opts)
+            catch err
+                if !exception_handler(err, interval)
+                    rethrow()
+                end
+            end
+            push!(sweep.special_points, point)
+        end
+    end
+end
+
 resolve_point(point::AbstractSpecialPoint,
               cache::ContinuationCache,
               args...) =
