@@ -2,7 +2,6 @@
 # https://github.com/travis-ci/travis-build/blob/master/lib/travis/build/script/julia.rb
 
 using Pkg
-Pkg.build()
 
 # Manually installing other CI dependencies
 packages = []
