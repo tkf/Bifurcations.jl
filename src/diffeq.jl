@@ -15,13 +15,13 @@ struct DiffEqWrapper{P, L}
 end
 
 function diffeq_homotopy(H, x, p::DiffEqWrapper{<:DEP{true}}, t)
-    q = set(p.param_axis, p.de_prob.p, t)
+    q = set(p.de_prob.p, p.param_axis, t)
     p.de_prob.f(H, x, q, 0)
     maybe_subtract!(H, x, statekind(p.de_prob), timekind(p.de_prob))
 end
 
 function diffeq_homotopy(x, p::DiffEqWrapper{<:DEP{false}}, t)
-    q = set(p.param_axis, p.de_prob.p, t)
+    q = set(p.de_prob.p, p.param_axis, t)
     H = p.de_prob.f(x, q, 0)
     return maybe_subtract!(H, x, statekind(p.de_prob), timekind(p.de_prob))
 end
@@ -47,7 +47,7 @@ function BifurcationProblem(
         de_prob::DEP, param_axis::Lens, t_domain::Tuple;
         kwargs...)
     u0 = de_prob.u0
-    t0 = get(param_axis, de_prob.p)
+    t0 = get(de_prob.p, param_axis)
     p = DiffEqWrapper(deepcopy(de_prob), param_axis)
     return FixedPointBifurcationProblem(
         statekind(de_prob),

@@ -282,7 +282,7 @@ end
 
 function residual!(H, u, cache::LimitCycleCache)
     prob = cache.prob
-    q = set(prob.param_axis, prob.de_prob.p, u[u_idx_param(cache)])
+    q = set(prob.de_prob.p, prob.param_axis, u[u_idx_param(cache)])
     return residual_lc!(H, u, q, cache)
 end
 

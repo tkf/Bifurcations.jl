@@ -55,7 +55,7 @@ function FoldLimitCycleProblem(
     vs0 = reshape(v0[1:end-1], size(lc_prob.xs0))
     dl0 = v0[end]
     t0 = SVector(u_init[end],
-                 get(solver.prob.param_axis2, lc_prob.de_prob.p))
+                 get(lc_prob.de_prob.p, solver.prob.param_axis2))
 
     return FoldLimitCycleProblem(
         lc_prob;
@@ -86,7 +86,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
     normalize!(view(vs0, :))
 
     l0 = point.u[end - 1]
-    t0 = SVector(point.u[end], get(param_axis2, de_prob.p))
+    t0 = SVector(point.u[end], get(de_prob.p, param_axis2))
     t_domain = (
         SVector(cd1_prob.t_domain[1], t2_domain[1]),
         SVector(cd1_prob.t_domain[2], t2_domain[2]),
@@ -238,7 +238,7 @@ function bautin_to_subcritical_lc(
         J_sc[1:N, 1:N+1],
         WeakRef(),  # dummy
     )
-    param = set(solver.prob.param_axis2, de_prob.p, u_sc[end])
+    param = set(de_prob.p, solver.prob.param_axis2, u_sc[end])
 
     return LimitCycleProblem(
         hopf_point,
@@ -280,7 +280,7 @@ function lc_at_bautin(
         resolved.J[1:N, 1:N+1],
         WeakRef(),  # dummy
     )
-    param = set(solver.prob.param_axis2, de_prob.p, resolved.u[end])
+    param = set(de_prob.p, solver.prob.param_axis2, resolved.u[end])
 
     return LimitCycleProblem(
         hopf_point,

@@ -117,6 +117,6 @@ function LimitCycleProblem(de_prob::ODEProblem,
         degree = degree,
         param_axis = param_axis,
         t_domain = t_domain,
-        t0 = get(param_axis, ode.p),
+        t0 = get(ode.p, param_axis),
         kwargs...)
 end

@@ -41,8 +41,8 @@ interleave(x, y) = transpose([x y])[:]
 function SymDiffCodim2Problem(prob::DiffEqCodim2Problem)
     @vars param1 param2
     p = prob.de_prob.p
-    p = set(prob.param_axis1, p, param1)
-    p = set(prob.param_axis2, p, param2)
+    p = set(p, prob.param_axis1, param1)
+    p = set(p, prob.param_axis2, param2)
 
     n = length(prob.de_prob.u0)
     x = [symbols("x_$i") for i in 1:n]

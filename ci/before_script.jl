@@ -14,7 +14,6 @@ if get(ENV, "CI_GROUP", "") == "docs"
     ])
 end
 specs = [
-    PackageSpec(url="https://github.com/jw3126/Setfield.jl"),
     PackageSpec(url="https://github.com/tkf/Jacobi.jl", rev="jl07"),
     PackageSpec.(packages)...
 ]

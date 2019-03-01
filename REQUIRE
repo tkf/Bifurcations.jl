@@ -5,5 +5,5 @@ ForwardDiff
 Jacobi
 Parameters
 RecipesBase
-Setfield 0.1.0
+Setfield 0.3.0
 StaticArrays

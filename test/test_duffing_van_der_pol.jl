@@ -36,7 +36,7 @@ prob = LimitCycleProblem(
     xs0 = xs0,
     l0 = 2π,
     t_domain = (0.01, 1.5), # bound it so that it works with above `num_mesh`
-    t0 = get(DuffingVanDerPol.param_axis, ode.p),
+    t0 = get(ode.p, DuffingVanDerPol.param_axis),
 )
 
 @test size(prob.xs0) == (2, num_mesh * degree)

@@ -43,8 +43,8 @@ function FoldLimitCycleProblem(
         l0 = prob.l0,
         param_axis1 = prob.param_axis,
         param_axis2,
-        t0 = SVector(get(param_axis1, prob.de_prob.p),
-                     get(param_axis2, prob.de_prob.p)),
+        t0 = SVector(get(prob.de_prob.p, param_axis1),
+                     get(prob.de_prob.p, param_axis2)),
         t2_domain = (typemin(eltype(t0)), typemax(eltype(t0))),
         t_domain = (
             SVector(prob.t_domain[1], t2_domain[1]),
@@ -136,8 +136,8 @@ isindomain(u, cache::FoldLimitCycleCache) =
 function modified_param!(p, u)
     t1, t2 = u[end-1:end]
     q0 = p.super.de_prob.p
-    q1 = set(p.param_axis1, q0, t1)
-    q2 = set(p.param_axis2, q1, t2)
+    q1 = set(q0, p.param_axis1, t1)
+    q2 = set(q1, p.param_axis2, t2)
     return q2
 end
 

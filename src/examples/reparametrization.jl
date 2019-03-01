@@ -153,7 +153,7 @@ function reparametrize(prob::FixedPointBifurcationProblem,
     ode = reparametrize(prob.p.de_prob, args...; kwargs...)
     return BifurcationProblem(
         ode,
-        compose(prob.p.param_axis, orig_p),
+        compose(orig_p, prob.p.param_axis),
         prob.t_domain,
     )
 end

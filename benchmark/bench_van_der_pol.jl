@@ -39,7 +39,7 @@ function make_van_der_pol_lc_solver()
         xs0 = xs0,
         l0 = 2π,
         t_domain = (0.01, 1.5),
-        t0 = get(DuffingVanDerPol.param_axis, ode.p),
+        t0 = get(ode.p, DuffingVanDerPol.param_axis),
     )
 
     @assert size(prob.xs0) == (2, num_mesh * degree)

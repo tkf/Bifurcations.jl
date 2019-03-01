@@ -37,7 +37,7 @@ using Bifurcations.Examples.Reparametrization: orig_p
     hopf_prob = BifurcationProblem(
         codim1_points[1],
         solver1,
-        compose((@lens _.β₂), orig_p),
+        compose(orig_p, (@lens _.β₂)),
         (-2.0, 2.0),
     )
     hopf_solver = init(

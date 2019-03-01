@@ -36,8 +36,8 @@ function DiffEqCodim2Problem(
         x0 = copy(de_prob.u0),
         v0 = copy(x0),  # TODO: fix it. this default won't work
         w0 = 0,
-        t0 = SVector(get(param_axis1, de_prob.p),
-                     get(param_axis2, de_prob.p)),
+        t0 = SVector(get(de_prob.p, param_axis1),
+                     get(de_prob.p, param_axis2)),
         augmented_system = BackReferencingAS(),
         )
     if param_axis1 == param_axis2
@@ -155,8 +155,8 @@ residual_jacobian!(H, J, u, cache::DiffEqCodim2BifurcationCache) =
 function modified_param!(p::DiffEqCodim2Problem, u)
     t1, t2 = u[end-1:end]
     q0 = p.de_prob.p
-    q1 = set(p.param_axis1, q0, t1)
-    q2 = set(p.param_axis2, q1, t2)
+    q1 = set(q0, p.param_axis1, t1)
+    q2 = set(q1, p.param_axis2, t2)
     return q2
 end
 

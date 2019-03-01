@@ -39,7 +39,7 @@ function BifurcationProblem(point::AbstractSpecialPoint,
 
     resolved = resolve_point(point, solver)
     x0 = xtype(resolved.u[1:end - 1])
-    t0 = SVector(resolved.u[end], get(param_axis2, de_prob.p))
+    t0 = SVector(resolved.u[end], get(de_prob.p, param_axis2))
 
     vals, vecs = eigen(Codim1.ds_jacobian(resolved.J))
     # TOOD: use eigs (depending on size(J)?)
