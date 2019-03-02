@@ -4,8 +4,8 @@ using Parameters: @with_kw, @unpack
 using Setfield: set
 using StaticArrays: SVector, SMatrix, Size
 
-using Jacobi: lagrange, zgj, wgj
-using ..PolyUtils: dlagrange
+using QuadGK: gauss
+using ..PolyUtils: lagrange, dlagrange
 
 import ..Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     isindomain
@@ -112,8 +112,9 @@ function LimitCycleCache(prob)
     τ = range(0, step=dτ, length=m + 1)
     @assert τ[end] ≈ interval
 
-    ζ = zgj(m, 0, 0) .* interval  # Gauss nodes
-    gauss_quadrature_weight = wgj(ζ, 0, 0)
+    ζ_, gauss_quadrature_weight_ = gauss(m)
+    ζ = ζ_ .* interval  # Gauss nodes
+    gauss_quadrature_weight = gauss_quadrature_weight_ .* interval
     lagrange_polynomial_vals = [lagrange(k, ζᵢ, τ) for ζᵢ in ζ, k in 1:m+1]
     lagrange_polynomial_driv = [dlagrange(k, ζᵢ, τ) for ζᵢ in ζ, k in 1:m+1]
 

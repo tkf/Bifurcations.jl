@@ -2,8 +2,8 @@ julia 0.7-alpha
 Compat
 DiffEqBase
 ForwardDiff
-Jacobi
 Parameters
+QuadGK
 RecipesBase
 Setfield 0.3.0
 StaticArrays

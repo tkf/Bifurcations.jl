@@ -10,7 +10,6 @@ import DocumenterMarkdown
 using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
-import Jacobi
 import OrdinaryDiffEq
 flush(stdout)
 flush(stderr)
