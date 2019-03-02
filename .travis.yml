@@ -44,6 +44,6 @@ after_success:
     julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())';
     fi
   # build documents
-  - if [ "$CI_GROUP" = docs ]; then
+  - if [ "$CI_GROUP" = docs -a "$TRAVIS_JULIA_VERSION" = 1.0 ]; then
     julia --color=yes docs/deploy.jl;
     fi
