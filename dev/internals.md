@@ -31,7 +31,7 @@ A continuation problem type (a subtype of `AbstractContinuationProblem`) defines
   * and computation cache: [`get_prob_cache`](internals.md#Bifurcations.Continuations.get_prob_cache).
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L1-L21' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L1-L21' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.AbstractProblemCache' href='#Bifurcations.Continuations.AbstractProblemCache'>#</a>
 **`Bifurcations.Continuations.AbstractProblemCache`** &mdash; *Type*.
@@ -45,7 +45,7 @@ AbstractProblemCache{P <: AbstractContinuationProblem}
 Cache for computing $H$ and its Jacobian.
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L24-L28' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L24-L28' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.residual' href='#Bifurcations.Continuations.residual'>#</a>
 **`Bifurcations.Continuations.residual`** &mdash; *Function*.
@@ -66,7 +66,7 @@ The name `residual` of the function is came from the problem we are to solve: i.
   * `cache::AbstractProblemCache`
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L31-L45' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L31-L45' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.residual!' href='#Bifurcations.Continuations.residual!'>#</a>
 **`Bifurcations.Continuations.residual!`** &mdash; *Function*.
@@ -88,7 +88,7 @@ See also: [`residual`](internals.md#Bifurcations.Continuations.residual)
   * `cache::AbstractProblemCache`
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L48-L61' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L48-L61' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.residual_jacobian!' href='#Bifurcations.Continuations.residual_jacobian!'>#</a>
 **`Bifurcations.Continuations.residual_jacobian!`** &mdash; *Function*.
@@ -109,7 +109,7 @@ Compute $H(u)$ and its Jacobian $\partial H /  \partial u$.
   * `cache::AbstractProblemCache`
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L64-L74' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L64-L74' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.isindomain' href='#Bifurcations.Continuations.isindomain'>#</a>
 **`Bifurcations.Continuations.isindomain`** &mdash; *Function*.
@@ -126,7 +126,7 @@ isindomain(u, cache) :: Bool
   * `cache::AbstractProblemCache`
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L77-L83' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L77-L83' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.get_prob_cache' href='#Bifurcations.Continuations.get_prob_cache'>#</a>
 **`Bifurcations.Continuations.get_prob_cache`** &mdash; *Function*.
@@ -138,7 +138,7 @@ get_prob_cache(prob::AbstractContinuationProblem) :: AbstractProblemCache
 ```
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L86-L88' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L86-L88' class='documenter-source'>source</a><br>
 
 <a id='Bifurcations.Continuations.get_u0' href='#Bifurcations.Continuations.get_u0'>#</a>
 **`Bifurcations.Continuations.get_u0`** &mdash; *Function*.
@@ -150,7 +150,7 @@ get_u0(prob::AbstractContinuationProblem) ↦ u0
 ```
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/interface.jl#L93-L95' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/interface.jl#L93-L95' class='documenter-source'>source</a><br>
 
 
 <a id='Continuation-algorithm-1'></a>
@@ -180,7 +180,7 @@ See [`AbstractContinuationProblem`](internals.md#Bifurcations.Continuations.Abst
   * `simple_bifurcation::Bool`
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/continuations/euler_newton.jl#L12-L28' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/continuations/euler_newton.jl#L12-L28' class='documenter-source'>source</a><br>
 
 
 <a id='Bifurcation-problem-1'></a>
@@ -207,5 +207,5 @@ See also: [`AbstractContinuationProblem`](internals.md#Bifurcations.Continuation
   * `p`: Model parameter (constants).
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8d795572e34a1212e4addf7707dfc5ddc7834ce6/src/fixedpoint.jl#L8-L32' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/b17abe3e46f2107dfc63cc3c223adbe86435234e/src/fixedpoint.jl#L8-L32' class='documenter-source'>source</a><br>
 
