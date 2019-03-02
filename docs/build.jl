@@ -6,6 +6,7 @@ end, color=:blue)
 println()
 flush(stdout)
 using Documenter
+import DocumenterMarkdown
 using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
@@ -25,5 +26,6 @@ let strict = get(ENV, "DOCS_STRICT", "yes") == "yes"
     """
     makedocs(
         strict = strict,
+        format = DocumenterMarkdown.Markdown()
     )
 end
