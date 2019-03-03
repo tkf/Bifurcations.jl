@@ -64,6 +64,7 @@ As the limit cycle is only approximately specified, solver option
 solver = init(
     prob;
     start_from_nearest_root = true,
+    max_branches = 0,
 )
 @time solve!(solver)
 ```
