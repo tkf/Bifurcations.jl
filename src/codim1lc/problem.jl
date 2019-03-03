@@ -113,8 +113,8 @@ function LimitCycleCache(prob)
     @assert τ[end] ≈ interval
 
     ζ_, gauss_quadrature_weight_ = gauss(m)
-    ζ = ζ_ .* interval  # Gauss nodes
-    gauss_quadrature_weight = gauss_quadrature_weight_ .* interval
+    ζ = (ζ_ .+ 1) ./ 2 .* interval  # Gauss nodes
+    gauss_quadrature_weight = gauss_quadrature_weight_ ./ 2 .* interval
     lagrange_polynomial_vals = [lagrange(k, ζᵢ, τ) for ζᵢ in ζ, k in 1:m+1]
     lagrange_polynomial_driv = [dlagrange(k, ζᵢ, τ) for ζᵢ in ζ, k in 1:m+1]
 
