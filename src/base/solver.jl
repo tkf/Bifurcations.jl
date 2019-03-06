@@ -81,14 +81,21 @@ function push_special_interval!(sweep::BifurcationSweep,
     point = SpecialPointInterval(
         timekind(sweep),
         point_type,
-        length(sweep),
-        super.u[end - 1],
-        super.u[end],
+        length(sweep) - 1,  # point_index
+        super.u[end - 1],   # u0
+        super.u[end],       # u1
         J1,
         WeakRef(sweep),
     )
     push!(sweep.special_intervals, point)
 end
+# `push_special_interval!` is relying on that it is called **after**
+# the new point (`u1` in above) is `push!`ed to `super.u`.  With this
+# assumption, `point_index` is same as the index used for
+# `SimpleBifurcationInterval` in `push_point!` (see:
+# [[../continuations/solution.jl::push_point!]]).  Note that `super.u`
+# is updated via `push_point!` via `step!(::ContinuationSolver)`
+# before `push_special_interval!` is called via `record!`.
 
 """
     is_special(point_type) :: Bool
