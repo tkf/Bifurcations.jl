@@ -13,7 +13,7 @@ using .BifurcationsBase: BifurcationSweep, BifurcationSolution,
     get_param_axis1, get_param_axis2
 using .Codim1: Codim1Sweep, Codim1Solution, Codim1Solver,
     AbstractCodim1SpecialPoint, stabilities, curves_by_stability,
-    SpecialPoint, SpecialPointInterval, resolved_points
+    SpecialPoint, SpecialPointInterval, resolved_points, special_points!
 using .Codim2: Codim2Sweep, Codim2Solution, Codim2Solver,
     AbstractCodim2SpecialPoint
 using .Codim1LimitCycle: Codim1LCSweep, Codim1LCSolution, Codim1LCSolver,
@@ -316,7 +316,7 @@ end
 function maybe_get_points(sweep, include_points, resolve_points)
     if include_points
         if resolve_points
-            return resolved_points(sweep)
+            return special_points!(sweep)
         else
             return special_intervals(sweep)
         end
