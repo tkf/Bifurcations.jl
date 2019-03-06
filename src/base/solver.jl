@@ -67,16 +67,16 @@ function allocate_sweep!(sol::BifurcationSolution, solver::ContinuationSolver)
 end
 
 
-function push_special_point!(sweep::BifurcationSweep,
-                             cache::BifurcationCache)
-    push_special_point!(sweep,
-                        cache.point_type,
-                        as(cache, ContinuationCache).J)
+function push_special_interval!(sweep::BifurcationSweep,
+                                cache::BifurcationCache)
+    push_special_interval!(sweep,
+                           cache.point_type,
+                           as(cache, ContinuationCache).J)
 end
 
-function push_special_point!(sweep::BifurcationSweep,
-                             point_type,
-                             J1)
+function push_special_interval!(sweep::BifurcationSweep,
+                                point_type,
+                                J1)
     super = as(sweep, ContinuationSweep)
     point = SpecialPointInterval(
         timekind(sweep),
@@ -102,6 +102,6 @@ function record!(sol::BifurcationSolution, cache::BifurcationCache)
     push!(sweep.eigvals, copy(cache.eigvals))
 
     if is_special(cache.point_type)
-        push_special_point!(sweep, cache)
+        push_special_interval!(sweep, cache)
     end
 end
