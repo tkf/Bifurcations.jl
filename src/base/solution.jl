@@ -98,6 +98,22 @@ function BifurcationSweep(super::ContinuationSweep, solver::ContinuationSolver)
     return sweeptype(solver.prob, solver)(super)
 end
 
+function push_special_point!(sweep::BifurcationSweep, point::SpecialPoint)
+    @assert point.point_index < length(sweep)
+
+    push!(sweep.special_points, point)
+
+    # TODO: Add two new points rather than replacing the old one.
+    # At the moment, just "move" the recorded points at the resolved
+    # `point` so that there would be no discrepancy between the
+    # plotted special points and stability of the lines.
+    cont_sweep = as(sweep, ContinuationSweep)
+    cont_sweep.u[point.point_index] = point.u
+    cont_sweep.u[point.point_index + 1] = point.u
+
+    return sweep
+end
+
 struct BifurcationSolution{S <: ContinuationSolution,
                            W <: BifurcationSweep}
     super::S

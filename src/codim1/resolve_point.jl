@@ -1,7 +1,7 @@
 using Parameters: @unpack
 using ..Continuations: find_zero!
 using ..BifurcationsBase: AbstractSpecialPoint, special_intervals,
-    special_points,
+    special_points, push_special_point!,
     contkind, FixedPointCont, ContinuationKind
 
 function default_resolve_exception_handler(err, interval, warn_exceptions)
@@ -69,7 +69,7 @@ function resolve_points!(
                     rethrow()
                 end
             end
-            push!(sweep.special_points, point)
+            push_special_point!(sweep, point)
         end
     end
 end
