@@ -41,6 +41,7 @@ function guess_point_type(::HopfCont, ::Continuous, cache, opts)
     if w <= 0
         # Relying on that it was started positive.
         # See: [[./problem.jl::w0 < 0]]
+        #      [[./switch.jl::w0 < 0]]
         return PointTypes.bogdanov_takens
     end
 
