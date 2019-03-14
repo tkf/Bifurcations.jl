@@ -68,6 +68,7 @@ function resolve_points!(
                 if !exception_handler(err, interval)
                     rethrow()
                 end
+                continue
             end
             push_special_point!(sweep, point)
         end
