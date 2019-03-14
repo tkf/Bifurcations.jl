@@ -52,8 +52,8 @@ x0
 
 ```
 2-element Array{Float64,1}:
- 1.0000000000000058
- 1.822900672704169
+ 1.0000000000000049
+ 1.822900672704133
 ```
 
 
@@ -81,16 +81,18 @@ As the limit cycle is only approximately specified, solver option `start_from_ne
 solver = init(
     prob;
     start_from_nearest_root = true,
+    max_branches = 0,
 )
 @time solve!(solver)
 ```
 
 ```
- 11.229523 seconds (10.25 M allocations: 1.330 GiB, 9.16% gc time)
+ 14.504114 seconds (10.34 M allocations: 1.361 GiB, 8.68% gc time)
 BifurcationSolver <Continuous>
 # sweeps             : 2
-# points             : 35
-# branches           : 0
+# points             : 36
+# branches           : 1
+# saddle_node        : 1
 ```
 
 

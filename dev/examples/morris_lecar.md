@@ -15,7 +15,7 @@ Modified Morris-Lecar model from [Dhooge, Govaerts, Kuznetsov (2003)]:
 
 ```julia
 using Bifurcations
-using Bifurcations: special_points
+using Bifurcations: special_intervals
 using Bifurcations.Codim1
 using Bifurcations.Codim2
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
@@ -40,7 +40,7 @@ solver = init(
 ```
 
 ```
-  1.071011 seconds (1.71 M allocations: 92.278 MiB, 5.91% gc time)
+  1.295154 seconds (1.72 M allocations: 92.824 MiB, 6.77% gc time)
 Codim1Solver <Continuous>
 # sweeps             : 2
 # points             : 41
@@ -67,7 +67,7 @@ plt1 = plot(solver)
 
 
 ```julia
-hopf_point, = special_points(solver, Codim1.PointTypes.hopf)
+hopf_point, = special_intervals(solver, Codim1.PointTypes.hopf)
 ```
 
 ```
@@ -97,7 +97,7 @@ hopf_solver1 = init(
 ```
 
 ```
- 22.399752 seconds (42.81 M allocations: 2.015 GiB, 10.83% gc time)
+ 24.889201 seconds (42.82 M allocations: 2.015 GiB, 11.80% gc time)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 55
@@ -112,7 +112,7 @@ Codim2Solver <Continuous>
 
 
 ```julia
-bautin_point, = special_points(hopf_solver1, Codim2.PointTypes.bautin)
+bautin_point, = special_intervals(hopf_solver1, Codim2.PointTypes.bautin)
 ```
 
 ```
@@ -147,7 +147,7 @@ flc_solver = init(
 ```
 
 ```
-324.280604 seconds (60.45 M allocations: 25.321 GiB, 5.45% gc time)
+437.573442 seconds (60.77 M allocations: 25.526 GiB, 4.27% gc time)
 BifurcationSolver <Continuous>
 # sweeps             : 1
 # points             : 46
@@ -183,7 +183,7 @@ plt_periods = plot(flc_solver, (x=:p1, y=:period))
 
 
 ```julia
-sn_point, = special_points(solver, Codim1.PointTypes.saddle_node)
+sn_point, = special_intervals(solver, Codim1.PointTypes.saddle_node)
 ```
 
 ```
@@ -220,7 +220,7 @@ sn_solver = init(
 ```
 
 ```
-  3.003994 seconds (4.71 M allocations: 251.058 MiB, 7.01% gc time)
+  3.232869 seconds (4.71 M allocations: 251.461 MiB, 7.16% gc time)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 385
@@ -237,7 +237,7 @@ Codim2Solver <Continuous>
 
 ```julia
 hopf_prob2 = BifurcationProblem(
-    special_points(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
+    special_intervals(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
     sn_solver,
 )
 hopf_solver2 = init(hopf_prob2)
@@ -245,7 +245,7 @@ hopf_solver2 = init(hopf_prob2)
 ```
 
 ```
-  0.002529 seconds (4.01 k allocations: 674.609 KiB)
+  0.002378 seconds (4.01 k allocations: 674.766 KiB)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 11
