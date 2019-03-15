@@ -109,7 +109,7 @@ Merge continuations and draw the bifurcation diagram:
 plt2 = plot()
 for s in codim2_solvers
     n = length(s.sol.sweeps[1].super.u[1])
-    plot!(plt2, s, vars=(n - 1, n))
+    plot!(plt2, s, (x = n - 1, y = n))
 end
 savefig(plt2, "bazykin85-2.png"); nothing # hide
 ```
