@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <meta name="author" content="tkf">
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Internals - Bifurcations.jl</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome-4.5.0.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="../css/highlight.css">
+        <link href="../assets/Documenter.css" rel="stylesheet">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js"></script>
+        <script src="../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../js/highlight.pack.js"></script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="..">Bifurcations.jl</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                    <li >
+                        <a href="../api/">API</a>
+                    </li>
+                    <li class="active">
+                        <a href="./">Internals</a>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Examples <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                            
+<li >
+    <a href="../examples/">Examples</a>
+</li>
+                            
+<li >
+    <a href="../examples/calcium/">Calcium</a>
+</li>
+                            
+<li >
+    <a href="../examples/van_der_pol/">Van der pol</a>
+</li>
+                            
+<li >
+    <a href="../examples/morris_lecar/">Morris lecar</a>
+</li>
+                        </ul>
+                    </li>
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                    <li >
+                        <a rel="next" href="../api/">
+                            <i class="fa fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../examples/">
+                            Next <i class="fa fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/internals.md"><i class="fa fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#internals">Internals</a></li>
+            <li><a href="#continuation-problem">Continuation problem</a></li>
+            <li><a href="#continuation-algorithm">Continuation algorithm</a></li>
+            <li><a href="#bifurcation-problem">Bifurcation problem</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<p><a id='Internals-1'></a></p>
+<h1 id="internals">Internals</h1>
+<p><a id='Continuation-problem-1'></a></p>
+<h2 id="continuation-problem">Continuation problem</h2>
+<p><a id='Bifurcations.Continuations.AbstractContinuationProblem' href='#Bifurcations.Continuations.AbstractContinuationProblem'>#</a>
+<strong><code>Bifurcations.Continuations.AbstractContinuationProblem</code></strong> &mdash; <em>Type</em>.</p>
+<p>Definition of continuation problem.</p>
+<p>Numerical continuation algorithms find curves in $\mathbb R^{N}$ implicitly defined by</p>
+<p>
+<script type="math/tex; mode=display">
+H(u) = 0
+</script>
+</p>
+<p>where $H: \mathbb R^{N} \to \mathbb R^{N-1}$.</p>
+<p>A continuation problem type (a subtype of <code>AbstractContinuationProblem</code>) defines problems for such algorithms to solve by providing how to compute:</p>
+<ul>
+<li>$H(u)$: <a href="./#Bifurcations.Continuations.residual"><code>residual</code></a>, <a href="./#Bifurcations.Continuations.residual!"><code>residual!</code></a></li>
+<li>its derivative $\partial H /  \partial u$: <a href="./#Bifurcations.Continuations.residual_jacobian!"><code>residual_jacobian!</code></a></li>
+<li>an initial guess $u_0$: <a href="./#Bifurcations.Continuations.get_u0"><code>get_u0</code></a></li>
+<li>and computation cache: <a href="./#Bifurcations.Continuations.get_prob_cache"><code>get_prob_cache</code></a>.</li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L1-L21' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.AbstractProblemCache' href='#Bifurcations.Continuations.AbstractProblemCache'>#</a>
+<strong><code>Bifurcations.Continuations.AbstractProblemCache</code></strong> &mdash; <em>Type</em>.</p>
+<pre><code>AbstractProblemCache{P &lt;: AbstractContinuationProblem}
+</code></pre>
+
+<p>Cache for computing $H$ and its Jacobian.</p>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L24-L28' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.residual' href='#Bifurcations.Continuations.residual'>#</a>
+<strong><code>Bifurcations.Continuations.residual</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>residual(u, cache) ↦ H
+</code></pre>
+
+<p>Compute $H(u) \in \mathbb R^{N - 1}$ (aka in-place computation). The definition of $H$ is specified by <code>cache</code>.</p>
+<p>The name <code>residual</code> of the function is came from the problem we are to solve: i.e., find the set of $u$ such that $H(u) = 0$.  Thus, the vector returned by <code>residual(u, cache)</code> is considered to be a residual.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
+<li><code>cache::AbstractProblemCache</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L31-L45' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.residual!' href='#Bifurcations.Continuations.residual!'>#</a>
+<strong><code>Bifurcations.Continuations.residual!</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>residual!(H, u, cache) ↦ H
+</code></pre>
+
+<p>Compute $H(u) \in \mathbb R^{N - 1}$ and store the result in <code>H</code> (aka out-of-place computation). The definition of $H$ is specified by <code>cache</code>.</p>
+<p>See also: <a href="./#Bifurcations.Continuations.residual"><code>residual</code></a></p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>H::AbstractVector</code> (size: <code>(N - 1,)</code>)</li>
+<li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
+<li><code>cache::AbstractProblemCache</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L48-L61' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.residual_jacobian!' href='#Bifurcations.Continuations.residual_jacobian!'>#</a>
+<strong><code>Bifurcations.Continuations.residual_jacobian!</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>residual_jacobian!(H, J, u, cache) ↦ (H, J)
+</code></pre>
+
+<p>Compute $H(u)$ and its Jacobian $\partial H /  \partial u$.</p>
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>H::AbstractVector</code> (size: <code>(N - 1,)</code>) $= H(u)$</li>
+<li><code>J::AbstractMatrix</code> (size: <code>(N - 1, N)</code>) $= \partial H /  \partial u$</li>
+<li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
+<li><code>cache::AbstractProblemCache</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L64-L74' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.isindomain' href='#Bifurcations.Continuations.isindomain'>#</a>
+<strong><code>Bifurcations.Continuations.isindomain</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>isindomain(u, cache) :: Bool
+</code></pre>
+
+<p><strong>Arguments</strong></p>
+<ul>
+<li><code>u::AbstractVector</code> (size: <code>(N,)</code>)</li>
+<li><code>cache::AbstractProblemCache</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L77-L83' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.get_prob_cache' href='#Bifurcations.Continuations.get_prob_cache'>#</a>
+<strong><code>Bifurcations.Continuations.get_prob_cache</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>get_prob_cache(prob::AbstractContinuationProblem) :: AbstractProblemCache
+</code></pre>
+
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L86-L88' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcations.Continuations.get_u0' href='#Bifurcations.Continuations.get_u0'>#</a>
+<strong><code>Bifurcations.Continuations.get_u0</code></strong> &mdash; <em>Function</em>.</p>
+<pre><code>get_u0(prob::AbstractContinuationProblem) ↦ u0
+</code></pre>
+
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/interface.jl#L93-L95' class='documenter-source'>source</a><br></p>
+<p><a id='Continuation-algorithm-1'></a></p>
+<h2 id="continuation-algorithm">Continuation algorithm</h2>
+<p><a id='Bifurcations.Continuations.ContinuationCache' href='#Bifurcations.Continuations.ContinuationCache'>#</a>
+<strong><code>Bifurcations.Continuations.ContinuationCache</code></strong> &mdash; <em>Type</em>.</p>
+<p>Cache for Euler-Newton continuation method.</p>
+<p>See <a href="./#Bifurcations.Continuations.AbstractContinuationProblem"><code>AbstractContinuationProblem</code></a> for the mathematical setup.</p>
+<p><strong>Fields</strong></p>
+<ul>
+<li><code>prob_cache</code></li>
+<li><code>u</code> (size: <code>(N,)</code>)</li>
+<li><code>H</code> (size: <code>(N - 1,)</code>) $= H(u)$</li>
+<li><code>J</code> (size: <code>(N - 1, N)</code>) $= \partial H / \partial u$</li>
+<li><code>Q</code> (size: <code>(N - 1, N)</code>): temporary array for the QR decomposition</li>
+<li><code>h::Real</code>: step size</li>
+<li><code>direction::Int</code>: +1 or -1</li>
+<li><code>corrector_success::Bool</code></li>
+<li><code>adaptation_success::Bool</code></li>
+<li><code>simple_bifurcation::Bool</code></li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/continuations/euler_newton.jl#L12-L28' class='documenter-source'>source</a><br></p>
+<p><a id='Bifurcation-problem-1'></a></p>
+<h2 id="bifurcation-problem">Bifurcation problem</h2>
+<p><a id='Bifurcations.FixedPointBifurcationProblem' href='#Bifurcations.FixedPointBifurcationProblem'>#</a>
+<strong><code>Bifurcations.FixedPointBifurcationProblem</code></strong> &mdash; <em>Type</em>.</p>
+<p>Fixed point bifurcation problem.</p>
+<p>See also: <a href="./#Bifurcations.Continuations.AbstractContinuationProblem"><code>AbstractContinuationProblem</code></a></p>
+<p><strong>Fields</strong></p>
+<ul>
+<li><code>homotopy::Function</code>: A function to compute $H(x, t)$ where $H$ is a homotopy $H: \mathbb R^N \times \mathbb R \to \mathbb R^N$. Function <code>homotopy</code> must be callable in one of the following form: <code>homotopy(x, p, t) ↦ H</code> (return <code>H</code>) for mutable state type or <code>homotopy(H, x, p, t)</code> (mutate <code>H</code>) for immutable state type.</li>
+<li><code>homotopy_jacobian::Union{Function, Nothing}</code>: A function to compute $H(x, t)$ and its Jacobian $J = \partial H / \partial (x, t) \in \mathbb R^{N \times (N+1)}$. Function <code>homotopy_jacobian</code> must be callable in one of the following form: <code>homotopy_jacobian(x, p, t) ↦ (H, J)</code> (return <code>(H, J)</code>) or <code>homotopy_jacobian(H, J, x, p, t)</code> (mutate <code>H</code> and <code>J</code>).</li>
+<li><code>u0::Union{AbstractArray, Real}</code>: Initial state.</li>
+<li><code>t0::Real</code>: Initial parameter.</li>
+<li><code>t_domain::Tuple{&lt;:Real, &lt;:Real}</code>: Range of the parameter.</li>
+<li><code>phase_space::Tuple{typeof(u0), typeof(u0)}</code>: A pair of lower and upper bound of the phase space.  Default is unbounded.</li>
+<li><code>p</code>: Model parameter (constants).</li>
+</ul>
+<p><a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/8865832d7c11bb2a4ee8954f217c81adbbf23746/src/fixedpoint.jl#L8-L32' class='documenter-source'>source</a><br></p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>var base_url = '..';</script>
+        <script src="../js/base.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_HTML"></script>
+        <script src="../assets/mathjaxhelper.js"></script>
+        <script src="../search/require.js"></script>
+        <script src="../search/search.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&larr;</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>&rarr;</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    </body>
+</html>
