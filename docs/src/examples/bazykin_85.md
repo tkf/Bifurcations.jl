@@ -23,14 +23,14 @@ savefig(plt1, "bazykin85-1.png"); nothing # hide
 Let's follow the Hopf and Saddle-Node bifurcations:
 
 ```@example bazykin85
-using Bifurcations: special_points
+using Bifurcations: special_intervals
 using Bifurcations.Codim1
 using Setfield: @lens
 
 sn_point, = sort!(
-    special_points(solver, Codim1.PointTypes.saddle_node),
+    special_intervals(solver, Codim1.PointTypes.saddle_node),
     by=p->p.u0[1])
-hopf_point, = special_points(solver, Codim1.PointTypes.hopf)
+hopf_point, = special_intervals(solver, Codim1.PointTypes.hopf)
 
 point_list = [sn_point, hopf_point]
 
@@ -65,8 +65,7 @@ Switch to Hopf bifurcation via Bogdanov-Takens bifurcation:
 ```@example bazykin85
 using Bifurcations.Codim2
 bt_point, = sort(
-    special_points(sn_solver1,
-                   Codim2.PointTypes.bogdanov_takens);
+    special_intervals(sn_solver1, Codim2.PointTypes.bogdanov_takens);
     by = p -> p.u0[end - 1],  # α
     rev = true)
 hopf_prob = BifurcationProblem(bt_point, sn_solver1)
@@ -83,7 +82,7 @@ Switch to the fold bifurcation of limit cycle via Bautin bifurcation:
 
 ```@example bazykin85
 using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
-bautin_point_list = special_points(hopf_solver2, Codim2.PointTypes.bautin)
+bautin_point_list = special_intervals(hopf_solver2, Codim2.PointTypes.bautin)
 @assert length(bautin_point_list) == 1
 bautin_point, = bautin_point_list
 flc_prob = FoldLimitCycleProblem(
