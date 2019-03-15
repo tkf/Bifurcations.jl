@@ -18,7 +18,7 @@ BifurcationProblem(point::AbstractSpecialPoint,
 Construct codimension-2 bifurcation problem given a bifurcation `point`.
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/828218782b02b8c931806f1ffdcfa840183df46b/src/codim2/problem.jl#L9-L17' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/f8b5d0fe1281d3d57faa881637b1509720a5627d/src/codim2/problem.jl#L9-L17' class='documenter-source'>source</a><br>
 
 
 ```
@@ -35,5 +35,5 @@ BifurcationProblem(ode_or_map::AbstractODEProblem,
   * `t_domain :: Tuple`: A pair of numbers specifying the lower and upper bound for `param_axis`.
 
 
-<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/828218782b02b8c931806f1ffdcfa840183df46b/src/diffeq.jl#L34-L45' class='documenter-source'>source</a><br>
+<a target='_blank' href='https://github.com/tkf/Bifurcations.jl/blob/f8b5d0fe1281d3d57faa881637b1509720a5627d/src/diffeq.jl#L34-L45' class='documenter-source'>source</a><br>
 

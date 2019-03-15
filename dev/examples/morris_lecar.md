@@ -40,7 +40,7 @@ solver = init(
 ```
 
 ```
-  1.295154 seconds (1.72 M allocations: 92.824 MiB, 6.77% gc time)
+  1.087136 seconds (1.71 M allocations: 92.942 MiB, 6.15% gc time)
 Codim1Solver <Continuous>
 # sweeps             : 2
 # points             : 41
@@ -97,7 +97,7 @@ hopf_solver1 = init(
 ```
 
 ```
- 24.889201 seconds (42.82 M allocations: 2.015 GiB, 11.80% gc time)
+ 22.580544 seconds (42.82 M allocations: 2.015 GiB, 11.76% gc time)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 55
@@ -147,7 +147,7 @@ flc_solver = init(
 ```
 
 ```
-437.573442 seconds (60.77 M allocations: 25.526 GiB, 4.27% gc time)
+338.029449 seconds (61.40 M allocations: 25.955 GiB, 5.57% gc time)
 BifurcationSolver <Continuous>
 # sweeps             : 1
 # points             : 46
@@ -220,7 +220,7 @@ sn_solver = init(
 ```
 
 ```
-  3.232869 seconds (4.71 M allocations: 251.461 MiB, 7.16% gc time)
+  2.828916 seconds (4.71 M allocations: 251.520 MiB, 7.99% gc time)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 385
@@ -245,7 +245,7 @@ hopf_solver2 = init(hopf_prob2)
 ```
 
 ```
-  0.002378 seconds (4.01 k allocations: 674.766 KiB)
+  0.002358 seconds (4.01 k allocations: 674.766 KiB)
 Codim2Solver <Continuous>
 # sweeps             : 2
 # points             : 11

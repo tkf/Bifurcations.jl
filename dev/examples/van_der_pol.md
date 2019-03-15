@@ -52,8 +52,8 @@ x0
 
 ```
 2-element Array{Float64,1}:
- 1.0000000000000049
- 1.822900672704133
+ 1.0000000000000058
+ 1.822900672704169
 ```
 
 
@@ -87,10 +87,10 @@ solver = init(
 ```
 
 ```
- 14.504114 seconds (10.34 M allocations: 1.361 GiB, 8.68% gc time)
+ 11.230765 seconds (10.22 M allocations: 1.320 GiB, 10.61% gc time)
 BifurcationSolver <Continuous>
 # sweeps             : 2
-# points             : 36
+# points             : 35
 # branches           : 1
 # saddle_node        : 1
 ```
