@@ -11,7 +11,6 @@ solve!(solver)
 Plot codimension-one bifurcations:
 
 ```@example bazykin85
-using Bifurcations: plot, plot!  # workaround
 using Plots
 
 plt1 = plot(solver.sol)
