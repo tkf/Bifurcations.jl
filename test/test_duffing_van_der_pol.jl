@@ -7,7 +7,7 @@ using Bifurcations.Continuations: as, ContinuationSolution, sweeps_as_vectors
 
 using DiffEqBase: remake
 param = DuffingVanDerPol.DuffingVanDerPolParam(
-    d = 0.1,
+    d = 0.01,
 )
 ode = remake(
     DuffingVanDerPol.ode,
@@ -35,7 +35,7 @@ prob = LimitCycleProblem(
     degree = degree,
     xs0 = xs0,
     l0 = 2π,
-    t_domain = (0.01, 1.5), # bound it so that it works with above `num_mesh`
+    t_domain = (0.0001, 1.5), # bound it so that it works with above `num_mesh`
     t0 = get(ode.p, DuffingVanDerPol.param_axis),
 )
 
@@ -44,13 +44,19 @@ prob = LimitCycleProblem(
 solver = init(
     prob;
     start_from_nearest_root = true,
+    bidirectional_first_sweep = false,
 )
 solve!(solver)
 
+#=
 parameters, = let sol = as(solver.sol, ContinuationSolution)
     sweeps_as_vectors(sol, length(sol.sweeps[1].u[1]))
 end
-@test minimum(parameters) <= prob.t_domain[1]
+=#
+parameters = let sol = as(solver.sol, ContinuationSolution)
+    [u[end] for u in sol.sweeps[1].u]
+end
+# @test minimum(parameters) <= prob.t_domain[1]
 @test maximum(parameters) >= prob.t_domain[end]
 
 end  # module
