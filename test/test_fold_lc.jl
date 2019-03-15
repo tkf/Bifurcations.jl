@@ -30,10 +30,10 @@ solver_lc = init(
 @time solve!(solver_lc)
 
 @info "Testing LimitCycleProblem solution..."
-@test_broken length(solver_lc.sweeps[1].super.simple_bifurcation) == 0
+@test length(solver_lc.sol.sweeps[1].super.simple_bifurcation) == 0
 
 @time flc_points = resolved_points(solver_lc)
-@test_broken length(flc_points) == 1
+@test length(flc_points) == 1
 @test flc_points[1].point_type === Codim1LimitCycle.PointTypes.saddle_node
 
 @info "Preparing FoldLimitCycleProblem..."
