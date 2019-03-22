@@ -6,7 +6,9 @@ Calcium channel model taken from PyDSTool example.  See:
 * [Tutorial - PyDSTool Wiki](http://www2.gsu.edu/~matrhc/Tutorial.html)
 * [Bifurcation Analysis · DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/analysis/bifurcation.html)
 
-Use [`QuickTypes.@qstruct_fp`][QuickTypes] to define model parameter:
+Use
+[`QuickTypes.@qstruct_fp`](https://github.com/cstjean/QuickTypes.jl)
+to define model parameter:
 
 ```@example calcium
 using QuickTypes: @qstruct_fp
@@ -25,7 +27,8 @@ using QuickTypes: @qstruct_fp
 nothing # hide
 ```
 
-Define the model as in [DifferentialEquations.jl][ODEProblem]:
+Define the model as in
+[DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/tutorials/ode_example.html):
 
 ```@example calcium
 using Parameters: @unpack
@@ -40,7 +43,8 @@ function f(u, p::CalciumParam, t)
 end
 ```
 
-Create an [`ODEProblem`][ODEProblem]:
+Create an
+[`ODEProblem`](http://docs.juliadiffeq.org/latest/tutorials/ode_example.html):
 
 ```@example calcium
 using DiffEqBase: ODEProblem
@@ -116,6 +120,4 @@ savefig(plt2, "calcium-2.png"); nothing # hide
 ![](calcium-2.png)
 
 
-[QuickTypes]: https://github.com/cstjean/QuickTypes.jl
 
-[ODEProblem]: http://docs.juliadiffeq.org/latest/tutorials/ode_example.html

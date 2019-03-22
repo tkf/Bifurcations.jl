@@ -1,11 +1,10 @@
 # Modified Morris-Lecar model
 
-Modified Morris-Lecar model from [Dhooge, Govaerts, Kuznetsov (2003)]:
+Modified Morris-Lecar model from
+[Dhooge, Govaerts, Kuznetsov (2003)](https://doi.org/10.1007/3-540-44860-8_72):
 
-* [Dhooge, Govaerts, Kuznetsov (2003)].
+* Dhooge, Govaerts, Kuznetsov (2003).
   Numerical Continuation of Fold Bifurcations of Limit Cycles in MATCONT
-
-[Dhooge, Govaerts, Kuznetsov (2003)]: https://doi.org/10.1007/3-540-44860-8_72
 
 ```@example morris_lecar
 using Bifurcations

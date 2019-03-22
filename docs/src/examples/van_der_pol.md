@@ -9,9 +9,7 @@ using Plots
 using OrdinaryDiffEq: Tsit5, remake
 ```
 
-Create an [`ODEProblem`][ODEProblem] and solve it:
-
-[ODEProblem]: http://docs.juliadiffeq.org/latest/tutorials/ode_example.html
+Create an [`ODEProblem`](http://docs.juliadiffeq.org/latest/tutorials/ode_example.html) and solve it:
 
 ```@example van_der_pol
 ode = remake(
