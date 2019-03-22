@@ -10,7 +10,7 @@ if get(ENV, "TRAVIS", "") == "true"
 end
 if get(ENV, "CI_GROUP", "") == "docs"
     append!(packages, [
-        "Documenter", "QuickTypes", "Roots",
+        "Documenter", "Roots",
     ])
 end
 specs = [

@@ -6,14 +6,10 @@ Calcium channel model taken from PyDSTool example.  See:
 * [Tutorial - PyDSTool Wiki](http://www2.gsu.edu/~matrhc/Tutorial.html)
 * [Bifurcation Analysis · DifferentialEquations.jl](http://docs.juliadiffeq.org/latest/analysis/bifurcation.html)
 
-Use
-[`QuickTypes.@qstruct_fp`](https://github.com/cstjean/QuickTypes.jl)
-to define model parameter:
+We define the model parameter using a `NamedTuple`:
 
 ```@example calcium
-using QuickTypes: @qstruct_fp
-
-@qstruct_fp CalciumParam(
+calcium_param = (
     vl = -60,
     vca = 120,
     i = -220.0,
@@ -33,7 +29,7 @@ Define the model as in
 ```@example calcium
 using Parameters: @unpack
 
-function f(u, p::CalciumParam, t)
+function f(u, p, t)
     @unpack vl, vca, i, gl, gca, c, v1, v2 = p
     v = u[1]
     w = u[2]
@@ -52,8 +48,7 @@ using StaticArrays: SVector
 
 u0 = SVector(-170.0, -170.0)
 tspan = (0.0, 30.0)  # ignored by Bifurcations.jl
-p = CalciumParam()
-ode = ODEProblem(f, u0, tspan, p)
+ode = ODEProblem(f, u0, tspan, calcium_param)
 ```
 
 Create a bifurcation problem:
