@@ -6,7 +6,6 @@ end, color=:blue)
 println()
 flush(stdout)
 using Documenter
-import DocumenterMarkdown
 using DiffEqBase: AbstractODEProblem
 using Setfield: Lens
 import Plots
@@ -24,7 +23,22 @@ let strict = get(ENV, "DOCS_STRICT", "yes") == "yes"
     strict = $strict
     """
     makedocs(
+        # modules = [Bifurcations],
+        pages = [
+            "Home" => "index.md",
+            "API" => "api.md",
+            "Examples" => [
+                hide("examples.md"),
+                "examples/calcium.md",
+                "examples/van_der_pol.md",
+                "examples/morris_lecar.md",
+            ],
+            hide("Internals" => "internals.md"),
+        ],
+        repo = "https://github.com/tkf/Bifurcations.jl/blob/{commit}{path}#L{line}",
+        sitename = "Bifurcations.jl",
+        authors = "Takafumi Arakaki",
+        assets = [],
         strict = strict,
-        format = DocumenterMarkdown.Markdown()
     )
 end
