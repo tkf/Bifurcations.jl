@@ -13,7 +13,7 @@ using Plots</code></pre></div><p>Solve continuation of the equilibrium point:</p
     max_branches = 0,
     nominal_angle_rad = 2π * (5 / 360),
 )
-@time solve!(solver)</code></pre><pre><code class="language-none">  1.004121 seconds (1.72 M allocations: 92.848 MiB, 4.98% gc time)
+@time solve!(solver)</code></pre><pre><code class="language-none">  1.067342 seconds (1.72 M allocations: 93.173 MiB, 6.40% gc time)
 Codim1Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 41
@@ -33,7 +33,7 @@ hopf_solver1 = init(
     codim2_prob;
     nominal_angle_rad = 0.01,
 )
-@time solve!(hopf_solver1)</code></pre><pre><code class="language-none"> 21.356936 seconds (42.82 M allocations: 2.016 GiB, 8.65% gc time)
+@time solve!(hopf_solver1)</code></pre><pre><code class="language-none"> 23.234786 seconds (42.82 M allocations: 2.015 GiB, 11.67% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 55
@@ -57,7 +57,7 @@ flc_solver = init(
     nominal_angle_rad = 2π * (5 / 360),
     max_samples = 500,
 )
-@time solve!(flc_solver)</code></pre><pre><code class="language-none">450.798391 seconds (61.41 M allocations: 25.957 GiB, 4.05% gc time)
+@time solve!(flc_solver)</code></pre><pre><code class="language-none">433.694073 seconds (61.41 M allocations: 25.958 GiB, 4.34% gc time)
 BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 1
 # points             : 46
@@ -82,7 +82,7 @@ sn_solver = init(
     max_samples = 1000,
     start_from_nearest_root = true,
 )
-@time solve!(sn_solver)</code></pre><pre><code class="language-none">  3.151764 seconds (4.71 M allocations: 251.552 MiB, 6.96% gc time)
+@time solve!(sn_solver)</code></pre><pre><code class="language-none">  3.127347 seconds (4.71 M allocations: 251.515 MiB, 7.20% gc time)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 385
@@ -93,7 +93,7 @@ Codim2Solver &lt;Continuous&gt;
     sn_solver,
 )
 hopf_solver2 = init(hopf_prob2)
-@time solve!(hopf_solver2)</code></pre><pre><code class="language-none">  0.002225 seconds (4.01 k allocations: 674.766 KiB)
+@time solve!(hopf_solver2)</code></pre><pre><code class="language-none">  0.002383 seconds (4.01 k allocations: 674.766 KiB)
 Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 11
