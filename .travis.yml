@@ -24,7 +24,7 @@ matrix:
       before_script:
         - docs/instantiate.jl
       script:
-        - docs/build.jl
+        - travis_wait 60 docs/build.jl
       after_success:
         - docs/deploy.jl
 notifications:
