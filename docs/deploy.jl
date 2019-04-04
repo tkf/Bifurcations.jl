@@ -1,3 +1,11 @@
+#!/bin/bash
+# -*- mode: julia -*-
+#=
+JULIA="${JULIA:-julia --color=yes --startup-file=no}"
+export JULIA_PROJECT="$(dirname ${BASH_SOURCE[0]})"
+exec ${JULIA} "${BASH_SOURCE[0]}" "$@"
+=#
+
 using Documenter
 
 # https://docs.travis-ci.com/user/environment-variables/#Default-Environment-Variables

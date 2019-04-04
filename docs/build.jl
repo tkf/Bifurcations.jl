@@ -1,3 +1,11 @@
+#!/bin/bash
+# -*- mode: julia -*-
+#=
+JULIA="${JULIA:-julia --color=yes --startup-file=no}"
+export JULIA_PROJECT="$(dirname ${BASH_SOURCE[0]})"
+exec ${JULIA} "${BASH_SOURCE[0]}" "$@"
+=#
+
 printstyled(let
     message = " Warnings below (if any) are fine. "
     margin = (displaysize(stdout)[2] - length(message)) ÷ 2

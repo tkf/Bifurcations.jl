@@ -8,13 +8,6 @@ packages = []
 if get(ENV, "TRAVIS", "") == "true"
     append!(packages, ["Coverage"])
 end
-if get(ENV, "CI_GROUP", "") == "docs"
-    append!(packages, [
-        "Documenter", "Roots",
-    ])
-end
-specs = [
-    PackageSpec.(packages)...
-]
+specs = PackageSpec.(packages)
 @info string("Installing:\n", join(specs, "\n"))
 Pkg.add(specs)

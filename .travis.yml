@@ -16,7 +16,17 @@ env:
     - CI_GROUP=0
     - CI_GROUP=1
     - CI_GROUP=2
-    - CI_GROUP=docs
+matrix:
+  include:
+    - name: "Documentation"
+      language: julia
+      julia: 1.0
+      before_script:
+        - docs/instantiate.jl
+      script:
+        - docs/build.jl
+      after_success:
+        - docs/deploy.jl
 notifications:
   email: false
 git:
@@ -26,23 +36,11 @@ before_script:
   - julia --color=yes ci/before_script.jl
 
 script:
-  - if [ "$CI_GROUP" = docs ]; then
-    travis_wait 60 julia --color=yes docs/build.jl;
-    else
-    julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.test(coverage=true)';
-    fi
+  - julia --color=yes --check-bounds=yes -e 'using Pkg; Pkg.test(coverage=true)'
 
 after_success:
   - cat Manifest.toml
   # push coverage results to Coveralls
-  - if [ "$CI_GROUP" != docs ]; then
-    julia --color=yes -e 'using Coverage; Coveralls.submit(Coveralls.process_folder())';
-    fi
+  - julia --color=yes -e 'using Coverage; Coveralls.submit(Coveralls.process_folder())'
   # push coverage results to Codecov
-  - if [ "$CI_GROUP" != docs ]; then
-    julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())';
-    fi
-  # build documents
-  - if [ "$CI_GROUP" = docs -a "$TRAVIS_JULIA_VERSION" = 1.0 ]; then
-    julia --color=yes docs/deploy.jl;
-    fi
+  - julia --color=yes -e 'using Coverage; Codecov.submit(Codecov.process_folder())'
