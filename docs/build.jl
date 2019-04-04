@@ -46,7 +46,6 @@ let strict = get(ENV, "DOCS_STRICT", "yes") == "yes"
         repo = "https://github.com/tkf/Bifurcations.jl/blob/{commit}{path}#L{line}",
         sitename = "Bifurcations.jl",
         authors = "Takafumi Arakaki",
-        assets = [],
         strict = strict,
     )
 end
