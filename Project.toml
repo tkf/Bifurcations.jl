@@ -22,5 +22,5 @@ SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
-DiffEqBase = "4.21.2"
-Setfield = "0.3"
+DiffEqBase = "≥ 4.21.2"
+Setfield = "≥ 0.3"
