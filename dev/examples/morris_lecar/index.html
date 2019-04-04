@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Modified Morris-Lecar model · Bifurcations.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Bifurcations.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><a class="toctext" href="../../api/">API</a></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="../calcium/">Calcium channel model</a></li><li><a class="toctext" href="../van_der_pol/">Continuation of limit cycles of the van der Pol oscillator</a></li><li class="current"><a class="toctext" href>Modified Morris-Lecar model</a><ul class="internal"></ul></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Modified Morris-Lecar model</a></li></ul><a class="edit-page" href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/examples/morris_lecar.md#L"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Modified Morris-Lecar model</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Modified-Morris-Lecar-model-1" href="#Modified-Morris-Lecar-model-1">Modified Morris-Lecar model</a></h1><p>Modified Morris-Lecar model from <a href="https://doi.org/10.1007/3-540-44860-8_72">Dhooge, Govaerts, Kuznetsov (2003)</a>:</p><ul><li>Dhooge, Govaerts, Kuznetsov (2003). Numerical Continuation of Fold Bifurcations of Limit Cycles in MATCONT</li></ul><div><pre><code class="language-julia">using Bifurcations
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Modified Morris-Lecar model · Bifurcations.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link href="../../assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><h1>Bifurcations.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="../../search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li><a class="toctext" href="../../">Home</a></li><li><a class="toctext" href="../../api/">API</a></li><li><span class="toctext">Examples</span><ul><li><a class="toctext" href="../calcium/">Calcium channel model</a></li><li><a class="toctext" href="../van_der_pol/">Continuation of limit cycles of the van der Pol oscillator</a></li><li class="current"><a class="toctext" href>Modified Morris-Lecar model</a><ul class="internal"></ul></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li>Examples</li><li><a href>Modified Morris-Lecar model</a></li></ul><a class="edit-page" href="https://github.com/tkf/Bifurcations.jl/blob/master/docs/src/examples/morris_lecar.md#L"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Modified Morris-Lecar model</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Modified-Morris-Lecar-model-1" href="#Modified-Morris-Lecar-model-1">Modified Morris-Lecar model</a></h1><p>Modified Morris-Lecar model from <a href="https://doi.org/10.1007/3-540-44860-8_72">Dhooge, Govaerts, Kuznetsov (2003)</a>:</p><ul><li>Dhooge, Govaerts, Kuznetsov (2003). Numerical Continuation of Fold Bifurcations of Limit Cycles in MATCONT</li></ul><pre><code class="language-julia">using Bifurcations
 using Bifurcations: special_intervals
 using Bifurcations.Codim1
 using Bifurcations.Codim2
@@ -7,23 +7,24 @@ using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.Examples: MorrisLecar
 
 using Setfield: @lens
-using Plots</code></pre></div><p>Solve continuation of the equilibrium point:</p><div><pre><code class="language-julia">solver = init(
+using Plots</code></pre><p>Solve continuation of the equilibrium point:</p><pre><code class="language-julia">solver = init(
     MorrisLecar.make_prob();
     start_from_nearest_root = true,
     max_branches = 0,
     nominal_angle_rad = 2π * (5 / 360),
 )
-@time solve!(solver)</code></pre><pre><code class="language-none">  1.049176 seconds (1.72 M allocations: 93.172 MiB, 6.52% gc time)
-Codim1Solver &lt;Continuous&gt;
+@time solve!(solver)</code></pre><pre><code class="language-none">Codim1Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 41
 # branches           : 0
 # saddle_node        : 2
-# hopf               : 1</code></pre></div><p>Plot equilibriums in <span>$(u_1, y)$</span>-space:</p><div><pre><code class="language-julia">plt1 = plot(solver)</code></pre></div><p><img src="../morris_lecar-1.png" alt/></p><h3><a class="nav-anchor" id="Start-continuation-of-Hopf-bifurcation-1" href="#Start-continuation-of-Hopf-bifurcation-1">Start continuation of Hopf bifurcation</a></h3><div><pre><code class="language-julia">hopf_point, = special_intervals(solver, Codim1.PointTypes.hopf)</code></pre><pre><code class="language-none">1-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim1.PointTypes.PointType,StaticArrays.SArray{Tuple{3},Float64,1,3},StaticArrays.SArray{Tuple{2,3},Float64,2,6}},1}:
+# hopf               : 1
+</code></pre><p>Plot equilibriums in <span>$(u_1, y)$</span>-space:</p><pre><code class="language-julia">plt1 = plot(solver)</code></pre><p><img src="../morris_lecar-1.png" alt/></p><h3><a class="nav-anchor" id="Start-continuation-of-Hopf-bifurcation-1" href="#Start-continuation-of-Hopf-bifurcation-1">Start continuation of Hopf bifurcation</a></h3><pre><code class="language-julia">hopf_point, = special_intervals(solver, Codim1.PointTypes.hopf)</code></pre><pre><code class="language-none">1-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim1.PointTypes.PointType,StaticArrays.SArray{Tuple{3},Float64,1,3},StaticArrays.SArray{Tuple{2,3},Float64,2,6}},1}:
  SpecialPointInterval &lt;Continuous hopf&gt;
 happened between:
   u0 = [0.0407794, 0.306436, 0.0883504]
-  u1 = [0.0314239, 0.279715, 0.0601626]</code></pre></div><p>Solve continuation of the Hopf point:</p><div><pre><code class="language-julia">codim2_prob = BifurcationProblem(
+  u1 = [0.0314239, 0.279715, 0.0601626]
+</code></pre><p>Solve continuation of the Hopf point:</p><pre><code class="language-julia">codim2_prob = BifurcationProblem(
     hopf_point,
     solver,
     (@lens _.z),
@@ -33,16 +34,17 @@ hopf_solver1 = init(
     codim2_prob;
     nominal_angle_rad = 0.01,
 )
-@time solve!(hopf_solver1)</code></pre><pre><code class="language-none"> 21.754005 seconds (42.82 M allocations: 2.017 GiB, 10.50% gc time)
-Codim2Solver &lt;Continuous&gt;
+@time solve!(hopf_solver1)</code></pre><pre><code class="language-none">Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 55
 # branches           : 0
-# bautin             : 1</code></pre></div><h3><a class="nav-anchor" id="Start-continuation-of-fold-bifurcation-of-limit-cycle-at-Bautin-bifurcation-1" href="#Start-continuation-of-fold-bifurcation-of-limit-cycle-at-Bautin-bifurcation-1">Start continuation of fold bifurcation of limit cycle at Bautin bifurcation</a></h3><div><pre><code class="language-julia">bautin_point, = special_intervals(hopf_solver1, Codim2.PointTypes.bautin)</code></pre><pre><code class="language-none">1-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim2.PointTypes.PointType,StaticArrays.SArray{Tuple{9},Float64,1,9},StaticArrays.SArray{Tuple{8,9},Float64,2,72}},1}:
+# bautin             : 1
+</code></pre><h3><a class="nav-anchor" id="Start-continuation-of-fold-bifurcation-of-limit-cycle-at-Bautin-bifurcation-1" href="#Start-continuation-of-fold-bifurcation-of-limit-cycle-at-Bautin-bifurcation-1">Start continuation of fold bifurcation of limit cycle at Bautin bifurcation</a></h3><pre><code class="language-julia">bautin_point, = special_intervals(hopf_solver1, Codim2.PointTypes.bautin)</code></pre><pre><code class="language-none">1-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim2.PointTypes.PointType,StaticArrays.SArray{Tuple{9},Float64,1,9},StaticArrays.SArray{Tuple{8,9},Float64,2,72}},1}:
  SpecialPointInterval &lt;Continuous bautin&gt;
 happened between:
   u0 = [0.0298965, 0.350792, 0.367924, 0.382807, 0.82458, -0.195343, 2.0067, 0.165926, 0.0745246]
-  u1 = [0.0295841, 0.35324, 0.367212, 0.382471, 0.824988, -0.19562, 2.01059, 0.169869, 0.0734342]</code></pre></div><p>Construct a problem for fold bifurcation of the limit cycle starting at <code>bautin_point</code>:</p><div><pre><code class="language-julia">flc_prob = FoldLimitCycleProblem(
+  u1 = [0.0295841, 0.35324, 0.367212, 0.382471, 0.824988, -0.19562, 2.01059, 0.169869, 0.0734342]
+</code></pre><p>Construct a problem for fold bifurcation of the limit cycle starting at <code>bautin_point</code>:</p><pre><code class="language-julia">flc_prob = FoldLimitCycleProblem(
     bautin_point,
     hopf_solver1;
     period_bound = (0.0, 14.0),  # see below
@@ -57,20 +59,21 @@ flc_solver = init(
     nominal_angle_rad = 2π * (5 / 360),
     max_samples = 500,
 )
-@time solve!(flc_solver)</code></pre><pre><code class="language-none">435.994652 seconds (61.41 M allocations: 25.957 GiB, 4.07% gc time)
-BifurcationSolver &lt;Continuous&gt;
+@time solve!(flc_solver)</code></pre><pre><code class="language-none">BifurcationSolver &lt;Continuous&gt;
 # sweeps             : 1
 # points             : 46
-# branches           : 0</code></pre></div><p>Plot the limit cycles at fold bifurcation boundaries:</p><div><pre><code class="language-julia">plt_state_space = plot_state_space(flc_solver)</code></pre></div><p><img src="../morris_lecar-state_space.png" alt/></p><p>The continuation was configured to stop just before the period is about to diverge.  Note that stopping at larger period requires larger mesh size.</p><div><pre><code class="language-julia">plt_periods = plot(flc_solver, (x=:p1, y=:period))</code></pre></div><p><img src="../morris_lecar-periods.png" alt/></p><h3><a class="nav-anchor" id="Start-continuation-of-Saddle-Node-bifurcation-1" href="#Start-continuation-of-Saddle-Node-bifurcation-1">Start continuation of Saddle-Node bifurcation</a></h3><div><pre><code class="language-julia">sn_point, = special_intervals(solver, Codim1.PointTypes.saddle_node)</code></pre><pre><code class="language-none">2-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim1.PointTypes.PointType,StaticArrays.SArray{Tuple{3},Float64,1,3},StaticArrays.SArray{Tuple{2,3},Float64,2,6}},1}:
+# branches           : 0
+</code></pre><p>Plot the limit cycles at fold bifurcation boundaries:</p><pre><code class="language-julia">plt_state_space = plot_state_space(flc_solver)</code></pre><p><img src="../morris_lecar-state_space.png" alt/></p><p>The continuation was configured to stop just before the period is about to diverge.  Note that stopping at larger period requires larger mesh size.</p><pre><code class="language-julia">plt_periods = plot(flc_solver, (x=:p1, y=:period))</code></pre><p><img src="../morris_lecar-periods.png" alt/></p><h3><a class="nav-anchor" id="Start-continuation-of-Saddle-Node-bifurcation-1" href="#Start-continuation-of-Saddle-Node-bifurcation-1">Start continuation of Saddle-Node bifurcation</a></h3><pre><code class="language-julia">sn_point, = special_intervals(solver, Codim1.PointTypes.saddle_node)</code></pre><pre><code class="language-none">2-element Array{Bifurcations.BifurcationsBase.SpecialPointInterval{Bifurcations.BifurcationsBase.Continuous,Bifurcations.Codim1.PointTypes.PointType,StaticArrays.SArray{Tuple{3},Float64,1,3},StaticArrays.SArray{Tuple{2,3},Float64,2,6}},1}:
  SpecialPointInterval &lt;Continuous saddle_node&gt;
 happened between:
   u0 = [-0.0311873, 0.140701, -0.0206357]
   u1 = [-0.0373, 0.130813, -0.0205553]
-
+  
  SpecialPointInterval &lt;Continuous saddle_node&gt;
 happened between:
   u0 = [-0.23318, 0.00999542, 0.0828906]
-  u1 = [-0.247815, 0.00818325, 0.0832351]</code></pre></div><p>Going back to the original continuation of the equilibrium, let&#39;s start continuation of one of the saddle-node bifurcation:</p><div><pre><code class="language-julia">sn_prob = BifurcationProblem(
+  u1 = [-0.247815, 0.00818325, 0.0832351]
+</code></pre><p>Going back to the original continuation of the equilibrium, let&#39;s start continuation of one of the saddle-node bifurcation:</p><pre><code class="language-julia">sn_prob = BifurcationProblem(
     sn_point,
     solver,
     (@lens _.z),
@@ -82,24 +85,24 @@ sn_solver = init(
     max_samples = 1000,
     start_from_nearest_root = true,
 )
-@time solve!(sn_solver)</code></pre><pre><code class="language-none">  3.053453 seconds (4.71 M allocations: 251.520 MiB, 7.38% gc time)
-Codim2Solver &lt;Continuous&gt;
+@time solve!(sn_solver)</code></pre><pre><code class="language-none">Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 385
 # branches           : 0
 # cusp               : 1
-# bogdanov_takens    : 1</code></pre></div><h3><a class="nav-anchor" id="Switching-to-continuation-of-Hopf-bifurcation-at-Bogdanov-Takens-bifurcation-1" href="#Switching-to-continuation-of-Hopf-bifurcation-at-Bogdanov-Takens-bifurcation-1">Switching to continuation of Hopf bifurcation at Bogdanov-Takens bifurcation</a></h3><div><pre><code class="language-julia">hopf_prob2 = BifurcationProblem(
+# bogdanov_takens    : 1
+</code></pre><h3><a class="nav-anchor" id="Switching-to-continuation-of-Hopf-bifurcation-at-Bogdanov-Takens-bifurcation-1" href="#Switching-to-continuation-of-Hopf-bifurcation-at-Bogdanov-Takens-bifurcation-1">Switching to continuation of Hopf bifurcation at Bogdanov-Takens bifurcation</a></h3><pre><code class="language-julia">hopf_prob2 = BifurcationProblem(
     special_intervals(sn_solver, Codim2.PointTypes.bogdanov_takens)[1],
     sn_solver,
 )
 hopf_solver2 = init(hopf_prob2)
-@time solve!(hopf_solver2)</code></pre><pre><code class="language-none">  0.002644 seconds (4.01 k allocations: 674.766 KiB)
-Codim2Solver &lt;Continuous&gt;
+@time solve!(hopf_solver2)</code></pre><pre><code class="language-none">Codim2Solver &lt;Continuous&gt;
 # sweeps             : 2
 # points             : 11
 # branches           : 0
-# bogdanov_takens    : 1</code></pre></div><h3><a class="nav-anchor" id="Phase-diagram-1" href="#Phase-diagram-1">Phase diagram</a></h3><div><pre><code class="language-julia">plt2 = plot()
+# bogdanov_takens    : 1
+</code></pre><h3><a class="nav-anchor" id="Phase-diagram-1" href="#Phase-diagram-1">Phase diagram</a></h3><pre><code class="language-julia">plt2 = plot()
 for s in [hopf_solver1, flc_solver, sn_solver, hopf_solver2]
     plot!(plt2, s)
 end
-plot!(plt2, ylim=(0.03, 0.15), xlim=(-0.05, 0.2))</code></pre></div><p><img src="../morris_lecar-2.png" alt/></p><footer><hr/><a class="previous" href="../van_der_pol/"><span class="direction">Previous</span><span class="title">Continuation of limit cycles of the van der Pol oscillator</span></a><a class="next" href="../../internals/"><span class="direction">Next</span><span class="title">Internals</span></a></footer></article></body></html>
+plot!(plt2, ylim=(0.03, 0.15), xlim=(-0.05, 0.2))</code></pre><p><img src="../morris_lecar-2.png" alt/></p><footer><hr/><a class="previous" href="../van_der_pol/"><span class="direction">Previous</span><span class="title">Continuation of limit cycles of the van der Pol oscillator</span></a><a class="next" href="../../internals/"><span class="direction">Next</span><span class="title">Internals</span></a></footer></article></body></html>
