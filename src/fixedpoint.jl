@@ -115,7 +115,7 @@ FixedPointBifurcationCache(prob::FixedPointBifurcationProblem) =
     _FixedPointBifurcationCache(statekind(prob), hasjac(prob), prob)
 
 _FixedPointBifurcationCache(::Any, ::HasJac, prob) =
-    FixedPointBifurcationCache(prob, nothing)
+    FixedPointBifurcationCache(prob, nothing, nothing)
 
 function _FixedPointBifurcationCache(::MutableState, ::NoJac, prob)
     x = get_u0(prob)

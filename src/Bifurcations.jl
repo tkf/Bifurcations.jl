@@ -5,6 +5,8 @@ export init, solve, solve!, step!
 using DiffEqBase: init, solve, solve!, step!
 # see: continuations/solver.jl
 
+using FillArrays: Eye
+
 include("utils/utils.jl")
 
 include("continuations/continuations.jl")

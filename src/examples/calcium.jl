@@ -1,6 +1,7 @@
 module Calcium
 
-using DiffEqBase: ODEProblem
+using DiffEqBase: ODEProblem, ODEFunction
+using ForwardDiff
 using Parameters: @with_kw, @unpack
 using StaticArrays: SVector
 using Setfield: @lens
@@ -38,7 +39,13 @@ function f(du, u, p, t)
     nothing
 end
 
+function jac(J, u, p, t)
+    J .= ForwardDiff.jacobian(x -> f(x, p, t), SVector{2}(u))
+    nothing
+end
+
 const _f = f
+const _jac = jac
 
 
 make_prob(
@@ -75,5 +82,14 @@ function make_codim2_prob(
         t_domain;
         kwargs...)
 end
+
+make_ode_jac(
+    p = CalciumParam();
+    u0 = [-170.0, -170.0],
+    tspan = (0.0, 30.0),
+    f = _f,
+    jac = _jac,
+) =
+    ODEProblem(ODEFunction{true}(f; jac = jac), u0, tspan, p)
 
 end  # module
