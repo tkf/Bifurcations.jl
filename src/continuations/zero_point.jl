@@ -1,7 +1,7 @@
 using Parameters: @with_kw
 
-calc_direction(_u, J, _L, Q) = det(vcat(J, (@view Q[end:end, :])))
-# Q[:, end] --- tangent w/o det-fixing
+calc_direction(_u, J, _L, Q) = det(vcat(J, rawtangentmat(Q)))
+# rawtangentmat(Q) == Q[end:end, 1] --- tangent w/o det-fixing
 
 find_simple_bifurcation!(cache, opts, sbint) =
     find_simple_bifurcation!(cache, opts, sbint.u0, sbint.u1,
@@ -57,12 +57,12 @@ function find_zero!(cache, opts, f, u0, u1, direction)
 
     H, J = residual_jacobian!(H, J, u1, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = _lq!(Q, A)
+    L, Q = _lq!(A)
     f1 = f(u1, J, L, Q)
 
     H, J = residual_jacobian!(H, J, u0, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = _lq!(Q, A)
+    L, Q = _lq!(A)
     tJ = tangent(L, Q)
     f0 = f(u0, J, L, Q)
 

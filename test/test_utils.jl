@@ -39,8 +39,7 @@ end
 
         L0, Q0 = lq(Array(A))
 
-        Q1 = copy(Q0)
-        L1, Q1 = _lq!(Q1, copy(A))
+        L1, Q1 = _lq!(copy(A))
 
         @test L0 ≈ L1
         @test Q0 ≈ Q1

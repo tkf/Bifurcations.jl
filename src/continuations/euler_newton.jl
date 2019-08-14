@@ -83,10 +83,21 @@ ContinuationCache(prob::AbstractContinuationProblem, args...) =
     verbose::Bool = false
 end
 
+rawtangent(Q) = vec(rawtangentmat(Q))
+function rawtangentmat(Q)
+    if Q isa StaticArray
+        return bottomrow(Q)
+    else
+        x = zeros(1, size(Q, 1))
+        x[1, end] = 1
+        rmul!(x, Q)
+        return x
+    end
+end
 
 function tangent(L, Q)
-    tJ = Q[end, :]
-    if det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
+    tJ = rawtangent(Q)
+    if _det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
         tJ *= -1
     end
     return tJ
@@ -102,7 +113,7 @@ function current_tangent(cache::ContinuationCache,
 
     H, J = residual_jacobian!(H, J, u, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = _lq!(Q, A)
+    L, Q = _lq!(A)
     return tangent(L, Q)
 end
 
@@ -118,15 +129,15 @@ function corrector_step!(H::HType,
                          }
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
-    L, Q = _lq!(Q, A)
-    y = (@view L[1:end-1, 1:end-1]) \ H
-    dv = (@view Q[1:end-1, :])' * y
+    L, Q = _lq!(A)
+    y = vcat((@view L[1:end-1, 1:end-1]) \ H, false)
+    dv = Q' * y
     w = v - dv
     return (w :: vType,
             dv,
             H :: HType,
             L,
-            Q :: QType,
+            Q,
             J :: JType)
 end
 

@@ -3,6 +3,7 @@ module ArrayUtils
 using Base: typename
 
 using LinearAlgebra
+using LinearAlgebra: QRPackedQ, LQPackedQ
 
 using ForwardDiff: Dual
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
@@ -84,16 +85,31 @@ zero_if_nan(x) = isnan(x) ? zero(x) : x
     A
 end
 
-function _lq!(Q, A)
-    F = lq!(A)
-    lmul!(F.Q, eye!(Q))  # Q = Matrix(F[:Q])[...]; but lesser allocation
-    return (LowerTriangular(F.L), Q)
+function _lq!(A)
+    L, Q = lq!(A)
+    return (LowerTriangular(L), Q)
 end
 
-function _lq!(_, A::SMatrix)
+function _lq!(A::SMatrix)
     Q, R = qr(A')
     return (LowerTriangular(R'), Q')
 end
+
+# https://github.com/JuliaLang/julia/pull/32887
+_det(Q::Union{QRPackedQ{T}, LQPackedQ{T}}) where {T <: Real} =
+    isodd(count(!iszero, Q.τ)) ? -1 : 1
+_det(Q::StaticArray) = det(Q)
+
+@inline foldlargs(op, x) = x
+@inline foldlargs(op, x1, x2, xs...) = foldlargs(op, op(x1, x2), xs...)
+
+bottomrow(M::AbstractArray) = @view M[end:end, :]
+bottomrow(M::SMatrix{S1, S2}) where {S1, S2} =
+    SMatrix{1, S2}(
+        foldlargs((), ntuple(identity, S2)...) do xs, i
+            (xs..., @inbounds M[S1, i])
+        end
+    )
 
 function _normalize!(x)
     normalize!(x)
