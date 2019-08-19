@@ -3,7 +3,7 @@ module ArrayUtils
 using Base: typename
 
 using LinearAlgebra
-using LinearAlgebra: QRPackedQ, LQPackedQ
+using LinearAlgebra: QRPackedQ, LQPackedQ, BlasFloat
 
 using ForwardDiff: Dual
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
@@ -85,12 +85,14 @@ zero_if_nan(x) = isnan(x) ? zero(x) : x
     A
 end
 
-function _lq!(A)
+const MatrixWithLQ = StridedMatrix{<:BlasFloat}
+
+function _lq!(A::MatrixWithLQ)
     L, Q = lq!(A)
     return (LowerTriangular(L), Q)
 end
 
-function _lq!(A::SMatrix)
+function _lq!(A)
     Q, R = qr(A')
     return (LowerTriangular(R'), Q')
 end
