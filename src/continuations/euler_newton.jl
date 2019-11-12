@@ -87,8 +87,16 @@ rawtangent(Q) = vec(rawtangentmat(Q))
 function rawtangentmat(Q)
     if Q isa StaticArray
         return bottomrow(Q)
+    elseif Q isa Adjoint  # CuArray takes this path
+        x′ = _similar(Q, size(Q, 1), 1)
+        fill!(x′, false)
+        x′[end, 1] = 1
+        # return (Q' * x′)'  # `vec(x::Adjoint{_, <:CuArray})` does not work
+        return conj(reshape(Q' * x′, 1, :))
     else
-        x = zeros(1, size(Q, 1))
+        x = _similar(Q, 1, size(Q, 1))
+        fill!(x, false)
+        # x .= (x .* false .+ CartesianIndices(x)) .== Ref(size(x))  # InvalidIRError
         x[1, end] = 1
         rmul!(x, Q)
         return x
@@ -97,7 +105,7 @@ end
 
 function tangent(L, Q)
     tJ = rawtangent(Q)
-    if _det(Q) * det(@view L[1:end-1, 1:end-1]) < 0
+    if _det(Q) * _det(popbottomright(L)) < 0
         tJ *= -1
     end
     return tJ
@@ -130,7 +138,7 @@ function corrector_step!(H::HType,
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = _lq!(A)
-    y = vcat((@view L[1:end-1, 1:end-1]) \ H, false)
+    y = vcat(popbottomright(L) \ H, _zeros(J, 1))
     dv = Q' * y
     w = v - dv
     return (w :: vType,

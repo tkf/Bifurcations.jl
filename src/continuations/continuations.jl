@@ -4,7 +4,7 @@ using StaticArrays: StaticArray, SMatrix, SVector, SArray
 import DiffEqBase: solve, solve!, init, step!
 
 using ..ArrayUtils: _similar, _zeros, isalmostzero, zero_if_nan, _lq!, _det,
-    _normalize!, bottomrow
+    _normalize!, bottomrow, popbottomright
 
 include("interface.jl")
 include("euler_newton.jl")

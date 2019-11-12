@@ -30,4 +30,12 @@ using Bifurcations: examples
     end
 end
 
+@testset "include(gpu.jl)" begin
+    m = Module()
+    @test begin
+        Base.include(m, "../examples/gpu.jl")
+        m.solver isa Bifurcations.Continuations.ContinuationSolver
+    end
+end
+
 end  # module

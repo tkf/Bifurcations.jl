@@ -22,14 +22,14 @@ function find_more_nullspaces(Q, L, rtol, atol, max_steps)
     end
     =#
 
-    L2 = @view L[1:end-1, 1:end-1]
+    L2 = popbottomright(L)
     R2 = L2'
     if Q isa StaticArray
         L2 = LowerTriangular(SMatrix{size(L2)...}(L2))
         R2 = UpperTriangular(SMatrix{size(R2)...}(R2))
     end
     y, cotJ = _find_more_nullspaces(L2, R2, y, rtol, atol, max_steps)
-    tJ2 = (@view Q[1:end-1, :])' * y
+    tJ2 = (Q[1:end-1, :])' * y
 
     if y isa SVector  # TODO: don't
         return SVector(tJ2...), cotJ
@@ -47,7 +47,7 @@ function _find_more_nullspaces(L2, R2,
         ker_L2 = nullspace(Array(L2))
         ker_R2 = nullspace(Array(R2))
         if size(ker_L2, 2) > 0 && size(ker_R2, 2) > 0
-            return (T(@view ker_L2[:, 1]), T(@view ker_R2[:, 1]))
+            return (T(ker_L2[:, 1]), T(ker_R2[:, 1]))
         end
         # Otherwise, let's fallback to the manual method.
     end
