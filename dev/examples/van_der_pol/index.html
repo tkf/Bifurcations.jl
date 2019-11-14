@@ -20,8 +20,8 @@ t1 = find_zero((t) -&gt; sol(t)[1] - 1, (t0 + 3, t0 + 7))
 x0 = sol(t0)
 @assert all(isapprox.(x0, sol(t1); rtol=1e-2))
 x0</code></pre><pre><code class="language-none">2-element Array{Float64,1}:
- 1.0000000000000058
- 1.822900672704169 </code></pre><p>Then a <code>LimitCycleProblem</code> can be constructed from the <code>ode</code>.</p><pre><code class="language-julia">num_mesh = 50
+ 1.000000000000025
+ 1.822900836879164</code></pre><p>Then a <code>LimitCycleProblem</code> can be constructed from the <code>ode</code>.</p><pre><code class="language-julia">num_mesh = 50
 degree = 5
 t_domain = (0.01, 4.0)  # so that it works with this `num_mesh` / `degree`
 prob = LimitCycleProblem(
@@ -40,5 +40,4 @@ prob = LimitCycleProblem(
 # points             : 35
 # branches           : 1
 # saddle_node        : 1
-</code></pre><p>By default, <code>plot_state_space</code> plots limit cycles colored by its period:</p><pre><code class="language-julia">plt_lc = plot_state_space(solver)</code></pre><pre><code class="language-none">┌ Warning: Multiple series with different color share a colorbar. Colorbar may not refelct all series correctly.
-└ @ Plots ~/.julia/packages/Plots/Ih71u/src/backends/gr.jl:483</code></pre><p><img src="../van_der_pol-lc.png" alt/></p><footer><hr/><a class="previous" href="../calcium/"><span class="direction">Previous</span><span class="title">Calcium channel model</span></a><a class="next" href="../morris_lecar/"><span class="direction">Next</span><span class="title">Modified Morris-Lecar model</span></a></footer></article></body></html>
+</code></pre><p>By default, <code>plot_state_space</code> plots limit cycles colored by its period:</p><pre><code class="language-julia">plt_lc = plot_state_space(solver)</code></pre><p><img src="../van_der_pol-lc.png" alt/></p><footer><hr/><a class="previous" href="../calcium/"><span class="direction">Previous</span><span class="title">Calcium channel model</span></a><a class="next" href="../morris_lecar/"><span class="direction">Next</span><span class="title">Modified Morris-Lecar model</span></a></footer></article></body></html>
