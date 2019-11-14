@@ -138,6 +138,25 @@ function corrector_step!(H::HType,
     H, J = residual_jacobian!(H, J, v, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = _lq!(A)
+
+    # Following block is a workaround to make test_predator_prey.jl
+    # etc. work.  It was working accidentally since an equivalent of
+    # `popbottomright(L) \ H` below was calling non-StaticArrays
+    # method.  (Although this may not be specific to StaticArrays; it
+    # seems test_vs_svector.jl need this, too.)
+    if isalmostzero(H, eps(eltype(H))) && abs(det(L)) < eps(eltype(L))
+        # Do nothing when there is no need for correction (and
+        # trying to do so throws).
+        w = v
+        dv = zero(v)
+        return (w :: vType,
+                dv,
+                H :: HType,
+                L,
+                Q,
+                J :: JType)
+    end
+
     y = vcat(popbottomright(L) \ H, _zeros(J, 1))
     dv = Q' * y
     w = v - dv
