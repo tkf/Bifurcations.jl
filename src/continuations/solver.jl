@@ -186,7 +186,7 @@ end
 
 
 function residual(u::AbstractArray, cache::AbstractProblemCache)
-    H = similar(@view u[1:end-1])
+    H = similar(u[1:end-1])
     return residual!(H, u, cache)
 end
 
@@ -196,7 +196,7 @@ end
 
 
 function residual_jacobian(u::AbstractArray, cache::AbstractProblemCache)
-    H = similar(@view u[1:end-1])
+    H = similar(u[1:end-1])
     J = similar(H, (length(H), length(u)))
     return residual_jacobian!(H, J, u, cache)
 end

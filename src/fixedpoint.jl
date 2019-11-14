@@ -176,7 +176,7 @@ end
 
 function _residual!(H, u, prob::FixedPointBifurcationProblem,
                     ::MutableState, ::Any)
-    x = @view u[1:end-1]
+    x = u[1:end-1]
     t = u[end]
     prob.homotopy(H, x, prob.p, t)
     return H
@@ -185,7 +185,7 @@ end
 function _residual_jacobian!(H, J, u, cache::FixedPointBifurcationCache,
                              ::MutableState, ::HasJac)
     prob = cache.prob
-    x = @view u[1:end-1]
+    x = u[1:end-1]
     t = u[end]
     prob.homotopy_jacobian(H, J, x, prob.p, t)
     return (H, J)

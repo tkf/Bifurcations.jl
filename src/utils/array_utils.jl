@@ -3,10 +3,11 @@ module ArrayUtils
 using Base: typename
 
 using LinearAlgebra
-using LinearAlgebra: QRPackedQ, LQPackedQ
+using LinearAlgebra: QRPackedQ, LQPackedQ, BlasFloat
 
 using ForwardDiff: Dual
 using StaticArrays: SVector, SMatrix, StaticArray, Size, similar_type
+using ArrayInterface: ismutable
 
 container_array_of(::SVector{S}) where {S} = SVector{S}
 container_array_of(::SMatrix{S1, S2}) where {S1, S2} = SMatrix{S1, S2}
@@ -39,7 +40,15 @@ _eig(A) = eigen(A)
 _eig(A::SMatrix) = eigen(Array(A))
 _eig(A::Adjoint) = eigen(Array(A))
 
-_similar(x::AbstractArray, dims...) = similar(x, dims)
+function _similar(x::AbstractArray, dims...)
+    y = parent(x)
+    if typeof(x) === typeof(y)
+        return similar(x, dims)
+    else
+        return _similar(y, dims...)
+    end
+end
+_similar(x::LinearAlgebra.AbstractQ, dims...) = _similar(x.factors, dims...)
 _similar(x::StaticArray, dims...) = _zeros(x, dims...)
 _zeros(x::AbstractArray{T}, dims...) where T = fill!(similar(x, T, dims), zero(T))
 _zeros(x::StaticArray, dims...) = zeros(similar_type(x, Size(dims)))
@@ -85,20 +94,27 @@ zero_if_nan(x) = isnan(x) ? zero(x) : x
     A
 end
 
-function _lq!(A)
-    L, Q = lq!(A)
-    return (LowerTriangular(L), Q)
-end
-
 function _lq!(A::SMatrix)
     Q, R = qr(A')
     return (LowerTriangular(R'), Q')
 end
 
+function _lq!(A)  # for CuAarray
+    Q, R = qr(A')
+    return (UpperTriangular(R)', Q')
+end
+
+function _lq!(A::Matrix{<:BlasFloat})
+    L, Q = lq!(A)
+    return (LowerTriangular(L), Q)
+end
+
+_det(Q) = det(Q)
 # https://github.com/JuliaLang/julia/pull/32887
 _det(Q::Union{QRPackedQ{T}, LQPackedQ{T}}) where {T <: Real} =
     isodd(count(!iszero, Q.τ)) ? -1 : 1
-_det(Q::StaticArray) = det(Q)
+_det(Q::Transpose) = _det(Q.parent)
+_det(Q::Adjoint) = adjoint(_det(Q.parent))
 
 @inline foldlargs(op, x) = x
 @inline foldlargs(op, x1, x2, xs...) = foldlargs(op, op(x1, x2), xs...)
@@ -110,6 +126,20 @@ bottomrow(M::SMatrix{S1, S2}) where {S1, S2} =
             (xs..., @inbounds M[S1, i])
         end
     )
+
+popbottomright(A) = A[1:end-1, 1:end-1]
+popbottomright(A::Adjoint) = popbottomright(A')'
+popbottomright(A::LowerTriangular) = LowerTriangular(popbottomright(parent(A)))
+popbottomright(A::UpperTriangular) = UpperTriangular(popbottomright(parent(A)))
+
+function popbottomright(A::SMatrix{S1,S2}) where {S1,S2}
+    xs = foldlargs((), ntuple(identity, S2 - 1)...) do xs, j
+        foldlargs(xs, ntuple(identity, S1 - 1)...) do xs, i
+            (xs..., @inbounds A[i, j])
+        end
+    end
+    return SMatrix{S1 - 1,S2 - 1}(xs)
+end
 
 function _normalize!(x)
     normalize!(x)
