@@ -233,6 +233,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
         @debug(
             "Step adaptation",
             # Print some useful statistics:
+            h,
             n2 / n1,
             n1,
             angle,
