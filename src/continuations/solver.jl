@@ -48,6 +48,7 @@ function step!(solver::ContinuationSolver)
     if ! solver.cache.corrector_success
         error("Failed in corrector loop.")
     end
+    @debug "$(solver.i)-th step succeeded"
 
     record!(solver.sol, solver.cache)
     solver.i += 1
@@ -130,6 +131,7 @@ function pre_solve!(wrapper::AbstractContinuationSolver)
     H = residual!(cache.H, cache.u, cache.prob_cache)
     if ! isalmostzero(H, opts.atol)
         if opts.start_from_nearest_root
+            @debug "Finding the nearest root..."
             cache.u = nearest_root!(cache, opts)
         else
             throw(NonRootException("Initial point is not a root", H, cache.u))
@@ -144,9 +146,11 @@ function solve!(wrapper::AbstractContinuationSolver)
     opts = solver.opts
     cache = solver.cache
 
+    @debug "Starting the first sweep..."
     u0 = copy(cache.u)
     sweep!(wrapper; u0=u0)
     if opts.bidirectional_first_sweep
+        @debug "Starting the second sweep..."
         sweep!(wrapper; u0=u0, direction = solver.opts.direction * -1)
     end
 
@@ -167,6 +171,7 @@ function solve!(wrapper::AbstractContinuationSolver)
                 # Stepped outside the domain.  Skip it.
                 continue
             end
+            @debug "Starting $(length(solver.sol.sweeps))-th sweep..."
             sweep!(wrapper;
                    u0 = u1,
                    past_points = [u0],
