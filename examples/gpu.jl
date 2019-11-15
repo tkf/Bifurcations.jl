@@ -53,6 +53,7 @@ opts = ContinuationOptions(
     rtol = 0.05,
     max_branches = 0,
     max_samples = 1,
+    nominal_distance = 0.01N,
     # bidirectional_first_sweep = false,
     # start_from_nearest_root = true,
     verbose = true,
