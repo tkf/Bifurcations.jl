@@ -201,8 +201,10 @@ function predictor_corrector_step!(cache::ContinuationCache,
         n1 = norm(dv)
         tJv = tangent(L, Q)
         angle = acos(min(abs(tJ ⋅ tJv), 1))  # TODO: should I use min?
+        @debug "maximum(abs, H) = $(maximum(abs, H))"
 
         if all(abs.(H) .< min(2 * eps(eltype(H)), atol))
+            @debug "corrector_skipped: The first correction is too close to the zero point."
             # The first correction is too close to the zero point.
             # Then the fractions for step adaptation would not be
             # possible to reliably calculated so let's skip them.
@@ -214,6 +216,7 @@ function predictor_corrector_step!(cache::ContinuationCache,
 
         v, dv, H, L, Q, J = corrector_step!(H, J, Q, v, prob_cache)
         n2 = norm(dv)
+        @debug "maximum(abs, H) = $(maximum(abs, H))"
 
         # step adaptation
         f_contraction =
@@ -226,12 +229,27 @@ function predictor_corrector_step!(cache::ContinuationCache,
             zero_if_nan(f_angle),
         )
         f = max(min(f0, 2), 1/2)
+
+        @debug(
+            "Step adaptation",
+            # Print some useful statistics:
+            n2 / n1,
+            n1,
+            angle,
+            f_contraction,
+            f_distance,
+            f_angle,
+            f0
+        )
+
         h = h / f
         if h < opts.h_min
             break
         elseif isalmostzero(H, atol)
+            @debug "corrector_skipped: isalmostzero(H, atol)"
             @goto corrector_skipped
         elseif f0 <= 2
+            @debug "adaptation_success"
             cache.adaptation_success = true
             @goto adaptation_success
         end
@@ -270,11 +288,13 @@ function predictor_corrector_step!(cache::ContinuationCache,
 
     tJv = tangent(L, Q)
     if tJ ⋅ tJv < 0
+        @debug "switching direction: $(cache.direction) -> $(-cache.direction)"
         cache.direction *= -1
         cache.simple_bifurcation = true
     end
     return v, h
 end
+# TODO: make it possible to compile away `@debug`s?
 
 
 function nearest_root!(cache::ContinuationCache,
