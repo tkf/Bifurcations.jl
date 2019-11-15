@@ -144,7 +144,7 @@ function corrector_step!(H::HType,
     # `popbottomright(L) \ H` below was calling non-StaticArrays
     # method.  (Although this may not be specific to StaticArrays; it
     # seems test_vs_svector.jl need this, too.)
-    if isalmostzero(H, eps(eltype(H))) && abs(det(L)) < eps(eltype(L))
+    if isalmostzero(H, eps(eltype(H))) && abs(_det(L)) < eps(eltype(L))
         # Do nothing when there is no need for correction (and
         # trying to do so throws).
         w = v
