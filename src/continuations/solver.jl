@@ -107,9 +107,6 @@ function sweep!(solver::AbstractContinuationSolver; kwargs...)
     setup = SweepSetup(solver; kwargs...)
     new_sweep!(solver, setup)
     step!(solver, setup.max_steps)
-    if as(solver, ContinuationSolver).opts.verbose
-        println(stdout)
-    end
 end
 
 @with_kw struct NonRootException <: Exception
