@@ -5,6 +5,7 @@ import DiffEqBase: solve, solve!, init, step!
 
 using ..ArrayUtils: _similar, _zeros, isalmostzero, zero_if_nan, _lq!, _det,
     _normalize!, bottomrow, popbottomright
+using ..MiscUtils: @progress_if
 
 include("interface.jl")
 include("euler_newton.jl")

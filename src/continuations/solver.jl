@@ -40,11 +40,6 @@ solve(prob::AbstractContinuationProblem; kwargs...) =
 function step!(solver::ContinuationSolver)
     predictor_corrector_step!(solver.cache, solver.opts)
 
-    if solver.opts.verbose
-        print(stdout, '.')
-        flush(stdout)
-    end
-
     # Errors are now thrown in predictor_corrector_step!.  I need to
     # reconsider the error handling...
     if ! solver.cache.adaptation_success
@@ -66,7 +61,7 @@ function step!(wrapper::AbstractContinuationSolver, max_steps)
     solver = as(wrapper, ContinuationSolver)
     cache = solver.cache
     cache.h = solver.opts.h0
-    for _ in 1:max_steps
+    @progress_if solver.opts.verbose for _ in 1:max_steps
         step!(wrapper)
         if ! isindomain(cache.u, cache.prob_cache)
             return true
