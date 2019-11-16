@@ -79,3 +79,34 @@ function sweeps_as_vectors(sol::ContinuationSolution{uType}, i) where uType
     end
     return curves
 end
+
+
+abstract type LastPoint end
+
+struct ContinuationLastPoint{S <: ContinuationSweep} <: LastPoint
+    sweep::S
+    is_simple_bifurcation::Bool
+end
+
+Base.propertynames(::ContinuationLastPoint) =
+    (:i_sweep, :i_point, :u, :direction, :simple_bifurcation)
+
+function Base.getproperty(point::ContinuationLastPoint, name::Symbol)
+    if name in (:sweep, :is_simple_bifurcation)
+        return getfield(point, name)
+    end
+    sweep = getfield(point, :sweep)
+    is_simple_bifurcation = getfield(point, :is_simple_bifurcation)
+    if name === :i_sweep
+        return sweep.i
+    elseif name === :i_point
+        return length(sweep.u)
+    elseif name === :u
+        return sweep.u[end]
+    elseif name === :direction
+        return sweep.direction
+    elseif name === :simple_bifurcation
+        return is_simple_bifurcation ? sweep.simple_bifurcation[end] : nothing
+    end
+    throw(KeyError(name))
+end

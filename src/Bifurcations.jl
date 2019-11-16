@@ -5,12 +5,14 @@ export init, solve, solve!, step!
 using DiffEqBase: init, solve, solve!, step!
 # see: continuations/solver.jl
 
+export solving!
+
 using FillArrays: Eye
 
 include("utils/utils.jl")
 
 include("continuations/continuations.jl")
-using .Continuations: AbstractContinuationProblem, AbstractProblemCache
+using .Continuations: AbstractContinuationProblem, AbstractProblemCache, solving!
 import .Continuations: get_prob_cache, get_u0, residual!, residual_jacobian!,
     residual, isindomain
 

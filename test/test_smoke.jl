@@ -30,6 +30,19 @@ using Bifurcations: examples
     end
 end
 
+@testset "solving!" begin
+    (_, ex), = examples()
+    prob = ex.prob
+    solver = init(prob)
+    points = []
+    solving!(solver) do x
+        push!(points, (; map(n -> n => getproperty(x, n), propertynames(x))...))
+    end
+    @test length(points) > 0
+    @test keys(points[1]) == (:i_sweep, :i_point, :u, :direction, :simple_bifurcation)
+    @test all(p.u isa AbstractVector for p in points)
+end
+
 @testset "include(gpu.jl)" begin
     m = Module()
     @test begin

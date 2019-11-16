@@ -37,6 +37,11 @@ init(prob::AbstractContinuationProblem; kwargs...) =
 solve(prob::AbstractContinuationProblem; kwargs...) =
     solve!(init(prob; kwargs...)).sol
 
+LastPoint(solver::ContinuationSolver) =
+    ContinuationLastPoint(solver.sol.sweeps[end], solver.cache.simple_bifurcation)
+LastPoint(solver::AbstractContinuationSolver) =
+    LastPoint(as(solver, ContinuationSolver))  # TODO: don't
+
 function step!(solver::ContinuationSolver)
     predictor_corrector_step!(solver.cache, solver.opts)
 
@@ -58,12 +63,13 @@ function record!(sol, cache)
     push_point!(sol, cache)
 end
 
-function step!(wrapper::AbstractContinuationSolver, max_steps)
+function step!(f, wrapper::AbstractContinuationSolver, max_steps)
     solver = as(wrapper, ContinuationSolver)
     cache = solver.cache
     cache.h = solver.opts.h0
     @progress_if solver.opts.verbose for _ in 1:max_steps
         step!(wrapper)
+        f(LastPoint(wrapper))
         if ! isindomain(cache.u, cache.prob_cache)
             return true
         end
@@ -103,10 +109,11 @@ function new_sweep!(solver::ContinuationSolver, setup::SweepSetup)
     push_point!(solver.sol, u0)
 end
 
-function sweep!(solver::AbstractContinuationSolver; kwargs...)
+function sweep!(f, solver::AbstractContinuationSolver; kwargs...)
     setup = SweepSetup(solver; kwargs...)
     new_sweep!(solver, setup)
-    step!(solver, setup.max_steps)
+    f(LastPoint(solver))
+    step!(f, solver, setup.max_steps)
 end
 
 @with_kw struct NonRootException <: Exception
@@ -137,7 +144,23 @@ function pre_solve!(wrapper::AbstractContinuationSolver)
     return wrapper
 end
 
-function solve!(wrapper::AbstractContinuationSolver)
+solve!(solver::AbstractContinuationSolver) = solving!(donothing, solver)
+donothing(_) = nothing
+
+"""
+    solving!(f, solver::AbstractContinuationSolver)
+
+Same as `solve!(solve)` but call `f` after each continuation step with
+the [`LastPoint`](@ref).
+
+# Examples
+```julia
+solving!(solver) do point
+    @show point.i_sweep point.i_point point.u[1] point.u[end]
+end
+```
+"""
+function solving!(f, wrapper::AbstractContinuationSolver)
     pre_solve!(wrapper)
     solver = as(wrapper, ContinuationSolver)
     opts = solver.opts
@@ -145,10 +168,10 @@ function solve!(wrapper::AbstractContinuationSolver)
 
     @debug "Starting the first sweep..."
     u0 = copy(cache.u)
-    sweep!(wrapper; u0=u0)
+    sweep!(f, wrapper; u0=u0)
     if opts.bidirectional_first_sweep
         @debug "Starting the second sweep..."
-        sweep!(wrapper; u0=u0, direction = solver.opts.direction * -1)
+        sweep!(f, wrapper; u0=u0, direction = solver.opts.direction * -1)
     end
 
     # TODO: Detect the case that the solution is isomorphic to the
@@ -169,7 +192,7 @@ function solve!(wrapper::AbstractContinuationSolver)
                 continue
             end
             @debug "Starting $(length(solver.sol.sweeps))-th sweep..."
-            sweep!(wrapper;
+            sweep!(f, wrapper;
                    u0 = u1,
                    past_points = [u0],
                    direction = direction,
