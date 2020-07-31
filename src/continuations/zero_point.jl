@@ -55,10 +55,14 @@ function find_zero!(cache, opts, f, u0, u1, direction)
     rtol = opts.rtol
     atol = opts.atol
 
+    after_correction!(prob_cache, u0)
+
     H, J = residual_jacobian!(H, J, u1, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
     L, Q = _lq!(A)
     f1 = f(u1, J, L, Q)
+
+    # after_correction!(prob_cache, u1)   # TODO: fix?
 
     H, J = residual_jacobian!(H, J, u0, prob_cache)
     A = vcat(J, _zeros(J, 1, size(J, 2)))  # TODO: improve
@@ -97,6 +101,8 @@ function find_zero!(cache, opts, f, u0, u1, direction)
         h = - fv / (fv - fu) * h
         u = v
         fu = fv
+
+        after_correction!(prob_cache, v)
 
         if abs(h) < opts.h_zero
             return v, tJv, L, Q, J

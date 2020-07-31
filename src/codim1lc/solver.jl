@@ -3,6 +3,7 @@ using ..Continuations: AbstractContinuationProblem, AbstractContinuationSolver,
     as, SweepSetup, ContinuationSweep, ContinuationSolution,
     ContinuationCache, ContinuationOptions, ContinuationSolver,
     residual_jacobian!
+import ..Continuations: after_correction!
 
 using ..BifurcationsBase: timekind, Continuous, Discrete
 import ..BifurcationsBase: TimeKind
@@ -124,6 +125,10 @@ end
 testfn(::Val{PointTypes.saddle_node}, ::Continuous, ::LimitCycleCont,
        prob_cache, u, J, L, Q) =
     det(@view J[:, 1:end-1])
+
+function after_correction!(prob_cache::LimitCycleCache, u)
+    set_reference!(prob_cache, u)
+end
 
 function set_reference!(wrapper)
     cache = as(wrapper, ContinuationCache)
