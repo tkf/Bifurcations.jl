@@ -5,6 +5,7 @@ using DiffEqBase: ODEProblem
 using StaticArrays: SVector
 
 using Bifurcations: resolved_points
+using Bifurcations.Codim2LimitCycle: FoldLimitCycleProblem
 using Bifurcations.BifurcationsBase: contkind, HopfCont
 using Bifurcations.Codim2: NormalizingAS, BackReferencingAS
 using Bifurcations.Examples.Bazykin85
@@ -109,6 +110,7 @@ KNOWN_POINTS = Dict(
         @test_nothrow solve!(sn_solver2)
     end
 
+    hopf_solver2 = nothing
     @testset "switch to hopf" begin
         @assert sn_solver1 !== nothing
         # Find the right-most Bogdanov-Takens bifurcation:
@@ -127,6 +129,23 @@ KNOWN_POINTS = Dict(
         bpoints = special_intervals(hopf_solver2, Codim2.PointTypes.bautin)
         @test length(bpoints) == 1
         @test_nothrow resolved_points(hopf_solver2, Codim2.PointTypes.bautin)
+    end
+
+    @testset "switch to fold-LC" begin
+        @assert hopf_solver2 !== nothing
+        bautin_point, = special_intervals(hopf_solver2, Codim2.PointTypes.bautin)
+        flc_prob = FoldLimitCycleProblem(
+            bautin_point,
+            hopf_solver2;
+            num_mesh = 20,
+            degree = 3,
+        )
+        flc_solver = init(
+            flc_prob;
+            start_from_nearest_root = true,
+            max_branches = 0,
+        )
+        solve!(flc_solver)
     end
 
     if haskey(KNOWN_POINTS, ode.p)
